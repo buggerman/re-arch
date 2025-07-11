@@ -256,6 +256,71 @@
             padding: 80px 0;
         }
         
+        .video-guide {
+            background: linear-gradient(180deg, #fef3c7 0%, #fde68a 100%);
+            padding: 80px 0;
+        }
+        
+        .video-container {
+            max-width: 800px;
+            margin: 40px auto;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(10px);
+        }
+        
+        .video-container video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .video-description {
+            max-width: 800px;
+            margin: 40px auto;
+            background: rgba(255,255,255,0.8);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .video-description h3 {
+            color: #1e293b;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            font-weight: 600;
+        }
+        
+        .video-description ul {
+            margin: 20px 0;
+            padding-left: 20px;
+        }
+        
+        .video-description li {
+            margin: 10px 0;
+            color: #475569;
+            line-height: 1.6;
+        }
+        
+        .video-description strong {
+            color: #1e293b;
+        }
+        
+        .video-note {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 25px;
+        }
+        
+        .video-note strong {
+            color: #dc2626;
+        }
+        
         .workflow-steps {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -356,6 +421,15 @@
             .install-instructions {
                 font-size: 1em;
                 padding: 16px;
+            }
+            
+            .video-description {
+                padding: 20px;
+                margin: 20px auto;
+            }
+            
+            .video-description h3 {
+                font-size: 1.2em;
             }
             
             .footer-content {
@@ -487,6 +561,36 @@
                     <div class="step-number">4</div>
                     <h3>Reboot & Enjoy</h3>
                     <p>Reboot into your optimized system with KDE Plasma, snapshots, and performance tuning.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="video-guide">
+        <div class="container">
+            <h2 class="section-title">Installation Video Guide</h2>
+            <p class="section-subtitle">Watch the complete installation process step-by-step</p>
+            
+            <div class="video-container">
+                <video controls preload="metadata" poster="assets/images/arch-logo.svg">
+                    <source src="Installation_Instructions/Arch_install_guide.mp4" type="video/mp4">
+                    <p>Your browser doesn't support video playback. <a href="Installation_Instructions/Arch_install_guide.mp4">Download the video guide</a> instead.</p>
+                </video>
+            </div>
+            
+            <div class="video-description">
+                <h3>📹 What This Guide Covers</h3>
+                <ul>
+                    <li><strong>Complete SSD/HDD Setup:</strong> How to properly partition and format your entire drive for Arch Linux</li>
+                    <li><strong>Btrfs Configuration:</strong> Setting up the required filesystem with proper subvolumes</li>
+                    <li><strong>Base Installation:</strong> Using archinstall with the correct configuration</li>
+                    <li><strong>Chroot Process:</strong> Accessing the installed system for Re-Arch execution</li>
+                    <li><strong>Prerequisites:</strong> Everything the script expects to be in place before running</li>
+                </ul>
+                
+                <div class="video-note">
+                    <strong>⚠️ Important:</strong> This video shows the complete installation process when using your entire SSD/HDD. 
+                    Follow this guide carefully to ensure your system is properly configured for the Re-Arch script.
                 </div>
             </div>
         </div>
