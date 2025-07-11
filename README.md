@@ -76,7 +76,31 @@ https://github.com/buggerman/re-arch/assets/Installation_Instructions/Arch_insta
 
 ## Usage
 
-### Step 1: Boot into Arch Installation Environment
+### 🚀 **New Lite Approach (Recommended)**
+
+For the most reliable installation experience, use our revolutionary lite approach:
+
+#### **Step 1: Enhanced archinstall (Does 80% of the work)**
+```bash
+archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/archinstall-config.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/archinstall-credentials.json
+```
+
+**Default credentials (please change after installation):**
+- Username: `user`
+- Password: `rearch`
+- Root password: `rearch`
+
+#### **Step 2: Lite Configuration Script (Final 20%)**
+```bash
+arch-chroot /mnt
+curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch-lite.sh | bash
+```
+
+### 📋 **Traditional Approach (Legacy)**
+
+For the original single-script approach:
+
+#### **Step 1: Boot into Arch Installation Environment**
 ```bash
 # Boot from Arch installation media
 # Mount your installed system and chroot into it
@@ -84,7 +108,7 @@ mount /dev/sdXY /mnt  # Your root partition
 arch-chroot /mnt
 ```
 
-### Step 2: Run the One-Command Installer
+#### **Step 2: Run the One-Command Installer**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch.sh | bash
 ```

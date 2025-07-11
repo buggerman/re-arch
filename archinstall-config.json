@@ -1,56 +1,92 @@
 {
-    "additional-repositories": [],
     "archinstall-language": "English",
     "audio_config": {
         "audio": "pipewire"
     },
     "bootloader": "Grub",
-    "config_version": "2.8.0",
-    "debug": false,
+    "custom_commands": [],
     "disk_config": {
+        "btrfs_options": {
+            "snapshot_config": null
+        },
         "config_type": "default_layout",
         "device_modifications": [
             {
                 "device": "/dev/sda",
                 "partitions": [
                     {
+                        "btrfs": [],
                         "dev_path": null,
                         "flags": [
-                            "Boot"
+                            "boot"
                         ],
                         "fs_type": "fat32",
                         "mount_options": [],
                         "mountpoint": "/boot",
-                        "obj_id": "boot_partition",
+                        "obj_id": "8bea4d95-d26c-40fd-972d-79d4eba9674e",
                         "size": {
-                            "sector_size": null,
-                            "total_size": 1073741824,
-                            "unit": "B"
+                            "sector_size": {
+                                "unit": "B",
+                                "value": 512
+                            },
+                            "unit": "GiB",
+                            "value": 1
                         },
                         "start": {
-                            "sector_size": null,
-                            "total_size": 1048576,
-                            "unit": "B"
+                            "sector_size": {
+                                "unit": "B",
+                                "value": 512
+                            },
+                            "unit": "MiB",
+                            "value": 1
                         },
+                        "status": "create",
                         "type": "primary"
                     },
                     {
+                        "btrfs": [
+                            {
+                                "mountpoint": "/",
+                                "name": "@"
+                            },
+                            {
+                                "mountpoint": "/home",
+                                "name": "@home"
+                            },
+                            {
+                                "mountpoint": "/var/log",
+                                "name": "@log"
+                            },
+                            {
+                                "mountpoint": "/var/cache/pacman/pkg",
+                                "name": "@pkg"
+                            }
+                        ],
                         "dev_path": null,
                         "flags": [],
                         "fs_type": "btrfs",
-                        "mount_options": [],
-                        "mountpoint": "/",
-                        "obj_id": "root_partition",
+                        "mount_options": [
+                            "compress=zstd"
+                        ],
+                        "mountpoint": null,
+                        "obj_id": "aa56fd66-5653-4f42-b018-9713436abc92",
                         "size": {
-                            "sector_size": null,
-                            "total_size": null,
-                            "unit": "B"
+                            "sector_size": {
+                                "unit": "B",
+                                "value": 512
+                            },
+                            "unit": "B",
+                            "value": 106299392000
                         },
                         "start": {
-                            "sector_size": null,
-                            "total_size": 1074790400,
-                            "unit": "B"
+                            "sector_size": {
+                                "unit": "B",
+                                "value": 512
+                            },
+                            "unit": "B",
+                            "value": 1074790400
                         },
+                        "status": "create",
                         "type": "primary"
                     }
                 ],
@@ -58,7 +94,6 @@
             }
         ]
     },
-    "disk_encryption": null,
     "hostname": "arch-desktop",
     "kernels": [
         "linux-zen"
@@ -66,22 +101,12 @@
     "locale_config": {
         "kb_layout": "us",
         "sys_enc": "UTF-8",
-        "sys_lang": "en_US"
-    },
-    "mirror_config": {
-        "custom_mirrors": [],
-        "mirror_regions": {
-            "Worldwide": [
-                "https://geo.mirror.pkgbuild.com/$repo/os/$arch"
-            ]
-        }
+        "sys_lang": "en_US.UTF-8"
     },
     "network_config": {
         "type": "nm"
     },
-    "no_pkg_lookups": false,
     "ntp": true,
-    "offline": false,
     "packages": [
         "git",
         "curl",
@@ -116,21 +141,18 @@
         "ttf-opensans",
         "noto-fonts"
     ],
-    "parallel downloads": 5,
-    "profile_config": null,
-    "save_config": null,
-    "script": "guided",
-    "silent": false,
-    "swap": false,
-    "timezone": "UTC",
-    "uki": false,
-    "user_config": {
-        "!root-password": "",
-        "user": {
-            "password": "",
-            "sudo": true,
-            "username": "user"
+    "parallel_downloads": 5,
+    "profile_config": {
+        "gfx_driver": null,
+        "greeter": null,
+        "profile": {
+            "custom_settings": {},
+            "details": [],
+            "main": "Minimal"
         }
     },
-    "version": "2.8.0"
+    "services": [],
+    "swap": false,
+    "timezone": "UTC",
+    "version": null
 }

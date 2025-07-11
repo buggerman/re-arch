@@ -6,8 +6,13 @@ A revolutionary approach that moves 80% of the work into archinstall, with a lig
 
 ### **Step 1: Enhanced archinstall (Does 80% of the work)**
 ```bash
-archinstall --config archinstall-config.json
+archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/archinstall-config.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/archinstall-credentials.json
 ```
+
+**Default credentials (please change after installation):**
+- Username: `user` 
+- Password: `rearch`
+- Root password: `rearch`
 
 **What archinstall now handles:**
 - ✅ Linux Zen kernel installation
@@ -64,23 +69,18 @@ curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch-lite
 # Boot from Arch ISO
 ```
 
-### **2. Download Enhanced Configuration**
+### **2. Run Enhanced archinstall with Remote JSON**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/archinstall-config.json > config.json
+archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/archinstall-config.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/archinstall-credentials.json
 ```
 
-### **3. Run Enhanced archinstall**
-```bash
-archinstall --config config.json
-```
-
-### **4. Chroot and Run Lite Script**
+### **3. Chroot and Run Lite Script**
 ```bash
 arch-chroot /mnt
 curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch-lite.sh | bash
 ```
 
-### **5. Reboot and Enjoy**
+### **4. Reboot and Enjoy**
 ```bash
 exit
 umount -R /mnt
