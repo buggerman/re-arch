@@ -425,13 +425,31 @@ configure_bootloader() {
     
     if [[ -n "$boot_device" ]]; then
         info "Installing GRUB to /dev/$boot_device..."
-        grub-install "/dev/$boot_device"
+        if grub-install "/dev/$boot_device"; then
+            success "GRUB installed successfully to /dev/$boot_device"
+        else
+            warning "GRUB installation failed, trying alternative method..."
+            # Fallback: try to get the disk from the root device
+            local disk_device
+            disk_device=$(echo "$root_source" | sed 's/[0-9]*$//')
+            if [[ -b "$disk_device" ]]; then
+                info "Attempting GRUB install to $disk_device..."
+                grub-install "$disk_device"
+            else
+                error "Could not determine valid boot device for GRUB installation"
+            fi
+        fi
     else
-        warning "Could not determine boot device, attempting to install to disk..."
+        warning "Could not determine boot device from lsblk, trying alternative method..."
         # Fallback: try to get the disk from the root device
         local disk_device
         disk_device=$(echo "$root_source" | sed 's/[0-9]*$//')
-        grub-install "$disk_device"
+        if [[ -b "$disk_device" ]]; then
+            info "Attempting GRUB install to $disk_device..."
+            grub-install "$disk_device"
+        else
+            error "Could not determine valid boot device for GRUB installation"
+        fi
     fi
     
     # Configure GRUB for Btrfs snapshots
