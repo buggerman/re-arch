@@ -264,7 +264,8 @@ install_packages() {
         "konsole"
         "dolphin"
         "sddm"
-        "plasma-wayland-session"
+        "plasma-wayland-protocols"
+        "xdg-desktop-portal-kde"
     )
     
     # Performance and system packages
