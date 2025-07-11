@@ -319,7 +319,8 @@ setup_subvolumes() {
 update_fstab() {
     info "Updating /etc/fstab with new subvolume layout..."
     
-    local fstab_backup="/etc/fstab.backup.$(date +%Y%m%d_%H%M%S)"
+    local fstab_backup
+    fstab_backup="/etc/fstab.backup.$(date +%Y%m%d_%H%M%S)"
     
     if [[ "$TEST_MODE" == "true" ]]; then
         info "TEST MODE: Would backup fstab to $fstab_backup"
