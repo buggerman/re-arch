@@ -90,7 +90,7 @@ jobs:
           echo "Testing configuration validation..."
           
           # Test hostname validation
-          if TARGET_HOSTNAME="invalid@hostname" ./re-arch.sh --test 2>/dev/null; then
+          if ./re-arch.sh --hostname "invalid@hostname" --test 2>/dev/null; then
             echo "❌ Hostname validation test failed"
             exit 1
           else
@@ -98,7 +98,7 @@ jobs:
           fi
           
           # Test username validation
-          if USERNAME="1invalid" ./re-arch.sh --test 2>/dev/null; then
+          if ./re-arch.sh --username "1invalid" --test 2>/dev/null; then
             echo "❌ Username validation test failed"
             exit 1
           else
@@ -106,7 +106,7 @@ jobs:
           fi
           
           # Test timezone validation
-          if TIMEZONE="Invalid/Timezone" ./re-arch.sh --test 2>/dev/null; then
+          if ./re-arch.sh --timezone "Invalid/Timezone" --test 2>/dev/null; then
             echo "❌ Timezone validation test failed"
             exit 1
           else
