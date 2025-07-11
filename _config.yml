@@ -1,0 +1,31 @@
+# GitHub Pages configuration for Re-Arch Procedure
+title: "The Re-Arch Procedure"
+description: "Professional automation script for transforming minimal Arch Linux installations"
+url: "https://buggerman.github.io/re-arch"
+repository: "buggerman/re-arch"
+
+# GitHub Pages settings
+theme: null
+plugins:
+  - jekyll-sitemap
+  - jekyll-feed
+
+# SEO and metadata
+lang: en
+author:
+  name: "Re-Arch Project"
+  
+# Social media
+social:
+  links:
+    - https://github.com/buggerman/re-arch
+
+# Exclude files from processing
+exclude:
+  - README.md
+  - LICENSE
+  - re-arch.sh
+  - archinstall-config.json
+  - validate-archinstall.py
+  - .gitignore
+  - .github/
