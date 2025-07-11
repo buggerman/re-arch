@@ -179,9 +179,13 @@ validate_existing_installation() {
 validate_prerequisites() {
     info "Validating prerequisites..."
     
-    # Check if running as root
-    if [[ $EUID -ne 0 ]]; then
+    # Check if running as root (skip in test mode)
+    if [[ $EUID -ne 0 && "$TEST_MODE" != "true" ]]; then
         fatal "This script must be run as root"
+    fi
+    
+    if [[ "$TEST_MODE" == "true" && $EUID -ne 0 ]]; then
+        info "TEST MODE: Skipping root privilege check"
     fi
     
     # Validate all configuration values
@@ -250,22 +254,33 @@ show_configuration() {
 detect_system_info() {
     info "Detecting system information..."
     
-    # Detect EFI or BIOS
-    if [[ -d /sys/firmware/efi ]]; then
+    if [[ "$TEST_MODE" == "true" ]]; then
+        # Use mock values for test mode
         BOOT_MODE="UEFI"
-        BOOT_DEVICE="/dev/$(lsblk -no PKNAME "$(findmnt -n -o SOURCE /boot/efi)" 2>/dev/null || echo "unknown")"
+        BOOT_DEVICE="/dev/test-boot"
+        ROOT_DEVICE="/dev/test-root"
+        if [[ -z "$TARGET_DISK" ]]; then
+            TARGET_DISK="/dev/test-disk"
+        fi
+        info "TEST MODE: Using mock system information"
     else
-        BOOT_MODE="BIOS"
-        BOOT_DEVICE="/dev/$(lsblk -no PKNAME "$(findmnt -n -o SOURCE /boot)" 2>/dev/null || echo "unknown")"
-    fi
-    
-    # Detect current root device
-    ROOT_DEVICE="/dev/$(lsblk -no PKNAME "$(findmnt -n -o SOURCE /)" 2>/dev/null || echo "unknown")"
-    
-    # Use detected device if TARGET_DISK not specified
-    if [[ -z "$TARGET_DISK" ]]; then
-        TARGET_DISK="$ROOT_DEVICE"
-        info "Auto-detected target disk: $TARGET_DISK"
+        # Detect EFI or BIOS
+        if [[ -d /sys/firmware/efi ]]; then
+            BOOT_MODE="UEFI"
+            BOOT_DEVICE="/dev/$(lsblk -no PKNAME "$(findmnt -n -o SOURCE /boot/efi)" 2>/dev/null || echo "unknown")"
+        else
+            BOOT_MODE="BIOS"
+            BOOT_DEVICE="/dev/$(lsblk -no PKNAME "$(findmnt -n -o SOURCE /boot)" 2>/dev/null || echo "unknown")"
+        fi
+        
+        # Detect current root device
+        ROOT_DEVICE="/dev/$(lsblk -no PKNAME "$(findmnt -n -o SOURCE /)" 2>/dev/null || echo "unknown")"
+        
+        # Use detected device if TARGET_DISK not specified
+        if [[ -z "$TARGET_DISK" ]]; then
+            TARGET_DISK="$ROOT_DEVICE"
+            info "Auto-detected target disk: $TARGET_DISK"
+        fi
     fi
     
     info "System detection complete:"

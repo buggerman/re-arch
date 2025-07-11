@@ -293,11 +293,20 @@ jobs:
           # Copy main files
           cp re-arch.sh release/
           cp README.md release/
-          cp LICENSE release/ 2>/dev/null || echo "LICENSE file not found"
+          
+          # Copy license if it exists
+          if [[ -f LICENSE ]]; then
+            cp LICENSE release/
+          else
+            echo "LICENSE file not found, skipping..."
+          fi
           
           # Copy documentation if exists
           if [[ -d docs ]]; then
             cp -r docs release/
+            echo "Documentation copied"
+          else
+            echo "No docs directory found, skipping..."
           fi
           
           # Set proper permissions
