@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Re-Arch Procedure</title>
+    <meta name="description" content="Professional automation script for transforming minimal Arch Linux installations into optimized, resilient desktop systems.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="https://archlinux.org/static/logos/archlinux-icon-crystal-64.svg">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #1793d1 0%, #0e86c2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 80px 0;
+            color: white;
+        }
+        
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .logo img {
+            width: 80px;
+            height: 80px;
+        }
+        
+        h1 {
+            font-size: 3.5em;
+            font-weight: 300;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.4em;
+            font-weight: 300;
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+        
+        .install-section {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 40px;
+            margin: 40px 0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .install-code {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 30px;
+            border-radius: 10px;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+            font-size: 1.1em;
+            margin: 20px 0;
+            position: relative;
+            overflow-x: auto;
+        }
+        
+        .install-code::before {
+            content: '$ ';
+            color: #68d391;
+            font-weight: bold;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.2s;
+        }
+        
+        .copy-button:hover {
+            background: #3182ce;
+        }
+        
+        .features {
+            background: white;
+            padding: 80px 0;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-top: 50px;
+        }
+        
+        .feature {
+            text-align: center;
+            padding: 30px;
+            border-radius: 10px;
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .feature-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        
+        .feature h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: #2d3748;
+        }
+        
+        .feature p {
+            color: #4a5568;
+            line-height: 1.6;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.5em;
+            font-weight: 300;
+            margin-bottom: 20px;
+            color: #2d3748;
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.2em;
+            color: #4a5568;
+            margin-bottom: 40px;
+        }
+        
+        .warning {
+            background: #fed7d7;
+            border: 2px solid #fc8181;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 30px 0;
+        }
+        
+        .warning h3 {
+            color: #c53030;
+            margin-bottom: 10px;
+        }
+        
+        .warning p {
+            color: #742a2a;
+        }
+        
+        .workflow {
+            background: #f7fafc;
+            padding: 80px 0;
+        }
+        
+        .workflow-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+        
+        .step {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .step-number {
+            background: #1793d1;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 0 auto 20px;
+        }
+        
+        footer {
+            background: #2d3748;
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .footer-links a {
+            color: #cbd5e0;
+            text-decoration: none;
+            margin: 0 15px;
+            transition: color 0.2s;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+        }
+        
+        .arch-attribution {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #cbd5e0;
+        }
+        
+        .arch-attribution img {
+            width: 24px;
+            height: 24px;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5em;
+            }
+            
+            .subtitle {
+                font-size: 1.2em;
+            }
+            
+            .install-code {
+                font-size: 0.9em;
+                padding: 20px;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <img src="https://archlinux.org/static/logos/archlinux-icon-crystal-64.svg" alt="Arch Linux Logo">
+            </div>
+            <h1>The Re-Arch Procedure</h1>
+            <p class="subtitle">Transform minimal Arch Linux into an optimized desktop powerhouse</p>
+            
+            <div class="install-section">
+                <h2>One Command Installation</h2>
+                <div class="install-code">
+                    <button class="copy-button" onclick="copyToClipboard()">Copy</button>
+                    curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch.sh | bash
+                </div>
+                <p><strong>Run this command as root in your chrooted Arch Linux environment</strong></p>
+            </div>
+            
+            <div class="warning">
+                <h3>⚠️ Critical Warning</h3>
+                <p>This script makes extensive system-wide changes. Only run on fresh, minimal Arch Linux installations with Btrfs root filesystem.</p>
+            </div>
+        </header>
+    </div>
+    
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">Built for Performance & Resilience</h2>
+            <p class="section-subtitle">Enterprise-grade features for your desktop</p>
+            
+            <div class="features-grid">
+                <div class="feature">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Performance</h3>
+                    <p>Linux Zen kernel, automatic process optimization with ananicy-cpp, and zram memory management for maximum responsiveness.</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>Resilience</h3>
+                    <p>Automatic Btrfs snapshots with GRUB integration. Boot from any snapshot if updates cause issues.</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Clean Architecture</h3>
+                    <p>Separated package management: pacman/AUR for system, Flatpak for apps, LinuxBrew for development.</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">🎨</div>
+                    <h3>Modern Desktop</h3>
+                    <p>KDE Plasma with Wayland support, PipeWire audio, and carefully curated applications.</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Security</h3>
+                    <p>Firewalld network protection and secure defaults throughout the system configuration.</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">⚙️</div>
+                    <h3>Automation</h3>
+                    <p>Fully automated installation with interactive prompts and comprehensive validation checks.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="workflow">
+        <div class="container">
+            <h2 class="section-title">Complete Installation Workflow</h2>
+            <p class="section-subtitle">From bare metal to production desktop in minutes</p>
+            
+            <div class="workflow-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Install Arch Linux</h3>
+                    <p>Use archinstall with our provided configuration for automated base system setup with Btrfs.</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Chroot Environment</h3>
+                    <p>Boot from installation media, mount your system, and chroot into the installed environment.</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Run Re-Arch</h3>
+                    <p>Execute our one-command installer. The script handles everything else automatically.</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Reboot & Enjoy</h3>
+                    <p>Reboot into your optimized system with KDE Plasma, snapshots, and performance tuning.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a href="https://github.com/buggerman/re-arch">GitHub</a>
+                    <a href="https://github.com/buggerman/re-arch/blob/main/README.md">Documentation</a>
+                    <a href="https://github.com/buggerman/re-arch/releases">Releases</a>
+                    <a href="https://github.com/buggerman/re-arch/issues">Support</a>
+                </div>
+                
+                <div class="arch-attribution">
+                    <img src="https://archlinux.org/static/logos/archlinux-icon-crystal-64.svg" alt="Arch Linux">
+                    <span>Powered by <a href="https://archlinux.org" style="color: #68d391;">Arch Linux</a></span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function copyToClipboard() {
+            const command = 'curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch.sh | bash';
+            navigator.clipboard.writeText(command).then(() => {
+                const button = document.querySelector('.copy-button');
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.style.background = '#48bb78';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = '#4299e1';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
