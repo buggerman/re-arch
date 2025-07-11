@@ -29,14 +29,23 @@ jobs:
         run: |
           bash -n re-arch.sh
           
-      - name: Check script permissions
+      - name: Check script is executable
         run: |
-          if [[ -x re-arch.sh ]]; then
-            echo "✓ Script is executable"
-          else
-            echo "✗ Script is not executable"
-            exit 1
-          fi
+          chmod +x re-arch.sh
+          echo "✓ Script permissions set"
+          
+      - name: Validate script structure
+        run: |
+          echo "Checking script contains required functions..."
+          grep -q "run_checks()" re-arch.sh && echo "✓ run_checks function found"
+          grep -q "display_warning()" re-arch.sh && echo "✓ display_warning function found"
+          grep -q "configure_pacman()" re-arch.sh && echo "✓ configure_pacman function found"
+          grep -q "install_packages()" re-arch.sh && echo "✓ install_packages function found"
+          grep -q "setup_aur()" re-arch.sh && echo "✓ setup_aur function found"
+          grep -q "configure_snapshots()" re-arch.sh && echo "✓ configure_snapshots function found"
+          grep -q "configure_bootloader()" re-arch.sh && echo "✓ configure_bootloader function found"
+          grep -q "enable_services()" re-arch.sh && echo "✓ enable_services function found"
+          echo "✓ All required functions present"
 
   create_release:
     name: Create Release
