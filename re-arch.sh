@@ -374,17 +374,28 @@ configure_snapshots() {
         fi
     fi
     
-    # Configure snapper settings
-    sed -i 's/^TIMELINE_CREATE="yes"/TIMELINE_CREATE="yes"/' /etc/snapper/configs/root
-    sed -i 's/^TIMELINE_CLEANUP="yes"/TIMELINE_CLEANUP="yes"/' /etc/snapper/configs/root
-    sed -i 's/^NUMBER_CLEANUP="yes"/NUMBER_CLEANUP="yes"/' /etc/snapper/configs/root
-    sed -i 's/^NUMBER_LIMIT="50"/NUMBER_LIMIT="10"/' /etc/snapper/configs/root
-    sed -i 's/^NUMBER_LIMIT_IMPORTANT="10"/NUMBER_LIMIT_IMPORTANT="5"/' /etc/snapper/configs/root
+    # Configure snapper settings (only if config file exists)
+    if [[ -f /etc/snapper/configs/root ]]; then
+        sed -i 's/^TIMELINE_CREATE="yes"/TIMELINE_CREATE="yes"/' /etc/snapper/configs/root
+        sed -i 's/^TIMELINE_CLEANUP="yes"/TIMELINE_CLEANUP="yes"/' /etc/snapper/configs/root
+        sed -i 's/^NUMBER_CLEANUP="yes"/NUMBER_CLEANUP="yes"/' /etc/snapper/configs/root
+        sed -i 's/^NUMBER_LIMIT="50"/NUMBER_LIMIT="10"/' /etc/snapper/configs/root
+        sed -i 's/^NUMBER_LIMIT_IMPORTANT="10"/NUMBER_LIMIT_IMPORTANT="5"/' /etc/snapper/configs/root
+    fi
+    
+    # Create snapper group if it doesn't exist
+    if ! getent group snapper &>/dev/null; then
+        groupadd snapper
+    fi
     
     # Set proper permissions for user
     usermod -a -G snapper "$USERNAME"
-    chown -R :snapper /.snapshots
-    chmod 750 /.snapshots
+    
+    # Set permissions on .snapshots if it exists
+    if [[ -d /.snapshots ]]; then
+        chown -R :snapper /.snapshots
+        chmod 750 /.snapshots
+    fi
     
     success "Snapshot management configured."
 }
