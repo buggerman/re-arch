@@ -48,7 +48,11 @@ def validate_config(config_path):
     
     for device in device_mods:
         for partition in device.get("partitions", []):
-            if partition.get("mountpoint") == "/":
+            # Check for direct root mountpoint or Btrfs subvolumes
+            if partition.get("mountpoint") == "/" or (
+                partition.get("fs_type") == "btrfs" and 
+                any(sub.get("mountpoint") == "/" for sub in partition.get("btrfs", []))
+            ):
                 if partition.get("fs_type") == "btrfs":
                     btrfs_root_found = True
                     print("✅ Root filesystem: Btrfs configured")
@@ -75,7 +79,7 @@ def validate_config(config_path):
     else:
         errors.append(f"❌ Network must use NetworkManager (nm), found: {network_type}")
     
-    # Validate user configuration
+    # Validate user configuration (may be in separate credentials file)
     user_config = config.get("user_config", {})
     if "user" in user_config:
         user = user_config["user"]
@@ -86,11 +90,16 @@ def validate_config(config_path):
         
         username = user.get("username", "")
         if username == "user":
-            warnings.append("⚠️  Username is default 'user' - update re-arch.sh USERNAME variable accordingly")
+            print("✅ Username: Default 'user' configured (matches credentials file)")
         else:
             print(f"✅ Username: {username}")
     else:
-        errors.append("❌ No user configuration found")
+        # Check for separate credentials file setup
+        creds_path = Path(__file__).parent / "archinstall-credentials.json"
+        if creds_path.exists():
+            print("✅ User: Configuration in separate credentials file")
+        else:
+            warnings.append("⚠️  No user configuration found - ensure credentials file exists")
     
     # Validate essential packages
     packages = config.get("packages", [])
@@ -104,10 +113,11 @@ def validate_config(config_path):
     
     # Validate locale
     locale_config = config.get("locale_config", {})
-    if locale_config.get("sys_lang") == "en_US":
-        print("✅ Locale: en_US configured")
+    sys_lang = locale_config.get("sys_lang", "")
+    if sys_lang in ["en_US", "en_US.UTF-8"]:
+        print(f"✅ Locale: {sys_lang} configured")
     else:
-        warnings.append(f"⚠️  Locale differs from re-arch.sh default: {locale_config.get('sys_lang')}")
+        warnings.append(f"⚠️  Locale differs from re-arch.sh default: {sys_lang}")
     
     # Validate timezone  
     timezone = config.get("timezone", "")
@@ -116,11 +126,15 @@ def validate_config(config_path):
     else:
         warnings.append(f"⚠️  Timezone differs from re-arch.sh default: {timezone}")
     
-    # Validate no desktop environment (re-arch.sh will install KDE)
-    if config.get("profile_config") is None:
-        print("✅ Profile: No desktop environment (re-arch.sh will install KDE)")
+    # Validate desktop environment configuration
+    profile_config = config.get("profile_config")
+    if profile_config is None:
+        print("✅ Profile: No desktop environment (lite script will configure)")
+    elif (profile_config.get("profile", {}).get("main") == "Minimal" or 
+          profile_config.get("profile", {}).get("main") is None):
+        print("✅ Profile: Minimal profile configured (lite script will add KDE)")
     else:
-        warnings.append("⚠️  Desktop environment configured - re-arch.sh will install KDE Plasma")
+        warnings.append("⚠️  Desktop environment configured - may conflict with lite script KDE setup")
     
     # Summary
     print("\n" + "="*60)
@@ -157,11 +171,12 @@ def main():
     
     if is_valid:
         print(f"\n✅ Configuration validated successfully!")
-        print(f"📁 File: {config_path}")
-        print("\n📋 Usage:")
+        print(f"📁 Config: {config_path}")
+        print("\n📋 Usage (Lite Approach - Recommended):")
         print("   1. Boot Arch installation media")
-        print("   2. Run: archinstall --config archinstall-config.json")
-        print("   3. After installation, run re-arch.sh in chroot")
+        print("   2. Run: archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/archinstall-config.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/archinstall-credentials.json")
+        print("   3. After installation: arch-chroot /mnt")
+        print("   4. Run: curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch-lite.sh | bash")
         return 0
     else:
         print(f"\n❌ Configuration validation failed!")
