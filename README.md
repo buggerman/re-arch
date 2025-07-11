@@ -81,8 +81,9 @@ archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/mai
 - ✅ Development tools (base-devel, git)
 - ✅ Quality fonts and essential system tools
 
-**Default credentials (change after installation):**
+**Default credentials (customizable during archinstall):**
 - Username: `user` | Password: `rearch` | Root: `rearch`
+- *Note: These are fallback credentials to prevent lockouts - you can change them when archinstall opens*
 
 #### **Step 2: Lite Configuration Script (Final 20%)**
 ```bash
