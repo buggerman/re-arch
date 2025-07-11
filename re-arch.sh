@@ -442,22 +442,51 @@ enable_services() {
 setup_user_environment() {
     info "Setting up user environment for $USERNAME..."
     
-    # Setup Flatpak and Flathub
-    sudo -u "$USERNAME" bash << 'EOF'
-# Add Flathub repository
-flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    # Get user home directory
+    local user_home
+    user_home=$(getent passwd "$USERNAME" | cut -d: -f6)
+    
+    # Setup Flatpak and Flathub as user
+    info "Setting up Flatpak repository..."
+    if sudo -u "$USERNAME" flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo; then
+        success "Flathub repository added."
+    else
+        warning "Failed to add Flathub repository (might already exist)."
+    fi
+    
+    # Setup LinuxBrew
+    info "Installing LinuxBrew..."
+    
+    # Create LinuxBrew directory
+    sudo -u "$USERNAME" mkdir -p "$user_home/.linuxbrew"
+    
+    # Clone LinuxBrew if not already present
+    if [[ ! -d "$user_home/.linuxbrew/Homebrew" ]]; then
+        if sudo -u "$USERNAME" git clone https://github.com/Homebrew/brew "$user_home/.linuxbrew/Homebrew"; then
+            success "LinuxBrew installed successfully."
+        else
+            warning "Failed to install LinuxBrew."
+            return 1
+        fi
+    else
+        info "LinuxBrew already installed."
+    fi
+    
+    # Add LinuxBrew to .bashrc if not already present
+    local bashrc_file="$user_home/.bashrc"
+    if ! grep -q "linuxbrew" "$bashrc_file" 2>/dev/null; then
+        info "Adding LinuxBrew to .bashrc..."
+        sudo -u "$USERNAME" bash -c "cat >> '$bashrc_file'" << EOF
 
-# Create LinuxBrew directory
-mkdir -p /home/$SUDO_USER/.linuxbrew
-
-# Install LinuxBrew
-git clone https://github.com/Homebrew/brew /home/$SUDO_USER/.linuxbrew/Homebrew
-
-# Add LinuxBrew to PATH in .bashrc
-echo 'export PATH="/home/$SUDO_USER/.linuxbrew/Homebrew/bin:$PATH"' >> /home/$SUDO_USER/.bashrc
-echo 'export MANPATH="/home/$SUDO_USER/.linuxbrew/Homebrew/share/man:$MANPATH"' >> /home/$SUDO_USER/.bashrc
-echo 'export INFOPATH="/home/$SUDO_USER/.linuxbrew/Homebrew/share/info:$INFOPATH"' >> /home/$SUDO_USER/.bashrc
+# LinuxBrew
+export PATH="$user_home/.linuxbrew/Homebrew/bin:\$PATH"
+export MANPATH="$user_home/.linuxbrew/Homebrew/share/man:\$MANPATH"
+export INFOPATH="$user_home/.linuxbrew/Homebrew/share/info:\$INFOPATH"
 EOF
+        success "LinuxBrew added to .bashrc."
+    else
+        info "LinuxBrew already configured in .bashrc."
+    fi
     
     success "User environment configured for $USERNAME."
 }
