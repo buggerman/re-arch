@@ -1,8 +1,8 @@
 # Re-Arch: Atomic Arch Linux Converter
 
-[![CI](https://github.com/username/re-arch/workflows/CI/badge.svg)](https://github.com/username/re-arch/actions)
+[![CI](https://github.com/buggerman/re-arch/workflows/CI/badge.svg)](https://github.com/buggerman/re-arch/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Shell Check](https://github.com/username/re-arch/workflows/shellcheck/badge.svg)](https://github.com/username/re-arch/actions)
+[![Shell Check](https://github.com/buggerman/re-arch/workflows/shellcheck/badge.svg)](https://github.com/buggerman/re-arch/actions)
 
 A production-grade automation script that converts a minimal Arch Linux installation into an atomic system with Btrfs subvolumes and snapshot-based updates.
 
@@ -28,13 +28,13 @@ A production-grade automation script that converts a minimal Arch Linux installa
 ### Quick Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/username/re-arch/main/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/install.sh | sudo bash
 ```
 
 ### Manual Install
 
 ```bash
-git clone https://github.com/username/re-arch.git
+git clone https://github.com/buggerman/re-arch.git
 cd re-arch
 sudo chmod +x re-arch.sh
 ```
@@ -259,8 +259,8 @@ cat tests/test.log
 
 1. Check the [FAQ](docs/FAQ.md)
 2. Review [troubleshooting guide](docs/TROUBLESHOOTING.md)
-3. Search existing [issues](https://github.com/username/re-arch/issues)
-4. Create a [new issue](https://github.com/username/re-arch/issues/new)
+3. Search existing [issues](https://github.com/buggerman/re-arch/issues)
+4. Create a [new issue](https://github.com/buggerman/re-arch/issues/new)
 
 ## 📝 Contributing
 
@@ -270,7 +270,7 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ```bash
 # Clone the repository
-git clone https://github.com/username/re-arch.git
+git clone https://github.com/buggerman/re-arch.git
 cd re-arch
 
 # Install development dependencies
