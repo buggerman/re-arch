@@ -16,6 +16,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         
+      - name: List files for debugging
+        run: |
+          echo "Current directory contents:"
+          ls -la
+          echo ""
+          echo "Checking if re-arch.sh exists:"
+          test -f re-arch.sh && echo "✓ re-arch.sh exists" || echo "✗ re-arch.sh missing"
+        
       - name: Install ShellCheck
         run: |
           sudo apt-get update
@@ -23,29 +31,33 @@ jobs:
           
       - name: Run ShellCheck on re-arch.sh
         run: |
-          shellcheck re-arch.sh
+          if test -f re-arch.sh; then
+            shellcheck re-arch.sh
+            echo "✓ ShellCheck passed"
+          else
+            echo "✗ re-arch.sh not found"
+            exit 1
+          fi
           
       - name: Validate script syntax
         run: |
-          bash -n re-arch.sh
+          if test -f re-arch.sh; then
+            bash -n re-arch.sh
+            echo "✓ Bash syntax valid"
+          else
+            echo "✗ re-arch.sh not found"
+            exit 1
+          fi
           
-      - name: Check script is executable
+      - name: Set script permissions
         run: |
-          chmod +x re-arch.sh
-          echo "✓ Script permissions set"
-          
-      - name: Validate script structure
-        run: |
-          echo "Checking script contains required functions..."
-          grep -q "run_checks()" re-arch.sh && echo "✓ run_checks function found"
-          grep -q "display_warning()" re-arch.sh && echo "✓ display_warning function found"
-          grep -q "configure_pacman()" re-arch.sh && echo "✓ configure_pacman function found"
-          grep -q "install_packages()" re-arch.sh && echo "✓ install_packages function found"
-          grep -q "setup_aur()" re-arch.sh && echo "✓ setup_aur function found"
-          grep -q "configure_snapshots()" re-arch.sh && echo "✓ configure_snapshots function found"
-          grep -q "configure_bootloader()" re-arch.sh && echo "✓ configure_bootloader function found"
-          grep -q "enable_services()" re-arch.sh && echo "✓ enable_services function found"
-          echo "✓ All required functions present"
+          if test -f re-arch.sh; then
+            chmod +x re-arch.sh
+            echo "✓ Script permissions set"
+          else
+            echo "✗ re-arch.sh not found"
+            exit 1
+          fi
 
   create_release:
     name: Create Release
