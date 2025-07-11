@@ -100,12 +100,25 @@ prompt_for_username() {
             continue
         fi
         
-        # Validate user has sudo privileges
-        if ! sudo -u "$input_username" sudo -n true 2>/dev/null; then
-            warning "User '$input_username' does not have sudo privileges."
-            warning "Please ensure this user is in the 'wheel' group or has sudo access."
-            echo
-            continue
+        # Validate user has sudo privileges (check wheel group first)
+        if groups "$input_username" | grep -q wheel 2>/dev/null; then
+            success "User '$input_username' is in wheel group."
+        elif sudo -u "$input_username" sudo -n true 2>/dev/null; then
+            success "User '$input_username' has sudo privileges."
+        else
+            warning "User '$input_username' does not appear to have sudo privileges."
+            warning "User is not in 'wheel' group and sudo test failed."
+            echo -n "Continue anyway? (y/N): "
+            read -r continue_response
+            case "$continue_response" in
+                [Yy]|[Yy][Ee][Ss])
+                    warning "Continuing without full sudo verification..."
+                    ;;
+                *)
+                    echo "Please ensure user has sudo access or choose a different user."
+                    continue
+                    ;;
+            esac
         fi
         
         # Success
