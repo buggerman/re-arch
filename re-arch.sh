@@ -266,6 +266,7 @@ install_packages() {
         "sddm"
         "plasma-wayland-protocols"
         "xdg-desktop-portal-kde"
+        "networkmanager"
     )
     
     # Performance and system packages
