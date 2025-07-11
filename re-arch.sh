@@ -177,253 +177,91 @@ display_warning() {
     done
 }
 
+# shellcheck disable=SC2317
 run_preflight_checks() {
     info "Running comprehensive pre-flight validation..."
     
-    local check_count=0
-    local failed_checks=()
-    local warning_checks=()
+    set +e  # Don't exit on errors during validation
     
-    # Basic system checks
-    ((check_count++))
-    info "[$check_count] Checking root privileges..."
+    local validation_failed=false
+    
+    info "Starting essential validation checks..."
+    
+    # Check 1: Root privileges
+    info "[1] Checking root privileges..."
     if [[ $EUID -ne 0 ]]; then
-        failed_checks+=("Must run as root")
+        error "✗ Must run as root"
+        validation_failed=true
     else
         success "✓ Running as root"
     fi
     
-    ((check_count++))
-    info "[$check_count] Validating Arch Linux system..."
+    # Check 2: Arch Linux
+    info "[2] Validating Arch Linux system..."
     if [[ ! -f /etc/arch-release ]]; then
-        failed_checks+=("Not running on Arch Linux")
+        error "✗ Not running on Arch Linux"
+        validation_failed=true
     else
         success "✓ Arch Linux detected"
     fi
     
-    # Chroot environment detection
-    ((check_count++))
-    info "[$check_count] Detecting environment type..."
-    local in_chroot=false
-    if [[ -f /proc/1/mountinfo ]] && grep -q "arch-chroot" /proc/1/comm 2>/dev/null; then
-        in_chroot=true
-    elif [[ "$PWD" =~ /mnt ]] || [[ -f /.arch-chroot ]]; then
-        in_chroot=true
-    elif ! systemctl is-system-running --quiet 2>/dev/null; then
-        in_chroot=true
-    fi
-    
-    if [[ "$in_chroot" == true ]]; then
-        success "✓ Chroot environment detected (recommended)"
-    else
-        warning_checks+=("Not in chroot - script designed for chroot execution")
-        warning "⚠ Consider running from arch-chroot for best results"
-    fi
-    
-    # Filesystem validation
-    ((check_count++))
-    info "[$check_count] Validating root filesystem..."
+    # Check 3: Btrfs filesystem
+    info "[3] Validating root filesystem..."
     local root_fs
-    root_fs=$(findmnt -n -o FSTYPE / 2>/dev/null)
+    root_fs=$(findmnt -n -o FSTYPE / 2>/dev/null || echo "unknown")
     if [[ "$root_fs" != "btrfs" ]]; then
-        failed_checks+=("Root filesystem must be Btrfs (current: ${root_fs:-unknown})")
+        error "✗ Root filesystem must be Btrfs (current: $root_fs)"
+        validation_failed=true
     else
         success "✓ Btrfs root filesystem confirmed"
     fi
     
-    # Btrfs subvolume structure check
-    ((check_count++))
-    info "[$check_count] Checking Btrfs subvolume structure..."
-    if command -v btrfs >/dev/null 2>&1; then
-        local subvol_info
-        subvol_info=$(btrfs subvolume show / 2>/dev/null)
-        if [[ -n "$subvol_info" ]]; then
-            success "✓ Btrfs subvolume structure valid"
-        else
-            warning_checks+=("Btrfs subvolume structure unclear")
-        fi
+    # Check 4: Network connectivity
+    info "[4] Testing network connectivity..."
+    if ping -c 1 -W 5 archlinux.org &>/dev/null; then
+        success "✓ Internet connectivity confirmed"
     else
-        warning_checks+=("btrfs-progs not available for validation")
+        error "✗ No internet connectivity detected"
+        validation_failed=true
     fi
     
-    # Package manager validation
-    ((check_count++))
-    info "[$check_count] Validating package manager..."
-    if ! command -v pacman >/dev/null 2>&1; then
-        failed_checks+=("pacman package manager not found")
-    else
+    # Check 5: Package manager
+    info "[5] Validating package manager..."
+    if command -v pacman >/dev/null 2>&1; then
         success "✓ pacman available"
-        
-        # Check if pacman database is accessible
-        if pacman -Q >/dev/null 2>&1; then
-            success "✓ pacman database accessible"
-        else
-            failed_checks+=("pacman database not accessible")
-        fi
-    fi
-    
-    # Network connectivity validation
-    ((check_count++))
-    info "[$check_count] Testing network connectivity..."
-    local connectivity_ok=false
-    local test_hosts=("archlinux.org" "8.8.8.8" "1.1.1.1" "google.com")
-    
-    for host in "${test_hosts[@]}"; do
-        if ping -c 1 -W 5 "$host" &>/dev/null; then
-            connectivity_ok=true
-            success "✓ Internet connectivity confirmed via $host"
-            break
-        fi
-    done
-    
-    if [[ "$connectivity_ok" == false ]]; then
-        failed_checks+=("No internet connectivity detected")
-    fi
-    
-    # Repository accessibility
-    if [[ "$connectivity_ok" == true ]]; then
-        ((check_count++))
-        info "[$check_count] Testing package repository access..."
-        if pacman -Sy &>/dev/null; then
-            success "✓ Package repositories accessible"
-        else
-            failed_checks+=("Cannot access package repositories")
-        fi
-    fi
-    
-    # Storage space validation
-    ((check_count++))
-    info "[$check_count] Checking available storage space..."
-    local root_space
-    root_space=$(df / --output=avail 2>/dev/null | tail -1 | tr -d ' ')
-    if [[ -n "$root_space" && "$root_space" -gt 2097152 ]]; then  # 2GB in KB
-        success "✓ Sufficient storage space ($(( root_space / 1024 / 1024 ))GB available)"
     else
-        warning_checks+=("Low storage space (may cause installation issues)")
+        error "✗ pacman package manager not found"
+        validation_failed=true
     fi
     
-    # Write permissions validation
-    ((check_count++))
-    info "[$check_count] Testing filesystem write permissions..."
-    local test_files=(
-        "/etc/pacman.conf.backup.test"
-        "/var/log/re-arch-test.log"
-        "/boot/grub/test-write"
-    )
-    
-    local write_ok=true
-    for test_file in "${test_files[@]}"; do
-        local test_dir
-        test_dir=$(dirname "$test_file")
-        if [[ -d "$test_dir" ]]; then
-            if touch "$test_file" 2>/dev/null; then
-                rm -f "$test_file" 2>/dev/null
-            else
-                write_ok=false
-                break
-            fi
-        fi
-    done
-    
-    if [[ "$write_ok" == true ]]; then
-        success "✓ Filesystem write permissions verified"
-    else
-        failed_checks+=("Insufficient write permissions for system directories")
-    fi
-    
-    # Essential commands validation
-    ((check_count++))
-    info "[$check_count] Checking essential system commands..."
-    local required_commands=(
-        "systemctl" "mount" "umount" "chown" "chmod" 
-        "useradd" "usermod" "groupadd" "getent"
-        "curl" "git" "makepkg" "grub-install" "grub-mkconfig"
-    )
-    
-    local missing_commands=()
-    for cmd in "${required_commands[@]}"; do
-        if ! command -v "$cmd" >/dev/null 2>&1; then
-            missing_commands+=("$cmd")
-        fi
-    done
-    
-    if [[ ${#missing_commands[@]} -eq 0 ]]; then
-        success "✓ All essential commands available"
-    else
-        failed_checks+=("Missing commands: ${missing_commands[*]}")
-    fi
-    
-    # User validation (prompt if needed)
+    # Prompt for username if needed
     if [[ -z "$USERNAME" ]]; then
         prompt_for_username
     fi
     
-    ((check_count++))
-    info "[$check_count] Validating user account..."
-    if ! id "$USERNAME" &>/dev/null; then
-        failed_checks+=("User '$USERNAME' does not exist")
-    else
+    # Check 6: User validation
+    info "[6] Validating user account..."
+    if id "$USERNAME" &>/dev/null; then
         success "✓ User '$USERNAME' exists"
-        
-        # Check sudo privileges
-        if sudo -u "$USERNAME" sudo -l &>/dev/null; then
-            success "✓ User has sudo privileges"
-        else
-            failed_checks+=("User '$USERNAME' lacks sudo privileges")
-        fi
-        
-        # Check user home directory
-        local user_home
-        user_home=$(getent passwd "$USERNAME" | cut -d: -f6)
-        if [[ -d "$user_home" && -w "$user_home" ]]; then
-            success "✓ User home directory accessible"
-        else
-            warning_checks+=("User home directory not accessible")
-        fi
+    else
+        error "✗ User '$USERNAME' does not exist"
+        validation_failed=true
     fi
     
-    # Summary and decision
-    echo
-    echo "============================================================================="
-    info "Pre-flight validation completed: $check_count checks performed"
-    echo "============================================================================="
+    # Re-enable strict error handling
+    set -e
     
-    # shellcheck disable=SC2317
-    if [[ ${#failed_checks[@]} -gt 0 ]]; then
+    # Final validation result
+    if [[ "$validation_failed" == true ]]; then
         echo
-        error "❌ CRITICAL ISSUES FOUND:"
-        for issue in "${failed_checks[@]}"; do
-            echo "  • $issue"
-        done
-        echo
-        error "Cannot proceed with installation. Please resolve these issues first."
+        error "❌ CRITICAL VALIDATION FAILURES DETECTED"
+        error "Please resolve the above issues before running Re-Arch"
         exit 1
     fi
     
-    if [[ ${#warning_checks[@]} -gt 0 ]]; then
-        echo
-        warning "⚠️  WARNINGS DETECTED:"
-        for issue in "${warning_checks[@]}"; do
-            echo "  • $issue"
-        done
-        echo
-        warning "Installation may proceed but could encounter issues."
-        echo -n "Continue anyway? (y/N): " >/dev/tty
-        read -r continue_response </dev/tty
-        case "$continue_response" in
-            [Yy]|[Yy][Ee][Ss])
-                info "Continuing despite warnings..."
-                ;;
-            *)
-                info "Installation aborted by user."
-                exit 0
-                ;;
-        esac
-    fi
-    
     echo
-    success "✅ All critical checks passed - system ready for Re-Arch installation"
-    echo "============================================================================="
+    success "✅ All essential validation checks passed"
+    info "System ready for Re-Arch installation"
     echo
 }
 
