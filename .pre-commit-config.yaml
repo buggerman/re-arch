@@ -1,0 +1,58 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
+
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.6
+    hooks:
+      - id: shellcheck
+        args: [-x]
+
+  - repo: https://github.com/mvdan/sh
+    rev: v3.6.0
+    hooks:
+      - id: shfmt
+        args: [-w, -i, '4', -ci]
+
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.37.0
+    hooks:
+      - id: markdownlint
+        args: [--fix]
+
+  - repo: local
+    hooks:
+      - id: bash-syntax
+        name: Check Bash syntax
+        entry: bash -n
+        language: system
+        files: \.sh$
+
+      - id: no-debug-prints
+        name: No debug prints
+        entry: 'echo.*DEBUG|printf.*DEBUG'
+        language: pygrep
+        files: \.sh$
+
+      - id: no-hardcoded-paths
+        name: No hardcoded paths
+        entry: '/home/|/Users/'
+        language: pygrep
+        files: \.sh$
+        exclude: README.md
+
+      - id: test-script
+        name: Run basic tests
+        entry: make test
+        language: system
+        pass_filenames: false
+        always_run: true

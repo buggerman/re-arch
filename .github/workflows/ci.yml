@@ -1,0 +1,281 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+env:
+  SHELLCHECK_VERSION: "v0.9.0"
+
+jobs:
+  shellcheck:
+    name: ShellCheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install ShellCheck
+        run: |
+          wget -qO- "https://github.com/koalaman/shellcheck/releases/download/${SHELLCHECK_VERSION}/shellcheck-${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" | tar -xJv
+          sudo cp "shellcheck-${SHELLCHECK_VERSION}/shellcheck" /usr/bin/
+          shellcheck --version
+
+      - name: Run ShellCheck on main script
+        run: shellcheck re-arch.sh
+
+      - name: Run ShellCheck on test script
+        run: shellcheck tests/test_re_arch.sh
+
+      - name: Run ShellCheck on all shell scripts
+        run: |
+          find . -name "*.sh" -type f -exec shellcheck {} +
+
+  syntax-check:
+    name: Bash Syntax Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check bash syntax
+        run: |
+          bash -n re-arch.sh
+          bash -n tests/test_re_arch.sh
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        bash-version: ["4.4", "5.0", "5.1", "5.2"]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bash ${{ matrix.bash-version }}
+        run: |
+          if [ "${{ matrix.bash-version }}" != "$(bash --version | head -n1 | cut -d' ' -f4 | cut -d'(' -f1)" ]; then
+            echo "Using system bash version: $(bash --version | head -n1)"
+          fi
+
+      - name: Make scripts executable
+        run: |
+          chmod +x re-arch.sh
+          chmod +x tests/test_re_arch.sh
+
+      - name: Run unit tests
+        run: |
+          cd tests
+          ./test_re_arch.sh
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-bash-${{ matrix.bash-version }}
+          path: tests/test.log
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup test environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y parted btrfs-progs
+
+      - name: Make scripts executable
+        run: |
+          chmod +x re-arch.sh
+          chmod +x tests/test_re_arch.sh
+
+      - name: Run integration tests
+        run: |
+          cd tests
+          ./test_re_arch.sh --integration
+
+      - name: Upload integration test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integration-test-results
+          path: tests/test.log
+
+  performance-tests:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Make scripts executable
+        run: |
+          chmod +x re-arch.sh
+          chmod +x tests/test_re_arch.sh
+
+      - name: Run performance tests
+        run: |
+          cd tests
+          ./test_re_arch.sh --performance
+
+      - name: Upload performance test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: performance-test-results
+          path: tests/test.log
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Bandit security scan
+        uses: securecodewarrior/github-action-bandit@v1
+        with:
+          path: "."
+          level: "medium"
+          confidence: "medium"
+          exit_zero: true
+
+      - name: Run Semgrep security scan
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/secrets
+            p/bash
+
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python for additional tools
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install code quality tools
+        run: |
+          pip install pre-commit
+          sudo apt-get install -y shellcheck shfmt
+
+      - name: Run pre-commit hooks
+        run: |
+          pre-commit run --all-files --show-diff-on-failure
+
+      - name: Check shell formatting
+        run: |
+          shfmt -d -i 4 -ci re-arch.sh
+          shfmt -d -i 4 -ci tests/test_re_arch.sh
+
+  compatibility-tests:
+    name: Compatibility Tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, ubuntu-22.04, ubuntu-latest]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bash coreutils util-linux
+
+      - name: Make scripts executable
+        run: |
+          chmod +x re-arch.sh
+          chmod +x tests/test_re_arch.sh
+
+      - name: Test script compatibility
+        run: |
+          # Test basic functionality
+          ./re-arch.sh --help
+          ./re-arch.sh --version
+          
+          # Run basic tests
+          cd tests
+          ./test_re_arch.sh
+
+  documentation:
+    name: Documentation Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check README links
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: 'yes'
+          use-verbose-mode: 'yes'
+
+      - name: Validate Markdown
+        uses: avto-dev/markdown-lint@v1
+        with:
+          config: '.markdownlint.json'
+          args: '**/*.md'
+
+  build-and-package:
+    name: Build and Package
+    runs-on: ubuntu-latest
+    needs: [shellcheck, syntax-check, unit-tests]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create release package
+        run: |
+          mkdir -p release
+          cp re-arch.sh release/
+          cp README.md release/
+          cp LICENSE release/
+          cp -r docs release/ || true
+          cp -r configs release/ || true
+
+      - name: Create tarball
+        run: |
+          tar -czf re-arch-$(date +%Y%m%d).tar.gz -C release .
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: re-arch-package
+          path: re-arch-*.tar.gz
+
+  notify:
+    name: Notify Results
+    runs-on: ubuntu-latest
+    needs: [shellcheck, syntax-check, unit-tests, integration-tests, security-scan]
+    if: always()
+    steps:
+      - name: Report Success
+        if: ${{ needs.shellcheck.result == 'success' && needs.syntax-check.result == 'success' && needs.unit-tests.result == 'success' }}
+        run: echo "✅ All CI checks passed successfully!"
+
+      - name: Report Failure
+        if: ${{ needs.shellcheck.result == 'failure' || needs.syntax-check.result == 'failure' || needs.unit-tests.result == 'failure' }}
+        run: |
+          echo "❌ Some CI checks failed:"
+          echo "ShellCheck: ${{ needs.shellcheck.result }}"
+          echo "Syntax Check: ${{ needs.syntax-check.result }}"
+          echo "Unit Tests: ${{ needs.unit-tests.result }}"
+          exit 1
