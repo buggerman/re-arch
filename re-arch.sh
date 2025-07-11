@@ -268,7 +268,8 @@ install_packages() {
         "xdg-desktop-portal-kde"
         "networkmanager"
         "discover"
-        "packagekit-qt5"
+        "packagekit"
+        "flatpak"
     )
     
     # Performance and system packages
@@ -475,6 +476,7 @@ enable_services() {
         "snapper-cleanup.timer"
         "grub-btrfsd.service"
         "ananicy-cpp.service"
+        "packagekit.service"
     )
     
     for service in "${services[@]}"; do
@@ -492,12 +494,21 @@ setup_user_environment() {
     local user_home
     user_home=$(getent passwd "$USERNAME" | cut -d: -f6)
     
-    # Setup Flatpak and Flathub as user
+    # Setup Flatpak and Flathub
     info "Setting up Flatpak repository..."
-    if sudo -u "$USERNAME" flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo; then
-        success "Flathub repository added."
+    
+    # Add Flathub system-wide
+    if flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo; then
+        success "Flathub repository added system-wide."
     else
-        warning "Failed to add Flathub repository (might already exist)."
+        warning "Failed to add Flathub system-wide (might already exist)."
+    fi
+    
+    # Also add for user to ensure it's available
+    if sudo -u "$USERNAME" flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo; then
+        info "Flathub repository also added for user."
+    else
+        info "Flathub user repository already exists or failed to add."
     fi
     
     # Setup LinuxBrew
