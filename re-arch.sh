@@ -83,7 +83,7 @@ prompt_for_username() {
     
     while true; do
         echo -n "Username: "
-        read -r input_username
+        read -r input_username </dev/tty
         
         # Validate input is not empty
         if [[ -z "$input_username" ]]; then
@@ -109,7 +109,7 @@ prompt_for_username() {
             warning "User '$input_username' does not appear to have sudo privileges."
             warning "User is not in 'wheel' group and sudo test failed."
             echo -n "Continue anyway? (y/N): "
-            read -r continue_response
+            read -r continue_response </dev/tty
             case "$continue_response" in
                 [Yy]|[Yy][Ee][Ss])
                     warning "Continuing without full sudo verification..."
@@ -159,7 +159,7 @@ display_warning() {
     local confirmation
     while true; do
         echo -n "Type 'YES' in capital letters to proceed, or 'NO' to abort: "
-        read -r confirmation
+        read -r confirmation </dev/tty
         
         case "$confirmation" in
             "YES")
