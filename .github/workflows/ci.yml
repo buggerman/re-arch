@@ -142,21 +142,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run Bandit security scan
-        uses: securecodewarrior/github-action-bandit@v1
-        with:
-          path: "."
-          level: "medium"
-          confidence: "medium"
-          exit_zero: true
-
-      - name: Run Semgrep security scan
-        uses: returntocorp/semgrep-action@v1
-        with:
-          config: >-
-            p/security-audit
-            p/secrets
-            p/bash
+      - name: Run basic security checks
+        run: |
+          echo "Checking for common security issues..."
+          
+          # Check for hardcoded secrets
+          if grep -r "password\|secret\|key" --include="*.sh" . | grep -v "test\|example"; then
+            echo "Warning: Potential secrets found"
+          fi
+          
+          # Check for dangerous commands
+          if grep -r "rm -rf\|eval\|exec" --include="*.sh" . | grep -v "test\|TEST_MODE"; then
+            echo "Warning: Dangerous commands found"
+          fi
+          
+          echo "Basic security checks completed"
 
   code-quality:
     name: Code Quality

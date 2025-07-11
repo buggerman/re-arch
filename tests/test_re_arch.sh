@@ -235,7 +235,11 @@ test_configuration_validation() {
     create_test_config "$config_file"
     
     # Update config to use mock disk
-    sed -i '' "s|TARGET_DISK=.*|TARGET_DISK=\"$mock_disk\"|" "$config_file"
+    if [[ "$(uname)" == "Darwin" ]]; then
+        sed -i '' "s|TARGET_DISK=.*|TARGET_DISK=\"$mock_disk\"|" "$config_file"
+    else
+        sed -i "s|TARGET_DISK=.*|TARGET_DISK=\"$mock_disk\"|" "$config_file"
+    fi
     
     local output
     set +e
@@ -448,7 +452,11 @@ test_full_dry_run() {
     create_mock_disk "$mock_disk" 100
     
     # Update config to use mock disk
-    sed -i '' "s|TARGET_DISK=.*|TARGET_DISK=\"$mock_disk\"|" "$config_file"
+    if [[ "$(uname)" == "Darwin" ]]; then
+        sed -i '' "s|TARGET_DISK=.*|TARGET_DISK=\"$mock_disk\"|" "$config_file"
+    else
+        sed -i "s|TARGET_DISK=.*|TARGET_DISK=\"$mock_disk\"|" "$config_file"
+    fi
     
     local output
     set +e

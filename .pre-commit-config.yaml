@@ -18,7 +18,7 @@ repos:
         args: [-x]
 
   - repo: https://github.com/mvdan/sh
-    rev: v3.6.0
+    rev: v3.7.0
     hooks:
       - id: shfmt
         args: [-w, -i, '4', -ci]

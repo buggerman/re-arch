@@ -75,7 +75,7 @@ confirm() {
     fi
     
     echo
-    read -p "$prompt [y/N]: " response
+    read -r -p "$prompt [y/N]: " response
     case "$response" in
         [yY]|[yY][eE][sS]) return 0 ;;
         *) return 1 ;;
@@ -785,6 +785,7 @@ main() {
     # Load configuration file if specified
     if [[ -n "${CONFIG_FILE:-}" ]]; then
         if [[ -f "$CONFIG_FILE" ]]; then
+            # shellcheck source=/dev/null
             source "$CONFIG_FILE"
             info "Loaded configuration from $CONFIG_FILE"
         else
