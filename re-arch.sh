@@ -413,9 +413,25 @@ configure_bootloader() {
     info "Configuring GRUB bootloader with snapshot support..."
     
     # Install GRUB to the boot device (assumes single disk setup)
-    local boot_device
-    boot_device=$(lsblk -no PKNAME "$(findmnt -n -o SOURCE /)" | head -1)
-    grub-install "/dev/$boot_device"
+    local boot_device root_source
+    root_source=$(findmnt -n -o SOURCE /)
+    
+    # Extract the actual device from Btrfs subvolume notation (e.g., /dev/sda2[/@] -> /dev/sda2)
+    root_source=${root_source%%\[*}
+    
+    # Get the parent device (e.g., /dev/sda2 -> sda)
+    boot_device=$(lsblk -no PKNAME "$root_source" | head -1)
+    
+    if [[ -n "$boot_device" ]]; then
+        info "Installing GRUB to /dev/$boot_device..."
+        grub-install "/dev/$boot_device"
+    else
+        warning "Could not determine boot device, attempting to install to disk..."
+        # Fallback: try to get the disk from the root device
+        local disk_device
+        disk_device=$(echo "$root_source" | sed 's/[0-9]*$//')
+        grub-install "$disk_device"
+    fi
     
     # Configure GRUB for Btrfs snapshots
     echo 'GRUB_BTRFS_LIMIT="10"' >> /etc/default/grub
