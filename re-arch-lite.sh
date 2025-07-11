@@ -125,13 +125,30 @@ configure_snapshots() {
     usermod -a -G snapper "$USERNAME"
     
     # Configure snapper for root if not already done
-    if ! snapper -c root list &>/dev/null; then
+    # Suppress D-Bus errors in chroot environment
+    if ! snapper -c root list &>/dev/null 2>&1; then
         if [[ -d /.snapshots ]]; then
             umount /.snapshots 2>/dev/null || true
             rm -rf /.snapshots
         fi
         
-        snapper -c root create-config /
+        # Create snapper configuration with D-Bus error suppression
+        if ! snapper -c root create-config / 2>/dev/null; then
+            warning "Snapper configuration creation failed (normal in chroot - will work after reboot)"
+            # Try creating basic config directory structure manually
+            mkdir -p /etc/snapper/configs
+            cat > /etc/snapper/configs/root << 'EOF'
+# snapper configuration for root filesystem
+SUBVOLUME="/"
+FSTYPE="btrfs"
+TIMELINE_CREATE="yes"
+TIMELINE_CLEANUP="yes"
+NUMBER_CLEANUP="yes"
+NUMBER_LIMIT="10"
+NUMBER_LIMIT_IMPORTANT="5"
+EOF
+            info "Created basic snapper configuration manually"
+        fi
     fi
     
     # Configure snapper settings
@@ -219,9 +236,19 @@ setup_user_environment() {
     local user_home
     user_home=$(getent passwd "$USERNAME" | cut -d: -f6)
     
-    # Setup Flatpak
-    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo 2>/dev/null || true
-    sudo -u "$USERNAME" flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo 2>/dev/null || true
+    # Setup Flatpak (suppress D-Bus errors in chroot environment)  
+    info "Setting up Flatpak repositories..."
+    if flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo 2>/dev/null; then
+        success "Flathub repository added system-wide"
+    else
+        warning "Flathub system setup failed (normal in chroot - will work after reboot)"
+    fi
+    
+    if sudo -u "$USERNAME" flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo 2>/dev/null; then
+        info "Flathub repository added for user"
+    else
+        info "Flathub user setup failed (normal in chroot - will work after reboot)"
+    fi
     
     # Setup LinuxBrew
     sudo -u "$USERNAME" mkdir -p "$user_home/.linuxbrew"
