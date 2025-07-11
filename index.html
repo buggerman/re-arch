@@ -88,20 +88,25 @@
         .install-code-container {
             background: #475569;
             border-radius: 12px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             overflow: hidden;
             border: 1px solid #64748b;
+            position: relative;
+            display: flex;
+            align-items: center;
         }
         
         .install-code {
             color: #f1f5f9;
             padding: 25px 30px;
+            padding-right: 70px;
             font-family: 'JetBrains Mono', 'SF Mono', Monaco, monospace;
             font-size: 1.05em;
             font-weight: 400;
             margin: 0;
             overflow-x: auto;
             white-space: nowrap;
+            flex: 1;
         }
         
         .install-code::before {
@@ -111,29 +116,57 @@
         }
         
         .copy-button {
-            background: rgba(255,255,255,0.15);
-            color: #1e293b;
-            border: 2px solid rgba(255,255,255,0.3);
-            padding: 12px 24px;
-            border-radius: 10px;
+            position: absolute;
+            right: 15px;
+            background: rgba(255,255,255,0.1);
+            color: #f1f5f9;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 8px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 0.9em;
-            font-weight: 500;
+            font-size: 1.1em;
             transition: all 0.2s ease;
-            backdrop-filter: blur(20px);
-            display: inline-block;
-            font-family: 'Inter', sans-serif;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
         }
         
         .copy-button:hover {
-            background: rgba(255,255,255,0.25);
-            border-color: rgba(255,255,255,0.5);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.4);
+            transform: scale(1.1);
         }
         
         .copy-button:active {
-            transform: translateY(0px);
+            transform: scale(0.95);
+        }
+        
+        .install-instructions {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            backdrop-filter: blur(20px);
+            font-size: 1.05em;
+            line-height: 1.6;
+        }
+        
+        .install-instructions strong {
+            color: white;
+            font-weight: 600;
+        }
+        
+        .install-instructions code {
+            background: rgba(255,255,255,0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9em;
+            color: #86efac;
         }
         
         .features {
@@ -308,11 +341,18 @@
             .install-code {
                 font-size: 0.9em;
                 padding: 20px 25px;
+                padding-right: 60px;
             }
             
             .copy-button {
-                padding: 10px 20px;
-                font-size: 0.85em;
+                width: 32px;
+                height: 32px;
+                font-size: 1em;
+            }
+            
+            .install-instructions {
+                font-size: 1em;
+                padding: 16px;
             }
             
             .footer-content {
@@ -323,13 +363,21 @@
         
         @media (max-width: 480px) {
             .install-code {
-                font-size: 0.8em;
+                font-size: 0.85em;
                 padding: 18px 20px;
+                padding-right: 55px;
             }
             
             .copy-button {
-                padding: 8px 16px;
-                font-size: 0.8em;
+                width: 30px;
+                height: 30px;
+                font-size: 0.9em;
+                right: 12px;
+            }
+            
+            .install-instructions {
+                font-size: 0.95em;
+                padding: 14px;
             }
         }
     </style>
@@ -348,12 +396,12 @@
                 <div class="install-code-wrapper">
                     <div class="install-code-container">
                         <div class="install-code">curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch.sh | bash</div>
-                    </div>
-                    <div style="text-align: center;">
-                        <button class="copy-button" onclick="copyToClipboard()">📋 Copy Command</button>
+                        <button class="copy-button" onclick="copyToClipboard()" title="Copy to clipboard">📋</button>
                     </div>
                 </div>
-                <p><strong>Run this command as root in your chrooted Arch Linux environment</strong></p>
+                <div class="install-instructions">
+                    <strong>Prerequisites:</strong> Run this command as <code>root</code> within a <strong>chrooted Arch Linux environment</strong> after completing the base installation with Btrfs filesystem.
+                </div>
             </div>
             
             <div class="warning">
