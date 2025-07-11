@@ -22,7 +22,6 @@ LOCALE="en_US.UTF-8"
 # CONSTANTS AND GLOBALS
 #===============================================================================
 
-readonly SCRIPT_NAME="re-arch.sh"
 readonly SCRIPT_VERSION="1.0.0"
 readonly LOG_FILE="/var/log/re-arch.log"
 
