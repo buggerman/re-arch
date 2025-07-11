@@ -59,20 +59,20 @@ The Re-Arch Procedure is designed around three core principles:
    - Script must be run from within a chroot environment
    - Typically from the Arch installation media after arch-chroot
 
-## 📹 Installation Video Guide
+## 📹 Base Arch Installation Video Guide
 
-**Watch the complete installation process when using your entire SSD/HDD:**
+**Watch the minimal Arch Linux base installation process:**
 
 https://github.com/buggerman/re-arch/assets/Installation_Instructions/Arch_install_guide.mp4
 
 ### What This Video Covers
-- **Complete SSD/HDD Setup:** How to properly partition and format your entire drive for Arch Linux
-- **Btrfs Configuration:** Setting up the required filesystem with proper subvolumes
-- **Base Installation:** Using archinstall with the correct configuration
-- **Chroot Process:** Accessing the installed system for Re-Arch execution
-- **Prerequisites:** Everything the script expects to be in place before running
+- **Base Arch Installation:** Using archinstall for minimal Arch Linux setup
+- **Btrfs Configuration:** Setting up the required filesystem during installation
+- **User Account Creation:** Creating the user account needed for Re-Arch
+- **Post-Installation:** Accessing the installed system for Re-Arch execution
+- **Prerequisites Verification:** Ensuring the system meets Re-Arch requirements
 
-> **⚠️ Important:** This video shows the complete installation process when using your entire SSD/HDD. Follow this guide carefully to ensure your system is properly configured for the Re-Arch script.
+> **⚠️ Important:** This video shows ONLY the base Arch Linux installation using archinstall. It assumes you are using your entire SSD/HDD and does NOT cover disk partitioning. You must handle partitioning separately before following this guide.
 
 ## Usage
 
