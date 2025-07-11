@@ -115,6 +115,7 @@
         "sudo",
         "linux-zen-headers",
         "plasma-desktop",
+        "plasma-nm",
         "konsole",
         "dolphin",
         "sddm",
