@@ -76,16 +76,23 @@
             backdrop-filter: blur(10px);
         }
         
-        .install-code {
+        .install-code-container {
             background: #2d3748;
-            color: #e2e8f0;
-            padding: 30px;
             border-radius: 10px;
-            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-            font-size: 1.1em;
             margin: 20px 0;
             position: relative;
+            overflow: hidden;
+        }
+        
+        .install-code {
+            color: #e2e8f0;
+            padding: 30px;
+            padding-right: 100px;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+            font-size: 1.1em;
+            margin: 0;
             overflow-x: auto;
+            white-space: nowrap;
         }
         
         .install-code::before {
@@ -96,20 +103,28 @@
         
         .copy-button {
             position: absolute;
-            top: 15px;
+            top: 50%;
             right: 15px;
+            transform: translateY(-50%);
             background: #4299e1;
             color: white;
             border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
+            padding: 10px 16px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 0.9em;
-            transition: background 0.2s;
+            font-size: 0.85em;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         
         .copy-button:hover {
             background: #3182ce;
+            transform: translateY(-50%) scale(1.05);
+        }
+        
+        .copy-button:active {
+            transform: translateY(-50%) scale(0.95);
         }
         
         .features {
@@ -262,13 +277,33 @@
             }
             
             .install-code {
-                font-size: 0.9em;
+                font-size: 0.85em;
                 padding: 20px;
+                padding-right: 80px;
+            }
+            
+            .copy-button {
+                padding: 8px 12px;
+                font-size: 0.8em;
             }
             
             .footer-content {
                 flex-direction: column;
                 text-align: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .install-code {
+                font-size: 0.75em;
+                padding: 15px;
+                padding-right: 70px;
+            }
+            
+            .copy-button {
+                padding: 6px 10px;
+                font-size: 0.75em;
+                right: 10px;
             }
         }
     </style>
@@ -284,9 +319,9 @@
             
             <div class="install-section">
                 <h2>One Command Installation</h2>
-                <div class="install-code">
+                <div class="install-code-container">
+                    <div class="install-code">curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch.sh | bash</div>
                     <button class="copy-button" onclick="copyToClipboard()">Copy</button>
-                    curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch.sh | bash
                 </div>
                 <p><strong>Run this command as root in your chrooted Arch Linux environment</strong></p>
             </div>
