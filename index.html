@@ -517,12 +517,16 @@
             navigator.clipboard.writeText(command).then(() => {
                 const button = document.querySelector('.copy-button');
                 const originalText = button.textContent;
-                button.textContent = 'Copied!';
-                button.style.background = '#48bb78';
+                button.textContent = '✓';
+                button.style.background = 'rgba(34, 197, 94, 0.2)';
+                button.style.borderColor = 'rgba(34, 197, 94, 0.6)';
+                button.style.color = '#22c55e';
                 setTimeout(() => {
                     button.textContent = originalText;
-                    button.style.background = '#4299e1';
-                }, 2000);
+                    button.style.background = 'rgba(255,255,255,0.1)';
+                    button.style.borderColor = 'rgba(255,255,255,0.2)';
+                    button.style.color = '#f1f5f9';
+                }, 1500);
             });
         }
     </script>
