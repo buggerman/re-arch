@@ -267,6 +267,8 @@ install_packages() {
         "plasma-wayland-protocols"
         "xdg-desktop-portal-kde"
         "networkmanager"
+        "discover"
+        "packagekit-qt5"
     )
     
     # Performance and system packages
