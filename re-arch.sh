@@ -465,9 +465,35 @@ configure_snapshots() {
     info "Configuring snapshot management..."
     
     # Check if snapper config already exists
+    local config_exists=false
     if snapper -c root list &>/dev/null; then
-        warning "Snapper configuration already exists for root, skipping creation."
-    else
+        info "Existing snapper configuration detected for root."
+        config_exists=true
+    elif [[ -f /etc/snapper/configs/root ]]; then
+        info "Snapper config file exists but may not be active."
+        config_exists=true
+    fi
+    
+    if [[ "$config_exists" == true ]]; then
+        info "Using existing snapper configuration and updating settings..."
+        
+        # Ensure .snapshots directory has correct permissions if it exists
+        if [[ -d /.snapshots ]]; then
+            info "Existing .snapshots directory found, updating permissions..."
+        else
+            warning "Config exists but .snapshots directory missing. This might indicate archinstall setup."
+            info "Attempting to recreate .snapshots directory..."
+            # Try to delete the config and recreate it
+            snapper -c root delete-config 2>/dev/null || true
+            rm -f /etc/snapper/configs/root 2>/dev/null || true
+            config_exists=false
+        fi
+    fi
+    
+    # Create new configuration if needed
+    if [[ "$config_exists" == false ]]; then
+        info "Creating new snapper configuration..."
+        
         # Remove any existing /.snapshots if it exists
         if [[ -d /.snapshots ]]; then
             warning "Removing existing /.snapshots directory..."
@@ -479,9 +505,14 @@ configure_snapshots() {
         if ! snapper -c root create-config /; then
             warning "Failed to create snapper config, attempting cleanup and retry..."
             # Clean up and try again
-            rm -rf /.snapshots
-            snapper -c root create-config /
+            rm -rf /.snapshots 2>/dev/null || true
+            rm -f /etc/snapper/configs/root 2>/dev/null || true
+            if ! snapper -c root create-config /; then
+                warning "Snapper configuration creation failed. Continuing without snapshots..."
+                return 1
+            fi
         fi
+        success "Snapper configuration created successfully."
     fi
     
     # Configure snapper settings (only if config file exists)
