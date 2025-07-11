@@ -10,8 +10,8 @@ set -euo pipefail
 # CONFIGURATION SECTION - EDIT THESE VALUES BEFORE RUNNING
 #===============================================================================
 
-# MANDATORY: Set this to your non-root username (must already exist)
-USERNAME="user"
+# USERNAME will be prompted during execution
+USERNAME=""
 
 # OPTIONAL: Customize these settings as needed
 HOSTNAME="arch-desktop"
@@ -70,6 +70,53 @@ error() {
 #===============================================================================
 # SAFETY AND VALIDATION FUNCTIONS
 #===============================================================================
+
+prompt_for_username() {
+    echo
+    echo "============================================================================="
+    echo -e "${BLUE}                      USER ACCOUNT CONFIGURATION${NC}"
+    echo "============================================================================="
+    echo
+    info "Please enter your existing non-root username."
+    info "This should be the user account you created during Arch installation."
+    echo
+    
+    while true; do
+        echo -n "Username: "
+        read -r input_username
+        
+        # Validate input is not empty
+        if [[ -z "$input_username" ]]; then
+            warning "Username cannot be empty. Please try again."
+            continue
+        fi
+        
+        # Validate user exists
+        if ! id "$input_username" &>/dev/null; then
+            warning "User '$input_username' does not exist on this system."
+            echo "Available users:"
+            getent passwd | awk -F: '$3 >= 1000 { print "  • " $1 }'
+            echo
+            continue
+        fi
+        
+        # Validate user has sudo privileges
+        if ! sudo -u "$input_username" sudo -n true 2>/dev/null; then
+            warning "User '$input_username' does not have sudo privileges."
+            warning "Please ensure this user is in the 'wheel' group or has sudo access."
+            echo
+            continue
+        fi
+        
+        # Success
+        USERNAME="$input_username"
+        success "User '$USERNAME' validated successfully."
+        break
+    done
+    
+    echo "============================================================================="
+    echo
+}
 
 display_warning() {
     echo
@@ -137,11 +184,9 @@ run_checks() {
         error "Root filesystem must be Btrfs. Current: $root_fs"
     fi
     
-    # Check if USERNAME is configured
-    if [[ "$USERNAME" == "user" ]]; then
-        warning "USERNAME is set to default 'user'. Please edit the script to set your actual username."
-        warning "Edit the CONFIGURATION section at the top of this script."
-        error "Aborting to prevent configuration errors."
+    # Prompt for username if not configured
+    if [[ -z "$USERNAME" ]]; then
+        prompt_for_username
     fi
     
     # Check if the specified user exists

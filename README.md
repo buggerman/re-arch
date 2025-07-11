@@ -69,49 +69,27 @@ mount /dev/sdXY /mnt  # Your root partition
 arch-chroot /mnt
 ```
 
-### Step 2: Download the Script
+### Step 2: Run the One-Command Installer
 ```bash
-# Download latest release
-curl -L -o re-arch.sh https://github.com/buggerman/re-arch/releases/latest/download/re-arch.sh
-
-# Or using wget
-wget -O re-arch.sh https://github.com/buggerman/re-arch/releases/latest/download/re-arch.sh
-
-# Make executable
-chmod +x re-arch.sh
+curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch.sh | bash
 ```
 
-### Step 3: Configure the Script
-**CRITICAL:** Edit the script to set your username before running:
-
-```bash
-# Edit with your preferred editor
-nano re-arch.sh
-
-# Find the CONFIGURATION section and set:
-USERNAME="your-actual-username"
-```
-
-### Step 4: Execute
-```bash
-# Run as root within the chroot
-./re-arch.sh
-```
-
-The script will guide you through the process and require explicit confirmation before proceeding.
+That's it! The script will:
+- Prompt for your existing username (created during Arch installation)
+- Validate your user account and sudo privileges
+- Guide you through the transformation process
+- Require explicit confirmation before making changes
 
 ## Configuration
 
-Edit these variables at the top of the script before running:
+The script will prompt for your username during execution. You can optionally customize these settings by editing the script:
 
 | Variable | Purpose | Default | Required |
 |----------|---------|---------|----------|
-| `USERNAME` | Your non-root user account | `"user"` | **YES** |
+| `USERNAME` | Your non-root user account | Prompted | **Interactive** |
 | `HOSTNAME` | System hostname | `"arch-desktop"` | No |
 | `TIMEZONE` | System timezone | `"UTC"` | No |
 | `LOCALE` | System locale | `"en_US.UTF-8"` | No |
-
-**The USERNAME variable is mandatory and must match your existing user account.**
 
 ## What Gets Installed
 
