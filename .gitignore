@@ -1,0 +1,120 @@
+# Build artifacts
+build/
+dist/
+release/
+*.tar.gz
+*.zip
+*.deb
+*.rpm
+
+# Test artifacts
+tests/test.log
+tests/tmp_*
+tests/fixtures/generated/
+test-results.xml
+coverage/
+
+# Temporary files
+*.tmp
+*.temp
+*~
+.#*
+\#*#
+
+# Log files
+*.log
+logs/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Security files
+security-report.json
+*.pem
+*.key
+*.crt
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Docker files
+.dockerignore
+
+# Package manager
+node_modules/
+.npm
+.yarn/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# Configuration files with secrets
+config.conf
+*.secret
+*.private
+
+# Runtime files
+*.pid
+*.lock
+
+# Backup files
+*.bak
+*.backup
+*.orig
+
+# Documentation build
+_build/
+_static/
+_templates/
+
+# Test coverage
+.coverage
+htmlcov/
+
+# Profiling
+*.prof
+
+# Local development
+local/
+dev/
+sandbox/
+
+# Mock files for testing
+mock_*
+test_disk_*
+
+# Generated documentation
+docs/generated/
+docs/api/
+
+# Cache directories
+.cache/
+.pytest_cache/
+
+# Editor configurations
+.editorconfig
+
+# Git hooks
+.git/hooks/
