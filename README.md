@@ -87,6 +87,10 @@ archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/mai
 
 #### **Step 2: Lite Configuration Script (Final 20%)**
 ```bash
+# If you used archinstall's chroot option, just run:
+curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch-lite.sh | bash
+
+# If you need to chroot manually:
 arch-chroot /mnt
 curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch-lite.sh | bash
 ```

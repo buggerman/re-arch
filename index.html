@@ -421,10 +421,11 @@
                     <h3 style="color: #0891b2; margin-bottom: 15px;">Step 2: Lite configuration</h3>
                     <div class="install-code-wrapper">
                         <div class="install-code-container">
-                            <div class="install-code">arch-chroot /mnt && curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch-lite.sh | bash</div>
+                            <div class="install-code">curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch-lite.sh | bash</div>
                             <button class="copy-button" onclick="copyToClipboard(this)" title="Copy to clipboard">📋</button>
                         </div>
                     </div>
+                    <p style="margin-top: 10px; font-size: 0.9em; color: #6b7280; font-style: italic;">* If you didn't chroot during archinstall completion, run: arch-chroot /mnt first</p>
                 </div>
                 
                 <div style="background: rgba(8, 145, 178, 0.1); border-radius: 12px; padding: 20px; margin-top: 20px;">
@@ -440,7 +441,7 @@
             
             <div class="warning">
                 <h3>⚠️ Important Note</h3>
-                <p>The lite script performs final system configuration. Run Step 2 only after completing the archinstall process and chrooting into your new system.</p>
+                <p>The lite script performs final system configuration. Run Step 2 after archinstall completes - either from archinstall's chroot option or manually with arch-chroot.</p>
             </div>
         </header>
     </div>
@@ -504,8 +505,8 @@
                 
                 <div class="step">
                     <div class="step-number">2</div>
-                    <h3>Chroot Environment</h3>
-                    <p>Boot from installation media, mount your system, and chroot into the installed environment.</p>
+                    <h3>Enter Chroot</h3>
+                    <p>Either use archinstall's chroot option at completion, or manually chroot into your installed system.</p>
                 </div>
                 
                 <div class="step">
