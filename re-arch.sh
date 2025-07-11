@@ -388,6 +388,7 @@ run_preflight_checks() {
     info "Pre-flight validation completed: $check_count checks performed"
     echo "============================================================================="
     
+    # shellcheck disable=SC2317
     if [[ ${#failed_checks[@]} -gt 0 ]]; then
         echo
         error "❌ CRITICAL ISSUES FOUND:"
