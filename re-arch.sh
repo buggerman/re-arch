@@ -431,7 +431,7 @@ configure_bootloader() {
             warning "GRUB installation failed, trying alternative method..."
             # Fallback: try to get the disk from the root device
             local disk_device
-            disk_device=$(echo "$root_source" | sed 's/[0-9]*$//')
+            disk_device=${root_source%[0-9]*}
             if [[ -b "$disk_device" ]]; then
                 info "Attempting GRUB install to $disk_device..."
                 grub-install "$disk_device"
@@ -443,7 +443,7 @@ configure_bootloader() {
         warning "Could not determine boot device from lsblk, trying alternative method..."
         # Fallback: try to get the disk from the root device
         local disk_device
-        disk_device=$(echo "$root_source" | sed 's/[0-9]*$//')
+        disk_device=${root_source%[0-9]*}
         if [[ -b "$disk_device" ]]; then
             info "Attempting GRUB install to $disk_device..."
             grub-install "$disk_device"
