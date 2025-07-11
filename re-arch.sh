@@ -354,8 +354,25 @@ EOF
 configure_snapshots() {
     info "Configuring snapshot management..."
     
-    # Create snapper configuration for root
-    snapper -c root create-config /
+    # Check if snapper config already exists
+    if snapper -c root list &>/dev/null; then
+        warning "Snapper configuration already exists for root, skipping creation."
+    else
+        # Remove any existing /.snapshots if it exists
+        if [[ -d /.snapshots ]]; then
+            warning "Removing existing /.snapshots directory..."
+            umount /.snapshots 2>/dev/null || true
+            rm -rf /.snapshots
+        fi
+        
+        # Create snapper configuration for root
+        if ! snapper -c root create-config /; then
+            warning "Failed to create snapper config, attempting cleanup and retry..."
+            # Clean up and try again
+            rm -rf /.snapshots
+            snapper -c root create-config /
+        fi
+    fi
     
     # Configure snapper settings
     sed -i 's/^TIMELINE_CREATE="yes"/TIMELINE_CREATE="yes"/' /etc/snapper/configs/root
