@@ -1,307 +1,174 @@
-# Re-Arch: Atomic Arch Linux Converter
+# The Re-Arch Procedure
 
-[![CI](https://github.com/buggerman/re-arch/workflows/CI/badge.svg)](https://github.com/buggerman/re-arch/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Shell Check](https://github.com/buggerman/re-arch/workflows/shellcheck/badge.svg)](https://github.com/buggerman/re-arch/actions)
+A professional automation script for transforming minimal Arch Linux installations into optimized, resilient desktop systems with KDE Plasma, advanced snapshot management, and performance optimizations.
 
-A production-grade automation script that converts a minimal Arch Linux installation into an atomic system with Btrfs subvolumes and snapshot-based updates.
+### ⚠️ WARNING ⚠️
 
-## 🚀 Features
+**THIS SCRIPT IS HIGHLY OPINIONATED AND PERFORMS SYSTEM-WIDE CHANGES**
 
-- **Atomic Updates**: Snapshot-based system updates with automatic rollback capability
-- **Safe Operations**: Multiple confirmation prompts before destructive operations
-- **Flexible Configuration**: Support for environment variables, config files, and command-line arguments
-- **Desktop Environment Support**: KDE Plasma, GNOME, and XFCE
-- **Test Mode**: Comprehensive dry-run capability for safe testing
-- **Comprehensive Logging**: Detailed operation logging with timestamps
-- **Production Ready**: Extensive error handling and validation
+- This script makes extensive modifications to your system configuration
+- It installs a specific desktop environment, bootloader configuration, and system services
+- **ONLY RUN ON A DEDICATED, FRESHLY INSTALLED SYSTEM**
+- **DO NOT RUN ON PRODUCTION SYSTEMS OR SYSTEMS WITH EXISTING DATA**
+- Always test in a virtual machine first
+- Create backups before proceeding
+- The script assumes you want the exact configuration it provides
 
-## 📋 Prerequisites
+**By using this script, you accept full responsibility for any system changes or data loss.**
 
-- Existing minimal Arch Linux installation
-- Root access
-- Target disk for installation (will be completely wiped)
-- Internet connection for package downloads
+## Philosophy
 
-## 🛠 Installation
+The Re-Arch Procedure is designed around three core principles:
 
-### Quick Install
+### Performance
+- **Zen Kernel**: Uses linux-zen for improved desktop responsiveness
+- **Process Optimization**: Automatic process scheduling with ananicy-cpp
+- **Memory Management**: zram-generator for efficient memory utilization
+- **Modern Audio**: PipeWire for low-latency audio processing
+
+### Resilience
+- **Btrfs Snapshots**: Automatic system snapshots before package updates
+- **Bootable Snapshots**: GRUB integration allows booting from any snapshot
+- **Atomic Updates**: snap-pac ensures consistent system state during updates
+- **Firewall**: firewalld provides network security out of the box
+
+### Clean Separation of Concerns
+- **User Space**: Flatpak for sandboxed applications
+- **Development**: LinuxBrew for development tools isolation
+- **AUR Management**: Dedicated AUR helper (paru) for user packages
+- **System Services**: Minimal, well-defined service configuration
+
+## Prerequisites
+
+**STRICT REQUIREMENTS:**
+
+1. **Fresh Minimal Arch Linux Installation**
+   - Clean Arch Linux base installation (arch-install-scripts recommended)
+   - System must be bootable with working network connection
+
+2. **Btrfs Root Filesystem**
+   - Root partition (/) must be formatted with Btrfs
+   - Verify with: `findmnt -n -o FSTYPE /` should return `btrfs`
+
+3. **Non-root User Account**
+   - User account created during installation
+   - User must have sudo privileges configured
+   - Verify with: `sudo -l` (should not prompt for password setup)
+
+4. **Chroot Environment**
+   - Script must be run from within a chroot environment
+   - Typically from the Arch installation media after arch-chroot
+
+## Usage
+
+### Step 1: Boot into Arch Installation Environment
+```bash
+# Boot from Arch installation media
+# Mount your installed system and chroot into it
+mount /dev/sdXY /mnt  # Your root partition
+arch-chroot /mnt
+```
+
+### Step 2: Download the Script
+```bash
+# Download latest release
+curl -L -o re-arch.sh https://github.com/buggerman/re-arch/releases/latest/download/re-arch.sh
+
+# Or using wget
+wget -O re-arch.sh https://github.com/buggerman/re-arch/releases/latest/download/re-arch.sh
+
+# Make executable
+chmod +x re-arch.sh
+```
+
+### Step 3: Configure the Script
+**CRITICAL:** Edit the script to set your username before running:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/install.sh | sudo bash
+# Edit with your preferred editor
+nano re-arch.sh
+
+# Find the CONFIGURATION section and set:
+USERNAME="your-actual-username"
 ```
 
-### Manual Install
-
+### Step 4: Execute
 ```bash
-git clone https://github.com/buggerman/re-arch.git
-cd re-arch
-sudo chmod +x re-arch.sh
+# Run as root within the chroot
+./re-arch.sh
 ```
 
-## 🔧 Usage
+The script will guide you through the process and require explicit confirmation before proceeding.
 
-### Basic Usage
+## Configuration
 
-```bash
-# Interactive mode with prompts
-sudo ./re-arch.sh
+Edit these variables at the top of the script before running:
 
-# Specify target disk and desktop environment
-sudo ./re-arch.sh --target-disk /dev/sdb --de gnome
+| Variable | Purpose | Default | Required |
+|----------|---------|---------|----------|
+| `USERNAME` | Your non-root user account | `"user"` | **YES** |
+| `HOSTNAME` | System hostname | `"arch-desktop"` | No |
+| `TIMEZONE` | System timezone | `"UTC"` | No |
+| `LOCALE` | System locale | `"en_US.UTF-8"` | No |
 
-# Test mode (dry-run) - safe to test without making changes
-sudo ./re-arch.sh --test --verbose
-```
+**The USERNAME variable is mandatory and must match your existing user account.**
 
-### Configuration Options
+## What Gets Installed
 
-#### Command Line Arguments
+### Core System
+- linux-zen kernel for desktop optimization
+- GRUB bootloader with Btrfs snapshot support
+- snapper + snap-pac for automatic system snapshots
 
-```bash
-sudo ./re-arch.sh [OPTIONS]
+### Desktop Environment
+- KDE Plasma desktop (plasma-desktop)
+- SDDM display manager
+- Plasma Wayland session support
+- Essential applications: Konsole, Dolphin
 
-Options:
-  -h, --help              Show help message
-  -v, --version           Show version information
-  -c, --config FILE       Use custom configuration file
-  -t, --test              Run in test mode (dry-run)
-  -V, --verbose           Enable verbose output
-  --target-disk DISK      Target disk (default: /dev/sda)
-  --de DESKTOP            Desktop environment (kde|gnome|xfce)
-  --hostname NAME         System hostname
-  --username NAME         User name
-  --timezone TZ           Timezone (default: UTC)
-```
+### Performance & Security
+- ananicy-cpp for automatic process optimization
+- zram-generator for compressed memory management
+- PipeWire complete audio system
+- firewalld network security
 
-#### Environment Variables
+### Development & Package Management
+- paru AUR helper
+- base-devel compilation tools
+- git version control
+- Flatpak with Flathub repository
+- LinuxBrew package manager
 
-```bash
-export TARGET_DISK="/dev/nvme0n1"
-export DE_CHOICE="kde"
-export HOSTNAME="atomic-workstation"
-export USERNAME="myuser"
-export TIMEZONE="America/New_York"
-export TEST_MODE="true"
-export VERBOSE="true"
+## Post-Installation
 
-sudo -E ./re-arch.sh
-```
+After successful completion:
+1. Exit the chroot environment: `exit`
+2. Unmount the filesystem: `umount -R /mnt`
+3. Reboot into your new system: `reboot`
+4. Log in through SDDM with your user account
+5. Enjoy your optimized Arch Linux desktop!
 
-#### Configuration File
-
-Create a configuration file:
-
-```bash
-# config.conf
-TARGET_DISK="/dev/sdb"
-NEW_PART_SIZE="50G"
-DE_CHOICE="gnome"
-HOSTNAME="atomic-arch"
-USERNAME="user"
-LOCALE="en_US.UTF-8"
-TIMEZONE="America/New_York"
-KEYMAP="us"
-```
-
-Use the configuration file:
-
-```bash
-sudo ./re-arch.sh --config config.conf
-```
-
-## 🏗 System Architecture
-
-### Btrfs Subvolume Layout
-
-```
-/dev/sdX1 - EFI System Partition (512MB)
-/dev/sdX2 - Btrfs Partition
-  ├── @ (root, mounted read-only)
-  ├── @home (user data)
-  ├── @log (system logs)
-  └── @snapshots (system snapshots)
-```
-
-### Atomic Updates
-
-The system includes two main update utilities:
-
-#### `atomic-update`
-Performs snapshot-based system updates:
-
-```bash
-# Update system with automatic snapshot
-sudo atomic-update
-
-# Dry-run mode
-sudo atomic-update --dry-run
-
-# Verbose output
-sudo atomic-update --verbose
-```
-
-#### `atomic-rollback`
-Rolls back to previous snapshots:
-
-```bash
-# List available snapshots
-sudo atomic-rollback --list
-
-# Interactive rollback
-sudo atomic-rollback
-
-# Rollback to specific snapshot
-sudo atomic-rollback @_update_20231201_120000
-
-# Dry-run mode
-sudo atomic-rollback --dry-run @_update_20231201_120000
-```
-
-## 🧪 Testing
-
-### Running Tests
-
-```bash
-# Run basic test suite
-./tests/test_re_arch.sh
-
-# Run all tests including integration and performance
-./tests/test_re_arch.sh --all
-
-# Run only integration tests
-./tests/test_re_arch.sh --integration
-
-# Run only performance tests
-./tests/test_re_arch.sh --performance
-```
-
-### Test Coverage
-
-The test suite includes:
-
-- **Syntax validation**: Script syntax and shellcheck compliance
-- **Argument parsing**: Command-line arguments and environment variables
-- **Configuration validation**: Invalid inputs and edge cases
-- **Function testing**: Individual function behavior
-- **Integration testing**: Full dry-run execution
-- **Performance testing**: Script execution time benchmarks
-
-## 🔄 CI/CD Pipeline
-
-The project includes comprehensive CI/CD automation:
-
-- **Continuous Integration**: Automated testing on every commit
-- **Shell Check**: Static analysis for shell scripts
-- **Security Scanning**: Vulnerability detection
-- **Release Automation**: Automated versioning and releases
-- **Documentation**: Auto-generated documentation updates
-
-## 📁 Project Structure
-
-```
-re-arch/
-├── re-arch.sh              # Main script
-├── tests/
-│   ├── test_re_arch.sh      # Test suite
-│   └── fixtures/            # Test fixtures
-├── .github/
-│   └── workflows/           # CI/CD workflows
-├── docs/                    # Documentation
-├── scripts/                 # Helper scripts
-├── configs/                 # Example configurations
-├── Makefile                 # Build automation
-├── Dockerfile               # Container image
-└── README.md               # This file
-```
-
-## 🛡 Security Features
-
-- **Input validation**: Comprehensive validation of all user inputs
-- **Privilege escalation**: Explicit root requirement checks
-- **Safe defaults**: Conservative default configurations
-- **Confirmation prompts**: Multiple safety confirmations
-- **Test mode**: Safe dry-run capability
-- **Logging**: Comprehensive audit trail
-
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
+- **"Not running as root"**: Run with `./re-arch.sh` as root, not with sudo
+- **"Not a Btrfs filesystem"**: Ensure your root partition is Btrfs formatted
+- **Package installation fails**: Check internet connection and update keyring
+- **AUR helper fails**: Verify USERNAME is set correctly and user exists
 
-#### "Permission denied" errors
-```bash
-# Ensure script has execute permissions
-chmod +x re-arch.sh
+### Recovery
+If something goes wrong, snapshots may be available:
+- Reboot and select "Arch Linux snapshots" in GRUB
+- Use `snapper list` to view available snapshots
+- Restore with `snapper rollback <snapshot_number>`
 
-# Run with sudo
-sudo ./re-arch.sh
-```
+## License
 
-#### "Invalid disk" errors
-```bash
-# Check available disks
-lsblk
+MIT License - See LICENSE file for details.
 
-# Verify disk path
-ls -la /dev/sd*
-```
+## Contributing
 
-#### Test failures
-```bash
-# Run with verbose output
-./tests/test_re_arch.sh --verbose
-
-# Check test logs
-cat tests/test.log
-```
-
-### Getting Help
-
-1. Check the [FAQ](docs/FAQ.md)
-2. Review [troubleshooting guide](docs/TROUBLESHOOTING.md)
-3. Search existing [issues](https://github.com/buggerman/re-arch/issues)
-4. Create a [new issue](https://github.com/buggerman/re-arch/issues/new)
-
-## 📝 Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-### Development Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/buggerman/re-arch.git
-cd re-arch
-
-# Install development dependencies
-make dev-setup
-
-# Run tests
-make test
-
-# Run linting
-make lint
-
-# Build release
-make build
-```
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- Arch Linux community for the excellent documentation
-- Btrfs developers for the snapshot functionality
-- Contributors and testers who helped improve this project
-
-## 📚 Related Projects
-
-- [Arch Linux Installation Guide](https://wiki.archlinux.org/title/Installation_guide)
-- [Btrfs Wiki](https://btrfs.wiki.kernel.org/)
-- [systemd-boot](https://www.freedesktop.org/wiki/Software/systemd/systemd-boot/)
-
----
-
-**Warning**: This script will completely wipe the target disk. Always test in a virtual machine first and ensure you have backups of important data.
+- Report issues: GitHub Issues
+- Code style: shellcheck compliant
+- Testing: Always test in VMs first
+- Documentation: Update README for any changes

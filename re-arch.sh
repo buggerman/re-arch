@@ -1,700 +1,439 @@
 #!/bin/bash
 
-# Re-Arch: Transform minimal Arch Linux to optimized system with Btrfs subvolumes
-# Converts existing Arch Linux installation to use GRUB, KDE Plasma, and structured Btrfs layout
-# Version: 2.0.0
+# The Re-Arch Procedure
+# Professional automation script for transforming minimal Arch Linux installations
+# into optimized, resilient desktop systems with KDE Plasma and snapshot management
 
 set -euo pipefail
 
-VERSION="2.0.0"
-SCRIPT_NAME="re-arch"
+#===============================================================================
+# CONFIGURATION SECTION - EDIT THESE VALUES BEFORE RUNNING
+#===============================================================================
 
-# Default configuration values
-DEFAULT_HOSTNAME="arch-system"
-DEFAULT_USERNAME="user"
-DEFAULT_LOCALE="en_US.UTF-8"
-DEFAULT_TIMEZONE="UTC"
-DEFAULT_KEYMAP="us"
+# MANDATORY: Set this to your non-root username (must already exist)
+USERNAME="user"
 
-# Global variables
-TARGET_DISK=""
-ROOT_DEVICE=""
-BOOT_DEVICE=""
-HOSTNAME="${TARGET_HOSTNAME:-$DEFAULT_HOSTNAME}"
-USERNAME="${USERNAME:-$DEFAULT_USERNAME}"
-LOCALE="${LOCALE:-$DEFAULT_LOCALE}"
-TIMEZONE="${TIMEZONE:-$DEFAULT_TIMEZONE}"
-KEYMAP="${KEYMAP:-$DEFAULT_KEYMAP}"
-TEST_MODE="${TEST_MODE:-false}"
-VERBOSE="${VERBOSE:-false}"
-CONFIG_FILE=""
+# OPTIONAL: Customize these settings as needed
+HOSTNAME="arch-desktop"
+TIMEZONE="UTC"
+LOCALE="en_US.UTF-8"
 
-# Btrfs subvolume configuration
-SUBVOLUMES=(
-    "@:/"
-    "@home:/home"
-    "@var:/var"
-    "@opt:/opt"
-    "@tmp:/tmp"
-    "@srv:/srv"
-    "@usr-local:/usr/local"
-    "@var-cache:/var/cache"
-    "@var-log:/var/log"
-    "@var-tmp:/var/tmp"
-    "@snapshots:/.snapshots"
-)
+#===============================================================================
+# CONSTANTS AND GLOBALS
+#===============================================================================
 
-# Package groups
-BASE_PACKAGES="base base-devel linux linux-firmware linux-headers"
-BOOTLOADER_PACKAGES="grub efibootmgr os-prober"
-FILESYSTEM_PACKAGES="btrfs-progs snapper"
-NETWORK_PACKAGES="networkmanager dhcpcd wpa_supplicant"
-AUDIO_PACKAGES="pipewire pipewire-alsa pipewire-pulse pipewire-jack wireplumber"
-KDE_PACKAGES="plasma-meta kde-applications-meta sddm konsole dolphin"
-DEV_PACKAGES="git vim nano code firefox chromium flatpak"
-FONTS_PACKAGES="ttf-dejavu ttf-liberation noto-fonts noto-fonts-emoji"
-UTILS_PACKAGES="htop neofetch tree unzip wget curl rsync"
+readonly SCRIPT_NAME="re-arch.sh"
+readonly SCRIPT_VERSION="1.0.0"
+readonly LOG_FILE="/var/log/re-arch.log"
 
-# Logging functions
+# Color codes for output
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly YELLOW='\033[1;33m'
+readonly BLUE='\033[0;34m'
+readonly NC='\033[0m' # No Color
+
+#===============================================================================
+# LOGGING AND OUTPUT FUNCTIONS
+#===============================================================================
+
 log() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"
-}
-
-debug() {
-    if [[ "$VERBOSE" == "true" ]]; then
-        echo "[DEBUG] $*" >&2
-    fi
+    local level="$1"
+    shift
+    local message="$*"
+    local timestamp
+    timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    
+    echo "[$timestamp] [$level] $message" | tee -a "$LOG_FILE"
 }
 
 info() {
-    echo "[INFO] $*"
+    echo -e "${BLUE}[INFO]${NC} $*"
+    log "INFO" "$*"
+}
+
+success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $*"
+    log "SUCCESS" "$*"
 }
 
 warning() {
-    echo "[WARNING] $*" >&2
+    echo -e "${YELLOW}[WARNING]${NC} $*"
+    log "WARNING" "$*"
 }
 
 error() {
-    echo "[ERROR] $*" >&2
-}
-
-fatal() {
-    echo "[FATAL] $*" >&2
+    echo -e "${RED}[ERROR]${NC} $*" >&2
+    log "ERROR" "$*"
     exit 1
 }
 
-# Test mode wrapper for commands
-run_command() {
-    local cmd="$*"
+#===============================================================================
+# SAFETY AND VALIDATION FUNCTIONS
+#===============================================================================
+
+display_warning() {
+    echo
+    echo "============================================================================="
+    echo -e "${RED}                            CRITICAL WARNING${NC}"
+    echo "============================================================================="
+    echo
+    echo "This script will make EXTENSIVE changes to your system including:"
+    echo "  • Installing and configuring KDE Plasma desktop environment"
+    echo "  • Modifying bootloader configuration (GRUB)"
+    echo "  • Installing performance optimization tools"
+    echo "  • Setting up automatic snapshot management"
+    echo "  • Configuring system services and firewall"
+    echo
+    echo "This script is designed for FRESH, MINIMAL Arch Linux installations ONLY."
+    echo
+    echo -e "${YELLOW}DO NOT RUN THIS ON PRODUCTION SYSTEMS OR SYSTEMS WITH EXISTING DATA.${NC}"
+    echo
+    echo "Prerequisites verified:"
+    echo "  ✓ Running as root"
+    echo "  ✓ Btrfs root filesystem detected"
+    echo "  ✓ User account '$USERNAME' exists"
+    echo
+    echo "============================================================================="
+    echo
     
-    if [[ "$TEST_MODE" == "true" ]]; then
-        info "TEST MODE: Would run: $cmd"
-        return 0
-    else
-        debug "Executing: $cmd"
-        eval "$cmd"
-    fi
+    local confirmation
+    while true; do
+        echo -n "Type 'YES' in capital letters to proceed, or 'NO' to abort: "
+        read -r confirmation
+        
+        case "$confirmation" in
+            "YES")
+                info "User confirmed. Proceeding with system transformation..."
+                break
+                ;;
+            "NO"|"no"|"No")
+                info "User aborted. Exiting safely."
+                exit 0
+                ;;
+            *)
+                warning "Invalid input. Please type exactly 'YES' or 'NO'."
+                ;;
+        esac
+    done
 }
 
-# Validation functions
-validate_hostname() {
-    local hostname="$1"
+run_checks() {
+    info "Running pre-execution safety checks..."
     
-    if [[ ! "$hostname" =~ ^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$ ]]; then
-        fatal "Invalid hostname: $hostname. Must be 1-63 characters, alphanumeric with hyphens."
-    fi
-}
-
-validate_username() {
-    local username="$1"
-    
-    if [[ ! "$username" =~ ^[a-z_]([a-z0-9_-]{0,31})$ ]]; then
-        fatal "Invalid username: $username. Must start with lowercase letter or underscore, 1-32 characters."
-    fi
-}
-
-validate_timezone() {
-    local timezone="$1"
-    
-    if [[ ! -f "/usr/share/zoneinfo/$timezone" ]]; then
-        fatal "Invalid timezone: $timezone"
-    fi
-}
-
-validate_locale() {
-    local locale="$1"
-    
-    if ! locale -a 2>/dev/null | grep -q "^${locale}$"; then
-        warning "Locale $locale may not be available, will be generated during installation"
-    fi
-}
-
-validate_disk() {
-    local disk="$1"
-    
-    if [[ "$TEST_MODE" == "true" ]]; then
-        info "TEST MODE: Skipping disk validation for $disk"
-        return 0
+    # Check if running as root
+    if [[ $EUID -ne 0 ]]; then
+        error "This script must be run as root. Use: ./re-arch.sh"
     fi
     
-    if [[ ! -b "$disk" ]]; then
-        fatal "Disk $disk is not a valid block device"
-    fi
-    
-    if ! lsblk "$disk" >/dev/null 2>&1; then
-        fatal "Cannot access disk $disk"
-    fi
-}
-
-validate_existing_installation() {
-    info "Validating existing Arch Linux installation..."
-    
-    if [[ "$TEST_MODE" == "true" ]]; then
-        info "TEST MODE: Skipping installation validation"
-        return 0
-    fi
-    
-    # Check if we're running on Arch Linux
+    # Check if we're on Arch Linux
     if [[ ! -f /etc/arch-release ]]; then
-        fatal "This script must be run on an existing Arch Linux installation"
+        error "This script is designed for Arch Linux only."
     fi
     
-    # Check if root filesystem is already Btrfs
+    # Check if root filesystem is Btrfs
     local root_fs
     root_fs=$(findmnt -n -o FSTYPE /)
     if [[ "$root_fs" != "btrfs" ]]; then
-        fatal "Root filesystem must already be Btrfs. Current: $root_fs"
+        error "Root filesystem must be Btrfs. Current: $root_fs"
     fi
     
-    # Check if GRUB is already installed
-    if command -v grub-install >/dev/null 2>&1; then
-        info "GRUB already available"
-    else
-        warning "GRUB not found, will be installed"
+    # Check if USERNAME is configured
+    if [[ "$USERNAME" == "user" ]]; then
+        warning "USERNAME is set to default 'user'. Please edit the script to set your actual username."
+        warning "Edit the CONFIGURATION section at the top of this script."
+        error "Aborting to prevent configuration errors."
     fi
     
-    info "Existing installation validation passed"
+    # Check if the specified user exists
+    if ! id "$USERNAME" &>/dev/null; then
+        error "User '$USERNAME' does not exist. Please create the user first or correct the USERNAME variable."
+    fi
+    
+    # Check if user has sudo privileges
+    if ! sudo -u "$USERNAME" sudo -l &>/dev/null; then
+        error "User '$USERNAME' does not have sudo privileges. Configure sudo access first."
+    fi
+    
+    # Check internet connectivity
+    if ! ping -c 1 archlinux.org &>/dev/null; then
+        error "No internet connectivity. Please establish network connection first."
+    fi
+    
+    success "All safety checks passed."
 }
 
-validate_prerequisites() {
-    info "Validating prerequisites..."
-    
-    # Check if running as root (skip in test mode)
-    if [[ $EUID -ne 0 && "$TEST_MODE" != "true" ]]; then
-        fatal "This script must be run as root"
-    fi
-    
-    if [[ "$TEST_MODE" == "true" && $EUID -ne 0 ]]; then
-        info "TEST MODE: Skipping root privilege check"
-    fi
-    
-    # Validate all configuration values
-    validate_hostname "$HOSTNAME"
-    validate_username "$USERNAME"
-    validate_timezone "$TIMEZONE"
-    validate_locale "$LOCALE"
-    
-    if [[ -n "$TARGET_DISK" ]]; then
-        validate_disk "$TARGET_DISK"
-    fi
-    
-    validate_existing_installation
-    
-    info "Prerequisites validation passed"
-}
+#===============================================================================
+# SYSTEM CONFIGURATION FUNCTIONS
+#===============================================================================
 
-# Configuration functions
-load_config_file() {
-    local config_file="$1"
+configure_pacman() {
+    info "Optimizing pacman configuration..."
     
-    if [[ ! -f "$config_file" ]]; then
-        fatal "Configuration file not found: $config_file"
-    fi
+    # Backup original configuration
+    cp /etc/pacman.conf /etc/pacman.conf.backup
     
-    info "Loading configuration from $config_file"
+    # Enable parallel downloads and color output
+    sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 10/' /etc/pacman.conf
+    sed -i 's/#Color/Color/' /etc/pacman.conf
+    sed -i 's/#VerbosePkgLists/VerbosePkgLists/' /etc/pacman.conf
     
-    # Source the config file safely
-    while IFS='=' read -r key value; do
-        # Skip comments and empty lines
-        [[ "$key" =~ ^[[:space:]]*# ]] && continue
-        [[ -z "$key" ]] && continue
-        
-        # Remove quotes from value
-        value="${value%\"}"
-        value="${value#\"}"
-        
-        case "$key" in
-            TARGET_DISK) TARGET_DISK="$value" ;;
-            HOSTNAME) HOSTNAME="$value" ;;
-            USERNAME) USERNAME="$value" ;;
-            LOCALE) LOCALE="$value" ;;
-            TIMEZONE) TIMEZONE="$value" ;;
-            KEYMAP) KEYMAP="$value" ;;
-            TEST_MODE) TEST_MODE="$value" ;;
-            VERBOSE) VERBOSE="$value" ;;
-        esac
-    done < "$config_file"
+    # Enable multilib repository
+    sed -i '/^#\[multilib\]/,/^#Include/ { s/^#//; }' /etc/pacman.conf
     
-    info "Configuration loaded successfully"
-}
-
-show_configuration() {
-    info "Current configuration:"
-    info "  Target disk: ${TARGET_DISK:-<not set>}"
-    info "  Hostname: $HOSTNAME"
-    info "  Username: $USERNAME"
-    info "  Locale: $LOCALE"
-    info "  Timezone: $TIMEZONE"
-    info "  Keymap: $KEYMAP"
-    info "  Test mode: $TEST_MODE"
-    info "  Verbose: $VERBOSE"
-}
-
-# System detection
-detect_system_info() {
-    info "Detecting system information..."
+    # Update package databases
+    pacman -Sy
     
-    if [[ "$TEST_MODE" == "true" ]]; then
-        # Use mock values for test mode
-        BOOT_MODE="UEFI"
-        BOOT_DEVICE="/dev/test-boot"
-        ROOT_DEVICE="/dev/test-root"
-        if [[ -z "$TARGET_DISK" ]]; then
-            TARGET_DISK="/dev/test-disk"
-        fi
-        info "TEST MODE: Using mock system information"
-    else
-        # Detect EFI or BIOS
-        if [[ -d /sys/firmware/efi ]]; then
-            BOOT_MODE="UEFI"
-            BOOT_DEVICE="/dev/$(lsblk -no PKNAME "$(findmnt -n -o SOURCE /boot/efi)" 2>/dev/null || echo "unknown")"
-        else
-            BOOT_MODE="BIOS"
-            BOOT_DEVICE="/dev/$(lsblk -no PKNAME "$(findmnt -n -o SOURCE /boot)" 2>/dev/null || echo "unknown")"
-        fi
-        
-        # Detect current root device
-        ROOT_DEVICE="/dev/$(lsblk -no PKNAME "$(findmnt -n -o SOURCE /)" 2>/dev/null || echo "unknown")"
-        
-        # Use detected device if TARGET_DISK not specified
-        if [[ -z "$TARGET_DISK" ]]; then
-            TARGET_DISK="$ROOT_DEVICE"
-            info "Auto-detected target disk: $TARGET_DISK"
-        fi
-    fi
-    
-    info "System detection complete:"
-    info "  Boot mode: $BOOT_MODE"
-    info "  Root device: $ROOT_DEVICE"
-    info "  Boot device: $BOOT_DEVICE"
-    info "  Target disk: $TARGET_DISK"
-}
-
-# Btrfs subvolume management
-setup_subvolumes() {
-    info "Setting up Btrfs subvolumes..."
-    
-    local root_mount="/mnt/btrfs-root"
-    
-    # Mount root Btrfs filesystem
-    run_command "mkdir -p '$root_mount'"
-    run_command "mount -o subvol=/ '$TARGET_DISK'* '$root_mount'"
-    
-    # Create subvolumes
-    for subvol_def in "${SUBVOLUMES[@]}"; do
-        local subvol_name="${subvol_def%:*}"
-        local mount_point="${subvol_def#*:}"
-        
-        info "Creating subvolume: $subvol_name"
-        run_command "btrfs subvolume create '$root_mount/$subvol_name'"
-    done
-    
-    # Unmount root filesystem
-    run_command "umount '$root_mount'"
-    run_command "rmdir '$root_mount'"
-    
-    info "Btrfs subvolumes created successfully"
-}
-
-update_fstab() {
-    info "Updating /etc/fstab with new subvolume layout..."
-    
-    local fstab_backup
-    fstab_backup="/etc/fstab.backup.$(date +%Y%m%d_%H%M%S)"
-    
-    if [[ "$TEST_MODE" == "true" ]]; then
-        info "TEST MODE: Would backup fstab to $fstab_backup"
-        info "TEST MODE: Would update fstab with subvolume mounts"
-        return 0
-    fi
-    
-    # Backup current fstab
-    cp /etc/fstab "$fstab_backup"
-    info "Backed up fstab to $fstab_backup"
-    
-    # Generate new fstab
-    cat > /etc/fstab << 'EOF'
-# /etc/fstab: static file system information
-#
-# <file system> <dir> <type> <options> <dump> <pass>
-
-EOF
-    
-    # Add subvolume entries
-    local root_uuid
-    root_uuid=$(blkid -s UUID -o value "$TARGET_DISK"*)
-    
-    for subvol_def in "${SUBVOLUMES[@]}"; do
-        local subvol_name="${subvol_def%:*}"
-        local mount_point="${subvol_def#*:}"
-        
-        echo "UUID=$root_uuid $mount_point btrfs subvol=$subvol_name,compress=zstd,noatime 0 0" >> /etc/fstab
-    done
-    
-    # Add EFI partition if UEFI
-    if [[ "$BOOT_MODE" == "UEFI" ]]; then
-        local efi_uuid
-        efi_uuid=$(blkid -s UUID -o value "${TARGET_DISK}1" 2>/dev/null || echo "")
-        if [[ -n "$efi_uuid" ]]; then
-            echo "UUID=$efi_uuid /boot/efi vfat umask=0077 0 1" >> /etc/fstab
-        fi
-    fi
-    
-    info "Updated /etc/fstab successfully"
+    success "Pacman configuration optimized."
 }
 
 install_packages() {
-    info "Installing packages..."
+    info "Installing system packages..."
     
-    local all_packages="$BASE_PACKAGES $BOOTLOADER_PACKAGES $FILESYSTEM_PACKAGES"
-    all_packages="$all_packages $NETWORK_PACKAGES $AUDIO_PACKAGES $KDE_PACKAGES"
-    all_packages="$all_packages $DEV_PACKAGES $FONTS_PACKAGES $UTILS_PACKAGES"
+    # Update keyring first
+    pacman -S --noconfirm archlinux-keyring
     
-    # Update package database
-    run_command "pacman -Sy"
+    # Core system packages
+    local core_packages=(
+        "linux-zen"
+        "linux-zen-headers" 
+        "base-devel"
+        "git"
+    )
     
-    # Install packages
-    run_command "pacman -S --needed --noconfirm $all_packages"
+    # Desktop environment packages
+    local desktop_packages=(
+        "plasma-desktop"
+        "konsole"
+        "dolphin"
+        "sddm"
+        "plasma-wayland-session"
+    )
     
-    info "Package installation completed"
-}
-
-configure_grub() {
-    info "Configuring GRUB bootloader..."
+    # Performance and system packages
+    local performance_packages=(
+        "ananicy-cpp"
+        "zram-generator"
+        "pipewire"
+        "pipewire-alsa"
+        "pipewire-pulse" 
+        "pipewire-jack"
+        "wireplumber"
+        "firewalld"
+    )
     
-    if [[ "$BOOT_MODE" == "UEFI" ]]; then
-        run_command "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB"
-    else
-        run_command "grub-install --target=i386-pc '$TARGET_DISK'"
-    fi
+    # Snapshot and boot packages  
+    local snapshot_packages=(
+        "snapper"
+        "snap-pac"
+        "grub-btrfs"
+    )
     
-    # Update GRUB configuration
-    run_command "grub-mkconfig -o /boot/grub/grub.cfg"
+    # Combine all package arrays
+    local all_packages=()
+    all_packages+=("${core_packages[@]}")
+    all_packages+=("${desktop_packages[@]}")
+    all_packages+=("${performance_packages[@]}")
+    all_packages+=("${snapshot_packages[@]}")
     
-    info "GRUB configuration completed"
-}
-
-configure_kde() {
-    info "Configuring KDE Plasma..."
+    # Install all packages
+    info "Installing ${#all_packages[@]} packages..."
+    pacman -S --needed --noconfirm "${all_packages[@]}"
     
-    # Enable SDDM display manager
-    run_command "systemctl enable sddm"
-    
-    # Create SDDM configuration
-    run_command "mkdir -p /etc/sddm.conf.d"
-    
-    if [[ "$TEST_MODE" == "true" ]]; then
-        info "TEST MODE: Would create SDDM configuration"
-    else
-        cat > /etc/sddm.conf.d/kde_settings.conf << 'EOF'
-[Autologin]
-Relogin=false
-Session=
-User=
-
-[General]
-HaltCommand=/usr/bin/systemctl poweroff
-RebootCommand=/usr/bin/systemctl reboot
-
-[Theme]
-Current=breeze
-
-[Users]
-MaximumUid=60000
-MinimumUid=1000
-EOF
-    fi
-    
-    info "KDE Plasma configuration completed"
+    success "Package installation completed."
 }
 
 configure_system() {
-    info "Configuring system settings..."
+    info "Configuring basic system settings..."
     
     # Set hostname
-    run_command "echo '$HOSTNAME' > /etc/hostname"
+    echo "$HOSTNAME" > /etc/hostname
     
     # Configure hosts file
-    if [[ "$TEST_MODE" == "true" ]]; then
-        info "TEST MODE: Would update /etc/hosts"
-    else
-        cat > /etc/hosts << EOF
+    cat > /etc/hosts << EOF
 127.0.0.1   localhost
 ::1         localhost
 127.0.1.1   $HOSTNAME.localdomain $HOSTNAME
 EOF
-    fi
     
     # Set timezone
-    run_command "ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime"
-    run_command "hwclock --systohc"
+    ln -sf "/usr/share/zoneinfo/$TIMEZONE" /etc/localtime
+    hwclock --systohc
     
     # Configure locale
-    if [[ "$TEST_MODE" == "true" ]]; then
-        info "TEST MODE: Would configure locale: $LOCALE"
-    else
-        sed -i "s/#${LOCALE}/${LOCALE}/" /etc/locale.gen
-        locale-gen
-        echo "LANG=$LOCALE" > /etc/locale.conf
-    fi
+    echo "$LOCALE UTF-8" > /etc/locale.gen
+    locale-gen
+    echo "LANG=$LOCALE" > /etc/locale.conf
     
-    # Set keymap
-    run_command "echo 'KEYMAP=$KEYMAP' > /etc/vconsole.conf"
+    # Configure vconsole
+    echo "KEYMAP=us" > /etc/vconsole.conf
     
-    # Enable essential services
-    run_command "systemctl enable NetworkManager"
-    run_command "systemctl enable fstrim.timer"
-    
-    info "System configuration completed"
+    success "Basic system configuration completed."
 }
 
-create_user() {
-    info "Creating user account: $USERNAME"
+setup_aur() {
+    info "Setting up AUR helper (paru)..."
     
-    # Create user
-    run_command "useradd -m -G wheel,audio,video,optical,storage '$USERNAME'"
+    # Switch to user context for AUR operations
+    sudo -u "$USERNAME" bash << 'EOF'
+cd /home/$SUDO_USER
+
+# Clone paru repository
+git clone https://aur.archlinux.org/paru.git
+cd paru
+
+# Build and install paru
+makepkg -si --noconfirm
+
+# Clean up
+cd ..
+rm -rf paru
+EOF
     
-    # Set user password (prompt for it)
-    if [[ "$TEST_MODE" == "true" ]]; then
-        info "TEST MODE: Would prompt for user password"
-    else
-        info "Please set password for user $USERNAME:"
-        passwd "$USERNAME"
-    fi
-    
-    # Configure sudo for wheel group
-    if [[ "$TEST_MODE" == "true" ]]; then
-        info "TEST MODE: Would enable sudo for wheel group"
-    else
-        sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
-    fi
-    
-    info "User account created successfully"
+    success "AUR helper (paru) installed successfully."
 }
 
-setup_snapper() {
-    info "Setting up Snapper for snapshot management..."
+configure_snapshots() {
+    info "Configuring snapshot management..."
     
     # Create snapper configuration for root
-    run_command "snapper -c root create-config /"
+    snapper -c root create-config /
     
-    # Configure snapper
-    if [[ "$TEST_MODE" == "true" ]]; then
-        info "TEST MODE: Would configure snapper settings"
-    else
-        # Update snapper configuration
-        sed -i 's/^TIMELINE_CREATE="yes"/TIMELINE_CREATE="yes"/' /etc/snapper/configs/root
-        sed -i 's/^TIMELINE_CLEANUP="yes"/TIMELINE_CLEANUP="yes"/' /etc/snapper/configs/root
-        sed -i 's/^NUMBER_CLEANUP="yes"/NUMBER_CLEANUP="yes"/' /etc/snapper/configs/root
-    fi
+    # Configure snapper settings
+    sed -i 's/^TIMELINE_CREATE="yes"/TIMELINE_CREATE="yes"/' /etc/snapper/configs/root
+    sed -i 's/^TIMELINE_CLEANUP="yes"/TIMELINE_CLEANUP="yes"/' /etc/snapper/configs/root
+    sed -i 's/^NUMBER_CLEANUP="yes"/NUMBER_CLEANUP="yes"/' /etc/snapper/configs/root
+    sed -i 's/^NUMBER_LIMIT="50"/NUMBER_LIMIT="10"/' /etc/snapper/configs/root
+    sed -i 's/^NUMBER_LIMIT_IMPORTANT="10"/NUMBER_LIMIT_IMPORTANT="5"/' /etc/snapper/configs/root
     
-    # Enable snapper timer
-    run_command "systemctl enable snapper-timeline.timer"
-    run_command "systemctl enable snapper-cleanup.timer"
+    # Set proper permissions for user
+    usermod -a -G snapper "$USERNAME"
+    chown -R :snapper /.snapshots
+    chmod 750 /.snapshots
     
-    info "Snapper configuration completed"
+    success "Snapshot management configured."
 }
 
-enable_flatpak() {
-    info "Configuring Flatpak..."
+configure_bootloader() {
+    info "Configuring GRUB bootloader with snapshot support..."
     
-    # Add Flathub repository
-    run_command "flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo"
+    # Install GRUB to the boot device (assumes single disk setup)
+    local boot_device
+    boot_device=$(lsblk -no PKNAME "$(findmnt -n -o SOURCE /)" | head -1)
+    grub-install "/dev/$boot_device"
     
-    info "Flatpak configuration completed"
+    # Configure GRUB for Btrfs snapshots
+    echo 'GRUB_BTRFS_LIMIT="10"' >> /etc/default/grub
+    echo 'GRUB_BTRFS_SHOW_SNAPSHOTS_FOUND="true"' >> /etc/default/grub
+    
+    # Regenerate GRUB configuration
+    grub-mkconfig -o /boot/grub/grub.cfg
+    
+    success "GRUB bootloader configured with snapshot support."
 }
 
-# Main execution functions
-run_full_procedure() {
-    info "Starting Re-Arch procedure..."
+enable_services() {
+    info "Enabling system services..."
     
-    validate_prerequisites
-    detect_system_info
-    show_configuration
+    local services=(
+        "sddm.service"
+        "NetworkManager.service"
+        "firewalld.service"
+        "snapper-timeline.timer"
+        "snapper-cleanup.timer"
+        "grub-btrfsd.service"
+        "ananicy-cpp.service"
+    )
     
-    if [[ "$TEST_MODE" == "true" ]]; then
-        info "TEST MODE: Configuration validation passed"
-        info "TEST MODE: All operations were simulated"
-        info "Re-Arch procedure completed successfully (TEST MODE)"
-        return 0
-    fi
-    
-    setup_subvolumes
-    update_fstab
-    install_packages
-    configure_grub
-    configure_kde
-    configure_system
-    create_user
-    setup_snapper
-    enable_flatpak
-    
-    info "Re-Arch procedure completed successfully!"
-    info "Please reboot your system to use the new configuration"
-    
-    warning "IMPORTANT: After reboot, mount the new subvolumes:"
-    warning "sudo mount -a"
-}
-
-# Help and version functions
-show_help() {
-    cat << 'EOF'
-Re-Arch: Transform minimal Arch Linux to optimized system
-
-Usage: re-arch.sh [OPTIONS]
-
-DESCRIPTION:
-    Transforms an existing minimal Arch Linux installation into an optimized
-    system with Btrfs subvolumes, GRUB bootloader, KDE Plasma desktop, and
-    development tools.
-
-    CRITICAL REQUIREMENTS:
-    - Must be run on existing Arch Linux with Btrfs root filesystem
-    - Must be run as root
-    - System must have GRUB or be prepared for GRUB installation
-
-OPTIONS:
-    --config FILE       Load configuration from file
-    --hostname NAME     Set system hostname (default: arch-system)
-    --username NAME     Set username for new user account (default: user)
-    --timezone TZ       Set system timezone (default: UTC)
-    --locale LOCALE     Set system locale (default: en_US.UTF-8)
-    --keymap KEYMAP     Set console keymap (default: us)
-    --target-disk DEV   Specify target disk device
-    --test              Run in test mode (simulate operations)
-    --verbose           Enable verbose output
-    --version           Show version information
-    --help              Show this help message
-
-EXAMPLES:
-    # Basic usage (interactive)
-    sudo ./re-arch.sh
-
-    # Use configuration file
-    sudo ./re-arch.sh --config myconfig.conf
-
-    # Set specific options
-    sudo ./re-arch.sh --hostname workstation --username john
-
-    # Test mode (safe dry-run)
-    sudo ./re-arch.sh --test
-
-CONFIGURATION FILE FORMAT:
-    TARGET_DISK="/dev/sda"
-    HOSTNAME="my-workstation" 
-    USERNAME="myuser"
-    TIMEZONE="America/New_York"
-    LOCALE="en_US.UTF-8"
-    KEYMAP="us"
-    TEST_MODE="false"
-    VERBOSE="false"
-
-SAFETY FEATURES:
-    - Test mode for safe validation
-    - Automatic backups of critical files
-    - Comprehensive prerequisite checking
-    - Btrfs snapshots for recovery
-
-For more information, visit: https://github.com/buggerman/re-arch
-EOF
-}
-
-show_version() {
-    echo "$SCRIPT_NAME version $VERSION"
-}
-
-# Argument parsing
-parse_arguments() {
-    while [[ $# -gt 0 ]]; do
-        case $1 in
-            --config)
-                CONFIG_FILE="$2"
-                shift 2
-                ;;
-            --hostname)
-                HOSTNAME="$2"
-                shift 2
-                ;;
-            --username)
-                USERNAME="$2"
-                shift 2
-                ;;
-            --timezone)
-                TIMEZONE="$2"
-                shift 2
-                ;;
-            --locale)
-                LOCALE="$2"
-                shift 2
-                ;;
-            --keymap)
-                KEYMAP="$2"
-                shift 2
-                ;;
-            --target-disk)
-                TARGET_DISK="$2"
-                shift 2
-                ;;
-            --test)
-                TEST_MODE="true"
-                shift
-                ;;
-            --verbose)
-                VERBOSE="true"
-                shift
-                ;;
-            --version)
-                show_version
-                exit 0
-                ;;
-            --help|-h)
-                show_help
-                exit 0
-                ;;
-            *)
-                error "Unknown option: $1"
-                echo "Use --help for usage information"
-                exit 1
-                ;;
-        esac
+    for service in "${services[@]}"; do
+        info "Enabling $service..."
+        systemctl enable "$service"
     done
+    
+    success "System services enabled."
 }
 
-# Main function
-main() {
-    log "Starting $SCRIPT_NAME v$VERSION"
+setup_user_environment() {
+    info "Setting up user environment for $USERNAME..."
     
-    # Parse command line arguments
-    parse_arguments "$@"
+    # Setup Flatpak and Flathub
+    sudo -u "$USERNAME" bash << 'EOF'
+# Add Flathub repository
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+# Create LinuxBrew directory
+mkdir -p /home/$SUDO_USER/.linuxbrew
+
+# Install LinuxBrew
+git clone https://github.com/Homebrew/brew /home/$SUDO_USER/.linuxbrew/Homebrew
+
+# Add LinuxBrew to PATH in .bashrc
+echo 'export PATH="/home/$SUDO_USER/.linuxbrew/Homebrew/bin:$PATH"' >> /home/$SUDO_USER/.bashrc
+echo 'export MANPATH="/home/$SUDO_USER/.linuxbrew/Homebrew/share/man:$MANPATH"' >> /home/$SUDO_USER/.bashrc
+echo 'export INFOPATH="/home/$SUDO_USER/.linuxbrew/Homebrew/share/info:$INFOPATH"' >> /home/$SUDO_USER/.bashrc
+EOF
     
-    # Load configuration file if specified
-    if [[ -n "$CONFIG_FILE" ]]; then
-        load_config_file "$CONFIG_FILE"
-    fi
-    
-    # Run the main procedure
-    run_full_procedure
+    success "User environment configured for $USERNAME."
 }
+
+#===============================================================================
+# MAIN EXECUTION FUNCTION
+#===============================================================================
+
+main() {
+    info "Starting The Re-Arch Procedure v$SCRIPT_VERSION"
+    info "Target user: $USERNAME"
+    info "Hostname: $HOSTNAME"
+    info "Timezone: $TIMEZONE"
+    info "Locale: $LOCALE"
+    
+    # Create log file
+    touch "$LOG_FILE"
+    chmod 644 "$LOG_FILE"
+    
+    # Run safety checks
+    run_checks
+    
+    # Display warning and get user confirmation
+    display_warning
+    
+    # Execute configuration steps
+    configure_pacman
+    install_packages
+    configure_system
+    setup_aur
+    configure_snapshots  
+    configure_bootloader
+    enable_services
+    setup_user_environment
+    
+    # Final success message
+    echo
+    echo "============================================================================="
+    success "The Re-Arch Procedure completed successfully!"
+    echo "============================================================================="
+    echo
+    info "System transformation complete. Next steps:"
+    echo "  1. Exit the chroot environment: exit"
+    echo "  2. Unmount the filesystem: umount -R /mnt"  
+    echo "  3. Reboot into your new system: reboot"
+    echo "  4. Log in through SDDM with user: $USERNAME"
+    echo
+    info "Your system now includes:"
+    echo "  • KDE Plasma desktop with Wayland support"
+    echo "  • Automatic snapshot management (snapper)"
+    echo "  • Performance optimizations (linux-zen, ananicy-cpp)"
+    echo "  • Modern audio system (PipeWire)"
+    echo "  • AUR helper (paru) for additional packages"
+    echo "  • Flatpak and LinuxBrew package managers"
+    echo
+    warning "Remember to reboot to activate all changes!"
+    echo "============================================================================="
+}
+
+#===============================================================================
+# SCRIPT EXECUTION
+#===============================================================================
 
 # Execute main function if script is run directly
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
