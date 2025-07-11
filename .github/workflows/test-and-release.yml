@@ -11,8 +11,14 @@ jobs:
   lint_and_validate:
     name: Lint and Validate
     runs-on: ubuntu-latest
+    container: archlinux:latest
     
     steps:
+      - name: Setup Arch Linux environment
+        run: |
+          pacman -Sy --noconfirm
+          pacman -S --noconfirm git shellcheck bash
+          
       - name: Checkout repository
         uses: actions/checkout@v4
         
@@ -23,11 +29,6 @@ jobs:
           echo ""
           echo "Checking if re-arch.sh exists:"
           test -f re-arch.sh && echo "✓ re-arch.sh exists" || echo "✗ re-arch.sh missing"
-        
-      - name: Install ShellCheck
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y shellcheck
           
       - name: Run ShellCheck on re-arch.sh
         run: |
