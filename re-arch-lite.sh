@@ -203,32 +203,6 @@ enable_services() {
     success "System services configuration completed"
 }
 
-setup_aur_and_fonts() {
-    info "Setting up AUR helper and Microsoft fonts..."
-    
-    local user_home
-    user_home=$(getent passwd "$USERNAME" | cut -d: -f6)
-    
-    # Install paru AUR helper
-    sudo -u "$USERNAME" bash << EOF
-cd "$user_home"
-rm -rf paru
-git clone https://aur.archlinux.org/paru.git
-cd paru
-makepkg -si --noconfirm
-cd ..
-rm -rf paru
-EOF
-    
-    # Install Microsoft fonts
-    if ! sudo -u "$USERNAME" paru -S --noconfirm ttf-ms-fonts 2>/dev/null; then
-        warning "Microsoft fonts installation failed, but alternative fonts are already installed"
-    else
-        success "Microsoft TrueType fonts installed"
-    fi
-    
-    success "AUR helper and fonts configured"
-}
 
 setup_user_environment() {
     info "Setting up user environment..."
@@ -304,7 +278,6 @@ main() {
     configure_snapshots
     configure_bootloader
     enable_services
-    setup_aur_and_fonts
     setup_user_environment
     
     # Success message
@@ -317,8 +290,8 @@ main() {
     echo "  • KDE Plasma desktop with Wayland support"
     echo "  • Automatic snapshot management with GRUB integration"  
     echo "  • Performance optimizations (linux-zen, ananicy-cpp)"
-    echo "  • AUR helper (paru) and Microsoft fonts"
     echo "  • Flatpak and LinuxBrew package managers"
+    echo "  • Quality fonts (Liberation, DejaVu, Noto)"
     echo
     warning "Reboot to activate all changes: reboot"
     echo "============================================================================="

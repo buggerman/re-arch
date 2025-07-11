@@ -36,11 +36,11 @@ curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch-lite
 - ⚙️ Snapshot configuration and permissions
 - ⚙️ GRUB Btrfs integration setup
 - ⚙️ System service enablement
-- ⚙️ AUR helper (paru) installation
-- ⚙️ Microsoft TrueType fonts (AUR package)
 - ⚙️ Flatpak repository configuration
 - ⚙️ LinuxBrew setup for development
 - ⚙️ Mirror optimization with reflector
+
+**Note:** AUR setup (paru) and Microsoft fonts are not included - users can install these manually if desired.
 
 ## 🎯 **Advantages of the Lite Approach:**
 
@@ -119,10 +119,11 @@ reboot
 - ⚙️ **Snapshot Configuration**: snapper configs and permissions
 - 🚀 **GRUB Integration**: Btrfs snapshot boot entries
 - 🔧 **Service Management**: Enable all required services
-- 📦 **AUR Setup**: paru installation and Microsoft fonts
 - 🏪 **Repositories**: Flathub and LinuxBrew setup
 - 🪞 **Mirror Optimization**: reflector configuration
 - 👤 **User Environment**: Final user-specific setup
+
+**Note:** AUR setup is excluded from the lite approach - users can install paru and AUR packages manually if needed.
 
 ## 🎉 **Benefits Summary:**
 
