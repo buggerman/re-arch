@@ -479,7 +479,7 @@ main() {
 # SCRIPT EXECUTION
 #===============================================================================
 
-# Execute main function if script is run directly
-if [[ "${BASH_SOURCE[0]:-}" == "${0}" ]]; then
+# Execute main function if script is run directly (including piped execution)
+if [[ "${BASH_SOURCE[0]:-}" == "${0}" ]] || [[ -z "${BASH_SOURCE[0]:-}" ]]; then
     main "$@"
 fi
