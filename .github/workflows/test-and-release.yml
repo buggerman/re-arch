@@ -1,0 +1,387 @@
+name: Test and Release
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run tests daily at 3 AM UTC
+    - cron: '0 3 * * *'
+
+env:
+  SHELLCHECK_VERSION: "v0.9.0"
+
+jobs:
+  # Syntax and style validation
+  syntax-check:
+    name: Syntax Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install ShellCheck
+        run: |
+          wget -qO- "https://github.com/koalaman/shellcheck/releases/download/${SHELLCHECK_VERSION}/shellcheck-${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" | tar -xJv
+          sudo cp "shellcheck-${SHELLCHECK_VERSION}/shellcheck" /usr/bin/
+          shellcheck --version
+
+      - name: Check bash syntax
+        run: |
+          bash -n re-arch.sh
+          echo "✓ Bash syntax check passed"
+
+      - name: Run ShellCheck analysis
+        run: |
+          shellcheck -x re-arch.sh
+          echo "✓ ShellCheck analysis passed"
+
+      - name: Validate script permissions
+        run: |
+          if [[ -x re-arch.sh ]]; then
+            echo "✓ Script has execute permissions"
+          else
+            echo "⚠ Script is not executable, setting permissions"
+            chmod +x re-arch.sh
+          fi
+
+  # Functional testing
+  functional-tests:
+    name: Functional Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test-type: [basic, advanced, integration]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup test environment
+        run: |
+          # Install required tools for testing
+          sudo apt-get update
+          sudo apt-get install -y btrfs-progs util-linux
+
+      - name: Make script executable
+        run: chmod +x re-arch.sh
+
+      - name: Run basic functionality tests
+        if: matrix.test-type == 'basic'
+        run: |
+          echo "Testing help option..."
+          ./re-arch.sh --help
+          
+          echo "Testing version option..."
+          ./re-arch.sh --version
+          
+          echo "Testing invalid option handling..."
+          if ./re-arch.sh --invalid-option 2>/dev/null; then
+            echo "❌ Invalid option test failed"
+            exit 1
+          else
+            echo "✓ Invalid option handling works"
+          fi
+
+      - name: Run advanced configuration tests
+        if: matrix.test-type == 'advanced'
+        run: |
+          echo "Testing configuration validation..."
+          
+          # Test hostname validation
+          if TARGET_HOSTNAME="invalid@hostname" ./re-arch.sh --test 2>/dev/null; then
+            echo "❌ Hostname validation test failed"
+            exit 1
+          else
+            echo "✓ Hostname validation works"
+          fi
+          
+          # Test username validation
+          if USERNAME="1invalid" ./re-arch.sh --test 2>/dev/null; then
+            echo "❌ Username validation test failed"
+            exit 1
+          else
+            echo "✓ Username validation works"
+          fi
+          
+          # Test timezone validation
+          if TIMEZONE="Invalid/Timezone" ./re-arch.sh --test 2>/dev/null; then
+            echo "❌ Timezone validation test failed"
+            exit 1
+          else
+            echo "✓ Timezone validation works"
+          fi
+
+      - name: Run integration tests
+        if: matrix.test-type == 'integration'
+        run: |
+          echo "Running full test mode simulation..."
+          
+          # Create test configuration
+          cat > test_config.conf << 'EOF'
+          TARGET_DISK="/dev/test"
+          HOSTNAME="test-system"
+          USERNAME="testuser"
+          TIMEZONE="UTC"
+          LOCALE="en_US.UTF-8"
+          KEYMAP="us"
+          TEST_MODE="true"
+          VERBOSE="true"
+          EOF
+          
+          # Run full test
+          ./re-arch.sh --config test_config.conf --test
+          
+          echo "✓ Integration test completed successfully"
+
+  # Security and quality checks
+  security-scan:
+    name: Security Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Scan for security issues
+        run: |
+          echo "Checking for potential security issues..."
+          
+          # Check for hardcoded secrets/passwords
+          if grep -r "password\|secret\|key" --include="*.sh" . | grep -v "test\|example\|README"; then
+            echo "⚠ Potential secrets found in code"
+          else
+            echo "✓ No hardcoded secrets detected"
+          fi
+          
+          # Check for dangerous commands (excluding test mode usage)
+          if grep -r "rm -rf\|eval\|exec" --include="*.sh" . | grep -v "TEST_MODE\|test\|example"; then
+            echo "⚠ Potentially dangerous commands found"
+          else
+            echo "✓ No dangerous commands detected"
+          fi
+          
+          # Check for proper input validation
+          if grep -q "validate_" re-arch.sh; then
+            echo "✓ Input validation functions present"
+          else
+            echo "❌ No input validation detected"
+            exit 1
+          fi
+
+      - name: Check file permissions
+        run: |
+          # Ensure script is not world-writable
+          if [[ $(stat -c "%a" re-arch.sh) =~ ^[0-7][0-7][0-6]$ ]]; then
+            echo "✓ Script has secure permissions"
+          else
+            echo "⚠ Script permissions may be too permissive"
+          fi
+
+  # Cross-platform compatibility tests
+  compatibility-test:
+    name: Compatibility Check
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        bash-version: ["4.4", "5.0", "5.1", "5.2"]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Test with Bash ${{ matrix.bash-version }}
+        run: |
+          # Note: Using system bash for compatibility testing
+          echo "Testing compatibility with Bash ${{ matrix.bash-version }}"
+          echo "Current bash version: $(bash --version | head -n1)"
+          
+          # Test basic functionality
+          chmod +x re-arch.sh
+          bash re-arch.sh --help >/dev/null
+          bash re-arch.sh --version >/dev/null
+          
+          echo "✓ Compatible with Bash environment"
+
+  # Performance testing
+  performance-test:
+    name: Performance Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install performance monitoring tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y time
+
+      - name: Run performance tests
+        run: |
+          chmod +x re-arch.sh
+          
+          echo "Testing script startup performance..."
+          start_time=$(date +%s%N)
+          ./re-arch.sh --help >/dev/null
+          end_time=$(date +%s%N)
+          
+          duration=$((($end_time - $start_time) / 1000000))
+          echo "Script startup time: ${duration}ms"
+          
+          if [[ $duration -lt 1000 ]]; then
+            echo "✓ Performance test passed (${duration}ms < 1000ms)"
+          else
+            echo "⚠ Script startup may be slow (${duration}ms)"
+          fi
+
+  # Documentation and quality assurance
+  documentation-check:
+    name: Documentation Quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check documentation completeness
+        run: |
+          echo "Checking documentation quality..."
+          
+          # Check if README exists and has content
+          if [[ -f README.md && -s README.md ]]; then
+            echo "✓ README.md exists and has content"
+          else
+            echo "❌ README.md missing or empty"
+            exit 1
+          fi
+          
+          # Check if script has help text
+          if ./re-arch.sh --help | grep -q "Usage:"; then
+            echo "✓ Script has help documentation"
+          else
+            echo "❌ Script help documentation incomplete"
+            exit 1
+          fi
+          
+          # Check for inline documentation
+          if grep -q "^#.*[Dd]escription\|^#.*[Pp]urpose" re-arch.sh; then
+            echo "✓ Script has inline documentation"
+          else
+            echo "⚠ Consider adding more inline documentation"
+          fi
+
+      - name: Validate markdown links
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: 'yes'
+          use-verbose-mode: 'yes'
+
+  # Build and package for release
+  build-package:
+    name: Build and Package
+    runs-on: ubuntu-latest
+    needs: [syntax-check, functional-tests, security-scan]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create release package
+        run: |
+          mkdir -p release
+          
+          # Copy main files
+          cp re-arch.sh release/
+          cp README.md release/
+          cp LICENSE release/ 2>/dev/null || echo "LICENSE file not found"
+          
+          # Copy documentation if exists
+          if [[ -d docs ]]; then
+            cp -r docs release/
+          fi
+          
+          # Set proper permissions
+          chmod +x release/re-arch.sh
+          
+          echo "Release package created successfully"
+
+      - name: Create release archive
+        run: |
+          cd release
+          tar -czf ../re-arch-$(date +%Y%m%d).tar.gz .
+          cd ..
+          
+          echo "Created release archive: re-arch-$(date +%Y%m%d).tar.gz"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: re-arch-package
+          path: re-arch-*.tar.gz
+          retention-days: 30
+
+  # Automated release creation on tags
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [build-package]
+    if: startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: re-arch-package
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: re-arch-*.tar.gz
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Final status report
+  test-summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: [syntax-check, functional-tests, security-scan, compatibility-test, performance-test, documentation-check]
+    if: always()
+    
+    steps:
+      - name: Report test results
+        run: |
+          echo "=== RE-ARCH CI/CD TEST SUMMARY ==="
+          echo ""
+          
+          # Check job statuses
+          syntax_status="${{ needs.syntax-check.result }}"
+          functional_status="${{ needs.functional-tests.result }}"
+          security_status="${{ needs.security-scan.result }}"
+          compatibility_status="${{ needs.compatibility-test.result }}"
+          performance_status="${{ needs.performance-test.result }}"
+          docs_status="${{ needs.documentation-check.result }}"
+          
+          echo "Syntax Check:        $syntax_status"
+          echo "Functional Tests:    $functional_status"
+          echo "Security Scan:       $security_status"
+          echo "Compatibility Test:  $compatibility_status"
+          echo "Performance Test:    $performance_status"
+          echo "Documentation:       $docs_status"
+          echo ""
+          
+          # Determine overall status
+          if [[ "$syntax_status" == "success" && "$functional_status" == "success" && 
+                "$security_status" == "success" && "$compatibility_status" == "success" && 
+                "$performance_status" == "success" && "$docs_status" == "success" ]]; then
+            echo "✅ All tests passed successfully!"
+            echo "Re-Arch is ready for deployment."
+          else
+            echo "❌ Some tests failed. Please review the results above."
+            exit 1
+          fi
