@@ -450,7 +450,7 @@ EOF
     
     # Install Microsoft TrueType fonts from AUR with error handling
     info "Installing Microsoft TrueType fonts..."
-    if ! sudo -u "$USERNAME" paru -S --noconfirm ttf-ms-fonts; then
+    if ! sudo -u "$USERNAME" paru -S --noconfirm ttf-ms-fonts 2>/dev/null; then
         warning "Failed to install Microsoft TrueType fonts from AUR"
         info "Attempting to install alternative font packages..."
         # Try installing alternative font packages from official repos
@@ -674,18 +674,18 @@ setup_user_environment() {
     # Setup Flatpak and Flathub
     info "Setting up Flatpak repository..."
     
-    # Add Flathub system-wide
-    if flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo; then
+    # Add Flathub system-wide (suppress D-Bus errors in chroot)
+    if flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo 2>/dev/null; then
         success "Flathub repository added system-wide."
     else
-        warning "Failed to add Flathub system-wide (might already exist)."
+        warning "Failed to add Flathub system-wide (might already exist or D-Bus unavailable in chroot)."
     fi
     
-    # Also add for user to ensure it's available
-    if sudo -u "$USERNAME" flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo; then
+    # Also add for user to ensure it's available (suppress D-Bus errors in chroot)
+    if sudo -u "$USERNAME" flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo 2>/dev/null; then
         info "Flathub repository also added for user."
     else
-        info "Flathub user repository already exists or failed to add."
+        info "Flathub user repository already exists or failed to add (normal in chroot)."
     fi
     
     # Setup LinuxBrew
