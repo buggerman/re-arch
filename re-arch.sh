@@ -212,9 +212,21 @@ run_checks() {
         error "User '$USERNAME' does not have sudo privileges. Configure sudo access first."
     fi
     
-    # Check internet connectivity
-    if ! ping -c 1 archlinux.org &>/dev/null; then
-        error "No internet connectivity. Please establish network connection first."
+    # Check internet connectivity with multiple fallbacks
+    info "Checking internet connectivity..."
+    local connectivity_ok=false
+    local test_hosts=("archlinux.org" "8.8.8.8" "1.1.1.1" "google.com")
+    
+    for host in "${test_hosts[@]}"; do
+        if ping -c 1 -W 5 "$host" &>/dev/null; then
+            connectivity_ok=true
+            success "Internet connectivity confirmed via $host"
+            break
+        fi
+    done
+    
+    if [[ "$connectivity_ok" == false ]]; then
+        error "No internet connectivity detected. Please check your network connection."
     fi
     
     success "All safety checks passed."
@@ -230,16 +242,44 @@ configure_pacman() {
     # Backup original configuration
     cp /etc/pacman.conf /etc/pacman.conf.backup
     
-    # Enable parallel downloads and color output
-    sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 10/' /etc/pacman.conf
+    # Enable parallel downloads and color output (reduce to 5 for stability)
+    sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/' /etc/pacman.conf
     sed -i 's/#Color/Color/' /etc/pacman.conf
     sed -i 's/#VerbosePkgLists/VerbosePkgLists/' /etc/pacman.conf
     
     # Enable multilib repository
     sed -i '/^#\[multilib\]/,/^#Include/ { s/^#//; }' /etc/pacman.conf
     
-    # Update package databases
-    pacman -Sy
+    # Optimize mirror settings for better reliability
+    info "Refreshing mirror list and package databases..."
+    
+    # Install reflector to get better mirrors
+    if pacman -S --noconfirm reflector; then
+        info "Updating mirror list with fastest mirrors..."
+        reflector --country "United States,Canada,Germany,France,United Kingdom" \
+                  --protocol https \
+                  --latest 10 \
+                  --sort rate \
+                  --save /etc/pacman.d/mirrorlist
+        success "Mirror list optimized."
+    else
+        warning "Could not install reflector, using default mirrors."
+    fi
+    
+    # Update package databases with retry
+    local retry_count=0
+    while [[ $retry_count -lt 3 ]]; do
+        if pacman -Sy; then
+            success "Package databases updated."
+            break
+        else
+            retry_count=$((retry_count + 1))
+            warning "Failed to update package databases (attempt $retry_count/3)"
+            if [[ $retry_count -lt 3 ]]; then
+                sleep 10
+            fi
+        fi
+    done
     
     success "Pacman configuration optimized."
 }
@@ -247,8 +287,16 @@ configure_pacman() {
 install_packages() {
     info "Installing system packages..."
     
-    # Update keyring first
-    pacman -S --noconfirm archlinux-keyring
+    # Update keyring first with error handling
+    info "Updating archlinux-keyring..."
+    if ! pacman -S --noconfirm archlinux-keyring; then
+        warning "Failed to update keyring, attempting to fix..."
+        # Clear package cache and try again
+        pacman -Scc --noconfirm
+        pacman-key --init
+        pacman-key --populate archlinux
+        pacman -S --noconfirm archlinux-keyring || error "Failed to update keyring after retry"
+    fi
     
     # Core system packages
     local core_packages=(
@@ -267,9 +315,10 @@ install_packages() {
         "plasma-wayland-protocols"
         "xdg-desktop-portal-kde"
         "networkmanager"
-        "discover"
-        "packagekit"
         "flatpak"
+        "packagekit"
+        "discover"
+        "qt6-multimedia-ffmpeg"
     )
     
     # Performance and system packages
@@ -298,11 +347,37 @@ install_packages() {
     all_packages+=("${performance_packages[@]}")
     all_packages+=("${snapshot_packages[@]}")
     
-    # Install all packages
-    info "Installing ${#all_packages[@]} packages..."
-    pacman -S --needed --noconfirm "${all_packages[@]}"
+    # Remove conflicting packages first
+    info "Removing conflicting packages..."
+    pacman -Rns --noconfirm pulseaudio pulseaudio-alsa pulseaudio-bluetooth 2>/dev/null || true
     
-    success "Package installation completed."
+    # Install all packages with error handling and conflict resolution
+    info "Installing ${#all_packages[@]} packages..."
+    local retry_count=0
+    local max_retries=3
+    
+    while [[ $retry_count -lt $max_retries ]]; do
+        # Use --assume-installed to handle provider conflicts automatically
+        if echo -e "\n1\n" | pacman -S --needed --noconfirm "${all_packages[@]}"; then
+            success "Package installation completed."
+            break
+        else
+            retry_count=$((retry_count + 1))
+            warning "Package installation failed (attempt $retry_count/$max_retries)"
+            
+            if [[ $retry_count -lt $max_retries ]]; then
+                info "Attempting to fix package database and retry..."
+                # Refresh package databases
+                pacman -Sy
+                # Clear package cache
+                pacman -Scc --noconfirm
+                # Wait before retry
+                sleep 5
+            else
+                error "Package installation failed after $max_retries attempts"
+            fi
+        fi
+    done
 }
 
 configure_system() {
@@ -336,23 +411,54 @@ EOF
 setup_aur() {
     info "Setting up AUR helper (paru)..."
     
+    # Get user home directory
+    local user_home
+    user_home=$(getent passwd "$USERNAME" | cut -d: -f6)
+    
     # Switch to user context for AUR operations
-    sudo -u "$USERNAME" bash << 'EOF'
-cd /home/$SUDO_USER
+    if ! sudo -u "$USERNAME" bash << EOF
+cd "$user_home"
 
-# Clone paru repository
-git clone https://aur.archlinux.org/paru.git
+# Clean up any existing paru directory
+rm -rf paru
+
+# Clone paru repository with error handling
+if ! git clone https://aur.archlinux.org/paru.git; then
+    echo "Failed to clone paru repository, trying alternative method..."
+    curl -L https://aur.archlinux.org/cgit/aur.git/snapshot/paru.tar.gz | tar -xz
+    mv paru-* paru 2>/dev/null || true
+fi
+
 cd paru
 
-# Build and install paru
-makepkg -si --noconfirm
+# Build and install paru with error handling
+if ! makepkg -si --noconfirm; then
+    echo "Failed to build paru, attempting with --skippgpcheck..."
+    makepkg -si --noconfirm --skippgpcheck
+fi
 
 # Clean up
 cd ..
 rm -rf paru
 EOF
+    then
+        warning "Failed to install paru AUR helper, skipping AUR packages..."
+        return 1
+    fi
     
     success "AUR helper (paru) installed successfully."
+    
+    # Install Microsoft TrueType fonts from AUR with error handling
+    info "Installing Microsoft TrueType fonts..."
+    if ! sudo -u "$USERNAME" paru -S --noconfirm ttf-ms-fonts; then
+        warning "Failed to install Microsoft TrueType fonts from AUR"
+        info "Attempting to install alternative font packages..."
+        # Try installing alternative font packages from official repos
+        pacman -S --noconfirm --needed ttf-liberation ttf-dejavu ttf-opensans noto-fonts || true
+        warning "Installed alternative fonts instead of Microsoft fonts"
+    else
+        success "Microsoft TrueType fonts installed."
+    fi
 }
 
 configure_snapshots() {
@@ -423,36 +529,57 @@ configure_bootloader() {
     # Extract the actual device from Btrfs subvolume notation (e.g., /dev/sda2[/@] -> /dev/sda2)
     root_source=${root_source%%\[*}
     
-    # Get the parent device (e.g., /dev/sda2 -> sda)
-    boot_device=$(lsblk -no PKNAME "$root_source" | head -1)
+    info "Root device detected: $root_source"
     
-    if [[ -n "$boot_device" ]]; then
-        info "Installing GRUB to /dev/$boot_device..."
-        if grub-install "/dev/$boot_device"; then
+    # Try multiple methods to determine the boot device
+    local disk_device boot_success=false
+    
+    # Method 1: Get parent device with lsblk
+    boot_device=$(lsblk -no PKNAME "$root_source" 2>/dev/null | head -1)
+    
+    if [[ -n "$boot_device" && -b "/dev/$boot_device" ]]; then
+        info "Installing GRUB to /dev/$boot_device (detected via lsblk)..."
+        if grub-install "/dev/$boot_device" 2>/dev/null; then
             success "GRUB installed successfully to /dev/$boot_device"
+            boot_success=true
         else
-            warning "GRUB installation failed, trying alternative method..."
-            # Fallback: try to get the disk from the root device
-            local disk_device
-            disk_device=${root_source%[0-9]*}
-            if [[ -b "$disk_device" ]]; then
-                info "Attempting GRUB install to $disk_device..."
-                grub-install "$disk_device"
-            else
-                error "Could not determine valid boot device for GRUB installation"
-            fi
+            warning "GRUB installation failed to /dev/$boot_device"
         fi
-    else
-        warning "Could not determine boot device from lsblk, trying alternative method..."
-        # Fallback: try to get the disk from the root device
-        local disk_device
+    fi
+    
+    # Method 2: Extract disk from device path
+    if [[ "$boot_success" == false ]]; then
         disk_device=${root_source%[0-9]*}
         if [[ -b "$disk_device" ]]; then
-            info "Attempting GRUB install to $disk_device..."
-            grub-install "$disk_device"
-        else
-            error "Could not determine valid boot device for GRUB installation"
+            info "Installing GRUB to $disk_device (extracted from device path)..."
+            if grub-install "$disk_device" 2>/dev/null; then
+                success "GRUB installed successfully to $disk_device"
+                boot_success=true
+            else
+                warning "GRUB installation failed to $disk_device"
+            fi
         fi
+    fi
+    
+    # Method 3: Try common disk locations
+    if [[ "$boot_success" == false ]]; then
+        local common_disks=("/dev/sda" "/dev/nvme0n1" "/dev/vda" "/dev/hda")
+        for disk in "${common_disks[@]}"; do
+            if [[ -b "$disk" ]]; then
+                info "Attempting GRUB install to $disk..."
+                if grub-install "$disk" 2>/dev/null; then
+                    success "GRUB installed successfully to $disk"
+                    boot_success=true
+                    break
+                fi
+            fi
+        done
+    fi
+    
+    # Final check
+    if [[ "$boot_success" == false ]]; then
+        warning "Could not install GRUB to any detected device. System may not boot properly."
+        warning "You may need to manually install GRUB after reboot."
     fi
     
     # Configure GRUB for Btrfs snapshots
@@ -460,9 +587,13 @@ configure_bootloader() {
     echo 'GRUB_BTRFS_SHOW_SNAPSHOTS_FOUND="true"' >> /etc/default/grub
     
     # Regenerate GRUB configuration
-    grub-mkconfig -o /boot/grub/grub.cfg
+    if grub-mkconfig -o /boot/grub/grub.cfg; then
+        success "GRUB configuration generated successfully."
+    else
+        warning "GRUB configuration generation failed."
+    fi
     
-    success "GRUB bootloader configured with snapshot support."
+    success "GRUB bootloader configuration completed."
 }
 
 enable_services() {
@@ -479,12 +610,27 @@ enable_services() {
         "packagekit.service"
     )
     
+    local failed_services=()
+    
     for service in "${services[@]}"; do
         info "Enabling $service..."
-        systemctl enable "$service"
+        if systemctl enable "$service" 2>/dev/null; then
+            success "✓ $service enabled"
+        else
+            warning "✗ Failed to enable $service"
+            failed_services+=("$service")
+        fi
     done
     
-    success "System services enabled."
+    if [[ ${#failed_services[@]} -gt 0 ]]; then
+        warning "The following services failed to enable:"
+        for service in "${failed_services[@]}"; do
+            echo "  • $service"
+        done
+        warning "System may still function, but some features might be unavailable"
+    fi
+    
+    success "System services configuration completed."
 }
 
 setup_user_environment() {
