@@ -393,8 +393,17 @@ configure_snapshots() {
     
     # Set permissions on .snapshots if it exists
     if [[ -d /.snapshots ]]; then
-        chown -R :snapper /.snapshots
-        chmod 750 /.snapshots
+        # Only change ownership of the .snapshots directory itself, not the contents
+        chown :snapper /.snapshots 2>/dev/null || true
+        chmod 750 /.snapshots 2>/dev/null || true
+        
+        # Set ownership on individual snapshot directories (but not their contents)
+        for snapshot_dir in /.snapshots/*/; do
+            if [[ -d "$snapshot_dir" ]]; then
+                chown :snapper "$snapshot_dir" 2>/dev/null || true
+                chmod 750 "$snapshot_dir" 2>/dev/null || true
+            fi
+        done
     fi
     
     success "Snapshot management configured."
