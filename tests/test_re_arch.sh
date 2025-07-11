@@ -54,7 +54,7 @@ setup_test_environment() {
     export TEMP_DIR
     
     # Clear test log
-    > "$TEST_LOG"
+    true > "$TEST_LOG"
     
     # Verify script exists
     if [[ ! -f "$SCRIPT_PATH" ]]; then
@@ -308,6 +308,7 @@ test_desktop_environment_packages() {
     info "Testing desktop environment package selection"
     
     # Source the script to access functions
+    # shellcheck source=/dev/null
     source "$SCRIPT_PATH"
     
     # Test KDE packages
@@ -325,9 +326,8 @@ test_desktop_environment_packages() {
     assert_contains "gdm" "$gnome_packages" "GNOME packages contain gdm"
     
     # Test XFCE packages
-    DE_CHOICE="xfce"
     local xfce_packages
-    xfce_packages=$(get_de_packages)
+    DE_CHOICE="xfce" xfce_packages=$(get_de_packages)
     assert_contains "xfce4" "$xfce_packages" "XFCE packages contain xfce4"
     assert_contains "lightdm" "$xfce_packages" "XFCE packages contain lightdm"
 }
