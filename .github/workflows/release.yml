@@ -59,7 +59,7 @@ jobs:
           
           $CHANGELOG
           
-          **Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREVIOUS_TAG}...${{ steps.get_version.outputs.version }}
+          **Full Changelog**: https://github.com/buggerman/re-arch/compare/${PREVIOUS_TAG}...${{ steps.get_version.outputs.version }}
           EOF
           
           echo "changelog_file=CHANGELOG.md" >> $GITHUB_OUTPUT
