@@ -6,8 +6,16 @@ A revolutionary approach that moves 80% of the work into archinstall, with a lig
 
 ### **Step 1: Enhanced archinstall (Does 80% of the work)**
 ```bash
+archinstall --config-url https://re-arch.xyz/archinstall-config.json --creds-url https://re-arch.xyz/archinstall-credentials.json
+```
+
+<details>
+<summary>Alternative URLs (if domain is not working)</summary>
+
+```bash
 archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/archinstall-config.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/archinstall-credentials.json
 ```
+</details>
 
 **Default credentials (please change after installation):**
 - Username: `user` 
@@ -29,8 +37,16 @@ archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/mai
 
 ### **Step 2: Lite Configuration Script (Final 20%)**
 ```bash
+curl -fsSL https://re-arch.xyz/re-arch-lite.sh | bash
+```
+
+<details>
+<summary>Alternative URL (if domain is not working)</summary>
+
+```bash
 curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch-lite.sh | bash
 ```
+</details>
 
 **What the lite script handles:**
 - ⚙️ Snapshot configuration and permissions
@@ -71,14 +87,29 @@ curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch-lite
 
 ### **2. Run Enhanced archinstall with Remote JSON**
 ```bash
-archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/archinstall-config.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/archinstall-credentials.json
+archinstall --config-url https://re-arch.xyz/archinstall-config.json --creds-url https://re-arch.xyz/archinstall-credentials.json
 ```
 
 ### **3. Chroot and Run Lite Script**
 ```bash
 arch-chroot /mnt
+curl -fsSL https://re-arch.xyz/re-arch-lite.sh | bash
+```
+
+<details>
+<summary>Alternative URLs (if domain is not working)</summary>
+
+**Step 2:**
+```bash
+archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/archinstall-config.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/archinstall-credentials.json
+```
+
+**Step 3:**
+```bash
+arch-chroot /mnt
 curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch-lite.sh | bash
 ```
+</details>
 
 ### **4. Reboot and Enjoy**
 ```bash
