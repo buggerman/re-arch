@@ -86,14 +86,14 @@ curl -fsSL https://re-arch.xyz/install | bash
 
 #### **Step 1: Automated Installation**
 ```bash
-archinstall --config-url https://re-arch.xyz/archinstall-config.json --creds-url https://re-arch.xyz/archinstall-credentials.json
+archinstall --config-url https://re-arch.xyz/config.json --creds-url https://re-arch.xyz/creds.json
 ```
 
 <details>
 <summary>Alternative URLs (if domain is not working)</summary>
 
 ```bash
-archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/archinstall-config.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/archinstall-credentials.json
+archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/config.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/creds.json
 ```
 </details>
 

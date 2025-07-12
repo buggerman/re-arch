@@ -34,5 +34,5 @@ exclude:
 
 # Include important files for web access
 include:
-  - archinstall-config.json
-  - archinstall-credentials.json
+  - config.json
+  - creds.json
