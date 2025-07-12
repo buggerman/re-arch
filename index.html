@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Re-Arch Procedure</title>
-    <meta name="description" content="Professional automation script for transforming minimal Arch Linux installations into optimized, resilient desktop systems.">
+    <meta name="description" content="Professional, opinionated Arch Linux installer that creates optimized desktop systems with KDE Plasma, snapshots, and performance optimizations.">
     
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="assets/images/arch-logo.svg">
@@ -397,18 +397,18 @@
                 <img src="assets/images/arch-logo.svg" alt="Arch Linux Logo">
             </div>
             <h1>The Re-Arch Procedure</h1>
-            <p class="subtitle">Transform minimal Arch Linux into an optimized desktop powerhouse</p>
+            <p class="subtitle">Complete Arch Linux desktop installer with curated optimizations</p>
             
             <div class="install-section">
-                <h2 style="color: #475569;">🚀 Lite Approach (Recommended)</h2>
-                <p style="margin-bottom: 30px; opacity: 0.8; font-size: 1.1em;">Revolutionary two-step process: 80% work in archinstall, 20% final configuration</p>
+                <h2 style="color: #475569;">🚀 Installation Method</h2>
+                <p style="margin-bottom: 30px; opacity: 0.8; font-size: 1.1em;">Complete Arch Linux system installation in just 2 commands</p>
                 
                 <div style="background: rgba(99, 102, 241, 0.1); border-radius: 12px; padding: 15px; margin-bottom: 20px; border-left: 4px solid #6366f1;">
                     <p style="margin: 0; color: #475569; font-size: 0.95em;"><strong>💡 Tip:</strong> You can customize username, passwords, and other settings when archinstall opens. Default credentials (user/rearch) are provided as fallback to prevent lockouts.</p>
                 </div>
                 
                 <div style="margin-bottom: 30px;">
-                    <h3 style="color: #0891b2; margin-bottom: 15px;">Step 1: Enhanced archinstall</h3>
+                    <h3 style="color: #0891b2; margin-bottom: 15px;">Step 1: Automated Installation</h3>
                     <div class="install-code-wrapper">
                         <div class="install-code-container">
                             <div class="install-code">archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/archinstall-config.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/archinstall-credentials.json</div>
@@ -418,7 +418,7 @@
                 </div>
                 
                 <div style="margin-bottom: 30px;">
-                    <h3 style="color: #0891b2; margin-bottom: 15px;">Step 2: Lite configuration</h3>
+                    <h3 style="color: #0891b2; margin-bottom: 15px;">Step 2: System Optimization</h3>
                     <div class="install-code-wrapper">
                         <div class="install-code-container">
                             <div class="install-code">curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch-lite.sh | bash</div>
@@ -431,22 +431,63 @@
                 </div>
                 
                 <div style="background: rgba(8, 145, 178, 0.1); border-radius: 12px; padding: 20px; margin-top: 20px;">
-                    <h3 style="color: #0891b2; margin-bottom: 10px;">🎯 Why Choose Lite?</h3>
+                    <h3 style="color: #0891b2; margin-bottom: 10px;">🎯 Why Re-Arch?</h3>
                     <ul style="list-style: none; padding: 0; color: #475569;">
                         <li>🚀 95% fewer failure points</li>
-                        <li>⚡ 2-3 minutes vs 15-30 minutes</li>
-                        <li>🛡️ Maximum reliability via archinstall</li>
-                        <li>✨ Same optimized desktop result</li>
+                        <li>⚡ Complete system in under 10 minutes</li>
+                        <li>🛡️ Robust installation via archinstall</li>
+                        <li>✨ Production-ready optimized desktop</li>
                     </ul>
                 </div>
             </div>
             
             <div class="warning">
                 <h3>⚠️ Important Note</h3>
-                <p>The lite script performs final system configuration. Run Step 2 after archinstall completes - either from archinstall's chroot option or manually with arch-chroot.</p>
+                <p>The optimization script performs final system configuration. Run Step 2 after archinstall completes - either from archinstall's chroot option or manually with arch-chroot.</p>
             </div>
         </header>
     </div>
+    
+    <section style="background: #f8fafc; padding: 60px 0;">
+        <div class="container">
+            <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+                <h2 style="color: #ef4444; margin-bottom: 20px;">⚗️ Experimental: Legacy Conversion Method</h2>
+                <div style="background: #fef2f2; border: 2px solid #fecaca; border-radius: 12px; padding: 30px; margin: 20px 0;">
+                    <h3 style="color: #dc2626; margin-bottom: 15px;">⚠️ WARNING: NOT RECOMMENDED</h3>
+                    <p style="color: #7f1d1d; margin-bottom: 20px; font-weight: 500;">This method is failure-prone and should only be used by advanced users for converting existing minimal Arch installations.</p>
+                    
+                    <div style="background: white; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: left;">
+                        <h4 style="color: #4b5563; margin-bottom: 10px;">Prerequisites for Conversion:</h4>
+                        <ul style="color: #6b7280; padding-left: 20px;">
+                            <li>Existing minimal Arch Linux with Btrfs root</li>
+                            <li>Non-root user with sudo privileges</li>
+                            <li>Boot from Arch installation media</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="background: #1f2937; border-radius: 8px; padding: 15px; margin: 20px 0;">
+                        <code style="color: #10b981; font-family: 'JetBrains Mono', monospace; font-size: 14px;">
+                            curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch.sh | bash
+                        </code>
+                    </div>
+                    
+                    <div style="background: white; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: left;">
+                        <h4 style="color: #dc2626; margin-bottom: 10px;">Known Issues:</h4>
+                        <ul style="color: #6b7280; padding-left: 20px;">
+                            <li>Higher failure rates due to package conflicts</li>
+                            <li>Complex dependency resolution required</li>
+                            <li>Manual troubleshooting often needed</li>
+                            <li>Not suitable for production environments</li>
+                        </ul>
+                    </div>
+                    
+                    <p style="color: #dc2626; font-weight: 600; margin-top: 20px;">
+                        🚀 Use the main installation method above for reliability and ease of use
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
     
     <section class="features">
         <div class="container">
