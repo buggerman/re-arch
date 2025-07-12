@@ -32,6 +32,7 @@ exclude:
 include:
   - config.json
   - creds.json
+  - install
   - re-arch.sh
   - re-arch-lite.sh
   - re-arch-installer.sh
