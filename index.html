@@ -400,20 +400,42 @@
             <p class="subtitle">Complete Arch Linux desktop installer with curated optimizations</p>
             
             <div class="install-section">
-                <h2 style="color: #475569;">🚀 Installation Method</h2>
-                <p style="margin-bottom: 30px; opacity: 0.8; font-size: 1.1em;">Complete Arch Linux system installation in just 2 commands</p>
+                <h2 style="color: #475569;">🚀 Installation Methods</h2>
+                <p style="margin-bottom: 30px; opacity: 0.8; font-size: 1.1em;">Choose your preferred installation approach</p>
                 
-                <div style="background: rgba(99, 102, 241, 0.1); border-radius: 12px; padding: 15px; margin-bottom: 20px; border-left: 4px solid #6366f1;">
-                    <p style="margin: 0; color: #475569; font-size: 0.95em;"><strong>💡 Tip:</strong> You can customize username, passwords, and other settings when archinstall opens.</p>
+                <!-- Single Command Method -->
+                <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 16px; padding: 25px; margin-bottom: 30px; box-shadow: 0 8px 32px rgba(16, 185, 129, 0.3);">
+                    <h3 style="color: white; margin-bottom: 15px; display: flex; align-items: center;">
+                        <span style="background: rgba(255,255,255,0.2); border-radius: 50%; padding: 8px; margin-right: 12px; font-size: 20px;">⚡</span>
+                        Single Command Installation (Recommended)
+                    </h3>
+                    <p style="color: rgba(255,255,255,0.9); margin-bottom: 20px; font-size: 1.05em;">One command does everything - no manual steps required!</p>
+                    
+                    <div class="install-code-wrapper">
+                        <div class="install-code-container">
+                            <div class="install-code" style="background: rgba(0,0,0,0.3); color: #ffffff;">curl -fsSL https://re-arch.xyz/install | bash</div>
+                            <button class="copy-button" onclick="copyToClipboard(this)" title="Copy to clipboard">📋</button>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                        <p style="margin: 0; color: rgba(255,255,255,0.9); font-size: 0.95em;">
+                            <strong>✨ What this does:</strong> Automatically runs archinstall + optimization script with zero manual steps
+                        </p>
+                    </div>
                 </div>
                 
-                <div style="background: rgba(16, 185, 129, 0.1); border-radius: 12px; padding: 15px; margin-bottom: 20px; border-left: 4px solid #10b981;">
-                    <p style="margin: 0; color: #047857; font-size: 0.95em;"><strong>🔐 Default Credentials:</strong> Username: <code style="background: rgba(16, 185, 129, 0.2); padding: 2px 6px; border-radius: 4px;">user</code> | Password: <code style="background: rgba(16, 185, 129, 0.2); padding: 2px 6px; border-radius: 4px;">rearch</code> | Root: <code style="background: rgba(16, 185, 129, 0.2); padding: 2px 6px; border-radius: 4px;">rearch</code></p>
-                    <p style="margin: 5px 0 0 0; color: #065f46; font-size: 0.9em; font-style: italic;">Change these during archinstall setup or after first login for security</p>
-                </div>
+                <!-- Two-Step Method -->
+                <details style="background: rgba(8, 145, 178, 0.05); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                    <summary style="cursor: pointer; color: #0891b2; font-weight: 600; font-size: 1.1em;">📋 Two-Step Installation (Advanced Users)</summary>
+                    <div style="margin-top: 20px;">
                 
-                <div style="margin-bottom: 30px;">
-                    <h3 style="color: #0891b2; margin-bottom: 15px;">Step 1: Automated Installation</h3>
+                        <div style="background: rgba(99, 102, 241, 0.1); border-radius: 12px; padding: 15px; margin-bottom: 20px; border-left: 4px solid #6366f1;">
+                            <p style="margin: 0; color: #475569; font-size: 0.95em;"><strong>💡 Tip:</strong> You can customize username, passwords, and other settings when archinstall opens.</p>
+                        </div>
+                        
+                        <div style="margin-bottom: 30px;">
+                            <h4 style="color: #0891b2; margin-bottom: 15px;">Step 1: Automated Installation</h4>
                     <div class="install-code-wrapper">
                         <div class="install-code-container">
                             <div class="install-code">archinstall --config-url https://re-arch.xyz/archinstall-config.json --creds-url https://re-arch.xyz/archinstall-credentials.json</div>
@@ -422,8 +444,8 @@
                     </div>
                 </div>
                 
-                <div style="margin-bottom: 30px;">
-                    <h3 style="color: #0891b2; margin-bottom: 15px;">Step 2: System Optimization</h3>
+                        <div style="margin-bottom: 30px;">
+                            <h4 style="color: #0891b2; margin-bottom: 15px;">Step 2: System Optimization</h4>
                     <div class="install-code-wrapper">
                         <div class="install-code-container">
                             <div class="install-code">curl -fsSL https://re-arch.xyz/re-arch-lite.sh | bash</div>
@@ -446,7 +468,14 @@
                                 curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch-lite.sh | bash
                             </div>
                         </div>
-                    </details>
+                        </details>
+                    </div>
+                </details>
+                
+                <!-- Default Credentials Info -->
+                <div style="background: rgba(16, 185, 129, 0.1); border-radius: 12px; padding: 15px; margin-bottom: 20px; border-left: 4px solid #10b981;">
+                    <p style="margin: 0; color: #047857; font-size: 0.95em;"><strong>🔐 Default Credentials:</strong> Username: <code style="background: rgba(16, 185, 129, 0.2); padding: 2px 6px; border-radius: 4px;">user</code> | Password: <code style="background: rgba(16, 185, 129, 0.2); padding: 2px 6px; border-radius: 4px;">rearch</code> | Root: <code style="background: rgba(16, 185, 129, 0.2); padding: 2px 6px; border-radius: 4px;">rearch</code></p>
+                    <p style="margin: 5px 0 0 0; color: #065f46; font-size: 0.9em; font-style: italic;">Change these during archinstall setup or after first login for security</p>
                 </div>
                 
                 <div style="background: rgba(8, 145, 178, 0.1); border-radius: 12px; padding: 20px; margin-top: 20px;">
