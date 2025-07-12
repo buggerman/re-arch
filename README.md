@@ -38,6 +38,19 @@
 
 **By using this installer, you accept the provided configuration and any system changes.**
 
+## 🚀 Origin Story
+
+**Re-Arch started as a personal automation project** to solve a common problem among my friend group - we were constantly setting up new Arch Linux installations for testing, development, and fresh installs. Every time someone needed a new Arch system, it meant hours of manual configuration to get a desktop environment, audio, snapshots, and all the essential tools working properly.
+
+What began as a simple script to automate our repetitive setup tasks has evolved into a comprehensive, production-ready installer that embodies years of collective experience with Arch Linux. The configurations and package choices reflect real-world usage patterns from developers and power users who wanted:
+
+- **Immediate productivity** - Boot straight into a fully functional KDE desktop
+- **System resilience** - Never lose work due to system breakage
+- **Performance optimization** - Desktop responsiveness that rivals any OS
+- **Clean architecture** - Logical separation of system and user applications
+
+The project has grown from "let's automate our weekend Arch installs" to a robust solution used by the broader community. While it remains opinionated (reflecting our collective preferences), every choice has been battle-tested through real daily usage across different hardware configurations and use cases.
+
 ### 📦 **Package Management Philosophy**
 
 Re-Arch implements a **security-first package management strategy**:
