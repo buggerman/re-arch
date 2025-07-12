@@ -39,91 +39,148 @@ The Re-Arch Procedure is designed around three core principles:
 
 ## Prerequisites
 
-**REQUIREMENTS:**
+**⚠️ READ THIS CAREFULLY - FOLLOWING THESE REQUIREMENTS PREVENTS 90% OF INSTALLATION ISSUES**
 
-1. **Arch Linux Installation Media**
-   - Download latest Arch Linux ISO
-   - Boot from USB/CD in target system
-   - Network connection available
+### System Requirements
 
-2. **Target System**
-   - Compatible x86_64 hardware
-   - Minimum 4GB RAM recommended
-   - 20GB+ available disk space
-   - UEFI or BIOS boot support
+**Hardware (MINIMUM):**
+- **CPU**: x86_64 processor (Intel/AMD 64-bit) 
+- **RAM**: 4GB minimum, 8GB recommended
+- **Storage**: 20GB minimum free space, 50GB recommended for comfort
+- **Boot**: UEFI firmware preferred, Legacy BIOS supported
 
-**For lite approach:** No additional setup required - archinstall handles everything
-**For traditional approach:** Requires manual Arch base installation with Btrfs root filesystem
+**⚠️ COMPATIBILITY WARNING:**
+- **✅ FULLY SUPPORTED**: Fresh installation on dedicated machines or VMs
+- **⚠️ ADVANCED USERS ONLY**: Dual-boot systems (requires manual partition configuration)
+- **❌ NOT SUPPORTED**: Systems with existing data you want to preserve
+- **❌ WILL NOT WORK**: Without internet connection during installation
+
+### Internet Connection Required
+- **Stable internet required**: Downloads 1-2GB of packages
+- **Wired connection recommended**: More reliable than WiFi during installation
+- **WiFi setup**: Connect to network BEFORE running installation commands
+
+### Virtual Machine Users
+If installing in a VM:
+- **Enable**: Virtualization features in VM settings  
+- **Allocate**: At least 4GB RAM to the VM
+- **Disk size**: 50GB+ virtual disk recommended
+- **Boot**: Enable EFI boot in VM settings if available
+
+**🚨 DESTRUCTIVE INSTALLATION WARNING**
+This installer assumes it controls the entire disk. It WILL erase everything on the target disk. Back up important data BEFORE starting.
 
 
 ## Installation
 
 ### 📋 **Two-Step Installation (Recommended)**
 
-**Complete Arch Linux system installation in just 2 commands:**
+**🕐 Total time: 25-35 minutes | 📶 Internet required throughout**
 
-#### **Step 1: Automated Installation**
+---
+
+#### **📋 BEFORE YOU START:**
+
+1. **Boot from Arch Linux ISO** (download from https://archlinux.org/download/)
+2. **Connect to internet:**
+   ```bash
+   # For WiFi (replace "YourNetwork" with your network name):
+   iwctl device list
+   iwctl station wlan0 connect "YourNetwork"
+   
+   # Test connection:
+   ping google.com
+   ```
+3. **You're ready when:** You see successful pings to google.com
+
+---
+
+#### **🚀 STEP 1: Automated Installation (20-30 minutes)**
+
+**Run this command as root:**
 ```bash
 archinstall --config-url https://re-arch.xyz/config.json --creds-url https://re-arch.xyz/creds.json
 ```
 
 <details>
-<summary>Alternative URLs (if domain is not working)</summary>
+<summary>🔄 Alternative URLs (if domain is not working)</summary>
 
 ```bash
 archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/config.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/creds.json
 ```
 </details>
 
-**What gets installed automatically:**
-- ✅ Linux Zen kernel + headers
-- ✅ Complete KDE Plasma desktop environment with audio controls
-- ✅ Performance optimizations (ananicy-cpp, zram-generator)
-- ✅ Full PipeWire audio stack with Bluetooth support
-- ✅ Snapshot packages (snapper, snap-pac, grub-btrfs)
-- ✅ Security tools (firewalld)
-- ✅ Development tools (base-devel, git)
-- ✅ Quality fonts and essential system tools
+**🎛️ What you'll see:** archinstall will open with pre-filled configuration
 
-**Default credentials (customizable during archinstall):**
-- Username: `user` | Password: `rearch` | Root: `rearch`
-- *Note: These are fallback credentials to prevent lockouts - you can change them when archinstall opens*
+**💡 RECOMMENDED CHANGES in archinstall:**
+- **Username & Password**: Change from default `user`/`rearch` to your preferences
+- **Timezone**: Set your timezone
+- **Locale**: Set your language/region
+- **Hostname**: Change from default `arch-desktop`
 
-**⚠️ Important: What NOT to Change in archinstall**
+**🚨 CRITICAL: What NOT to Change in archinstall:**
 
-When archinstall opens, you can customize many settings, but avoid changing these unless you have specific requirements:
+| ❌ DON'T CHANGE | ✅ WHY KEEP IT | 🛠️ CONSEQUENCE IF CHANGED |
+|------------------|----------------|----------------------------|
+| **Packages** | Carefully curated list | Missing desktop/audio/snapshots |
+| **Disk formatting** | Optimized for snapshots | Snapshot system won't work |
+| **Filesystem (Btrfs)** | Required for snapshots | No system recovery ability |
+| **Bootloader (GRUB)** | Snapshot integration | Can't boot from snapshots |
 
-- **❌ Packages**: Don't modify the package list unless you know what you're doing
-- **❌ Disk formatting**: Only change if you need dual boot or custom partitioning  
-- **❌ Filesystem**: Keep Btrfs for snapshot functionality to work properly
-- **❌ Bootloader**: Keep GRUB for snapshot boot integration
+**🔐 Security Note:** 
+- Default credentials (`user`/`rearch`) are fallbacks to prevent lockouts
+- **CHANGE THEM** during archinstall for security
+- You can also change them after first login
 
-**✅ Safe to customize**: Username, passwords, timezone, locale, hostname, network settings
+**⏱️ What happens during installation:**
+1. **Disk partitioning** (2-3 minutes)
+2. **Package downloads** (15-20 minutes) 
+3. **System installation** (3-5 minutes)
+4. **Configuration** (2-3 minutes)
 
-**🔧 Advanced scenarios**: If you need dual boot or custom partitioning, you'll need to modify the disk configuration accordingly, but be aware this may require additional manual steps for the optimization script to work properly.
+**✅ Success indicators:**
+- "Installation completed successfully"
+- Prompt asking: "Would you like to chroot into the newly created installation?"
 
-#### **Step 2: System Optimization**
-```bash
-# If you used archinstall's chroot option, just run:
-curl -fsSL https://re-arch.xyz/re-arch-lite.sh | bash
+---
 
-# If you need to chroot manually:
-arch-chroot /mnt
-curl -fsSL https://re-arch.xyz/re-arch-lite.sh | bash
-```
+#### **⚙️ STEP 2: System Optimization (2-3 minutes)**
+
+**🤔 Which method to use?**
+
+**Method A: archinstall's chroot (RECOMMENDED)**
+When archinstall asks "Would you like to chroot into the newly created installation?":
+- ✅ **Select "Yes"**
+- You'll see a `(chroot)` prompt
+- Run: `curl -fsSL https://re-arch.xyz/re-arch-lite.sh | bash`
+
+**Method B: Manual chroot (if you selected "No")**
+- Run: `arch-chroot /mnt`
+- You'll see a `(chroot)` prompt  
+- Run: `curl -fsSL https://re-arch.xyz/re-arch-lite.sh | bash`
 
 <details>
-<summary>Alternative URLs (if domain is not working)</summary>
+<summary>🔄 Alternative URL (if domain is not working)</summary>
 
 ```bash
-# If you used archinstall's chroot option, just run:
-curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch-lite.sh | bash
-
-# If you need to chroot manually:
-arch-chroot /mnt
 curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch-lite.sh | bash
 ```
 </details>
+
+**💡 How to tell if you're in chroot:**
+- ✅ Prompt shows `(chroot)` → You're ready, run the script
+- ❌ Normal prompt → Run `arch-chroot /mnt` first
+
+**⏱️ What happens during optimization:**
+1. **Snapshot configuration** (30 seconds)
+2. **Service enablement** (1 minute)
+3. **Repository setup** (1 minute) 
+4. **Final configuration** (30 seconds)
+
+**✅ Success indicators:**
+- "Re-Arch lite configuration completed successfully"
+- No error messages about failed services
+- Script completes without interruption
 
 **What the optimization script configures:**
 - ⚙️ Snapshot configuration and permissions
@@ -240,19 +297,187 @@ After successful completion:
 4. Log in through SDDM with your user account
 5. Enjoy your optimized Arch Linux desktop!
 
+## Post-Installation & First Steps
+
+### 🎉 **Installation Complete! Now What?**
+
+#### **🔄 First Boot (2-3 minutes)**
+1. **Exit chroot**: Type `exit` (if in chroot)
+2. **Unmount**: Run `umount -R /mnt` (if you manually chrooted)
+3. **Reboot**: Remove USB/CD and run `reboot`
+
+#### **✅ Success Checklist - Verify Everything Works**
+
+**At boot:**
+- [ ] **GRUB menu appears** (may be brief)
+- [ ] **System boots to SDDM login screen** (KDE login)
+- [ ] **No error messages** during boot
+
+**After login:**
+- [ ] **KDE Plasma desktop loads** properly
+- [ ] **Network works**: Open web browser, visit a website
+- [ ] **Audio works**: Test system sounds or play music
+- [ ] **Snapshots configured**: Open terminal, run `sudo snapper list`
+
+#### **🔧 Essential First Steps After Login**
+
+**1. Change default passwords (if not done during install):**
+```bash
+passwd              # Change user password
+sudo passwd root    # Change root password
+```
+
+**2. Update system:**
+```bash
+sudo pacman -Syu    # Update all packages
+```
+
+**3. Install additional software:**
+```bash
+# System packages (traditional method)
+sudo pacman -S firefox libreoffice gimp
+
+# Flatpak applications (sandboxed, recommended for apps)
+flatpak search spotify
+flatpak install org.gnu.gimp
+
+# Development tools (LinuxBrew)
+brew install nodejs python
+```
+
 ## Troubleshooting
 
-### Common Issues
-- **"Not running as root"**: Run with `./re-arch.sh` as root, not with sudo
-- **"Not a Btrfs filesystem"**: Ensure your root partition is Btrfs formatted
-- **Package installation fails**: Check internet connection and update keyring
-- **AUR helper fails**: Verify USERNAME is set correctly and user exists
+### 🚨 **If archinstall Fails**
 
-### Recovery
-If something goes wrong, snapshots may be available:
-- Reboot and select "Arch Linux snapshots" in GRUB
-- Use `snapper list` to view available snapshots
-- Restore with `snapper rollback <snapshot_number>`
+**During disk setup:**
+- **Check disk space**: Ensure 20GB+ available
+- **Try different disk**: Some disks have compatibility issues
+- **Reboot and retry**: Sometimes a fresh start helps
+
+**During package downloads:**
+- **Check internet**: Run `ping google.com`
+- **Try different mirror**: Reboot installation media and try again
+- **Wait and retry**: Sometimes mirrors are temporarily busy
+
+**Config URL not found:**
+- **Use alternative URLs**: The GitHub URLs in documentation as fallback
+- **Check internet**: Ensure you can access websites
+
+### 🚨 **If re-arch-lite.sh Fails**
+
+**Permission errors:**
+```bash
+# Ensure you're root in chroot:
+whoami          # Should show "root"
+id              # Should show uid=0(root)
+```
+
+**Network issues in chroot:**
+```bash
+# Copy DNS configuration:
+cp /etc/resolv.conf /mnt/etc/resolv.conf
+# Then re-enter chroot and try again
+```
+
+**Package conflicts:**
+- **Retry once**: Sometimes transient network issues cause failures
+- **If repeated failures**: Report as bug with error output
+
+### 🚨 **Boot Issues After Installation**
+
+**Black screen or boot failure:**
+1. **Boot from Arch ISO again**
+2. **Mount your system**: `mount /dev/sdaX /mnt` (replace X with partition)
+3. **Chroot**: `arch-chroot /mnt`
+4. **Reinstall GRUB**: 
+   ```bash
+   grub-install /dev/sda  # Replace with your disk
+   grub-mkconfig -o /boot/grub/grub.cfg
+   ```
+
+**No GRUB menu appears:**
+- **Check BIOS boot order**: Ensure hard disk is first
+- **Check UEFI settings**: Ensure Secure Boot is disabled
+- **Try booting from snapshot**: Advanced options in GRUB
+
+**Login issues:**
+- **Default credentials**: Try `user` / `rearch` if you didn't change them
+- **Reset password from live USB**:
+  ```bash
+  mount /dev/sdaX /mnt
+  arch-chroot /mnt
+  passwd username  # Change password for your user
+  ```
+
+### 🚨 **KDE/Desktop Issues**
+
+**Desktop doesn't load:**
+- **Check SDDM**: Should see graphical login, not text
+- **Try different session**: Select different desktop environment in SDDM
+- **Check logs**: `journalctl -b` for boot errors
+
+**No audio:**
+```bash
+# Check PipeWire status:
+systemctl --user status pipewire
+
+# Restart audio:
+systemctl --user restart pipewire
+```
+
+**No network:**
+```bash
+# Check NetworkManager:
+sudo systemctl status NetworkManager
+
+# Restart networking:
+sudo systemctl restart NetworkManager
+```
+
+### 🚨 **Snapshot Recovery**
+
+If your system breaks after changes:
+
+**Boot from snapshot:**
+1. **Reboot**
+2. **Select "Advanced options for Arch Linux"** in GRUB
+3. **Choose "Arch Linux snapshots"**
+4. **Select a snapshot from before the problem**
+
+**Rollback to snapshot:**
+```bash
+# List snapshots:
+sudo snapper list
+
+# Rollback to specific snapshot:
+sudo snapper rollback 5  # Replace 5 with snapshot number
+
+# Reboot to activate:
+sudo reboot
+```
+
+### 📞 **Getting Help**
+
+**Before asking for help, collect this information:**
+```bash
+# System info:
+uname -a
+lsblk
+df -h
+
+# Recent logs:
+journalctl -b | tail -50
+
+# Service status:
+systemctl status NetworkManager
+systemctl status sddm
+systemctl --user status pipewire
+```
+
+**Where to get help:**
+- **GitHub Issues**: https://github.com/buggerman/re-arch/issues
+- **Arch Wiki**: https://wiki.archlinux.org/
+- **Forums**: r/archlinux, Arch Linux forums
 
 ## License
 
