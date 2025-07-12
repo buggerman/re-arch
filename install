@@ -102,8 +102,32 @@ run_installation() {
     echo "This may take 10-20 minutes depending on your internet connection."
     echo ""
     
-    # Run archinstall with our configs
-    if archinstall --config-url https://re-arch.xyz/config.json --creds-url https://re-arch.xyz/creds.json; then
+    # Download and verify configs first
+    info "Downloading configuration files..."
+    if ! curl -fsSL https://re-arch.xyz/config.json > /tmp/re-arch-config.json; then
+        error "Failed to download config.json"
+    fi
+    if ! curl -fsSL https://re-arch.xyz/creds.json > /tmp/re-arch-creds.json; then
+        error "Failed to download creds.json"
+    fi
+    
+    # Auto-detect the primary disk
+    info "Detecting available disks..."
+    PRIMARY_DISK=$(lsblk -dnpo NAME,SIZE,TYPE | grep "disk" | head -1 | awk '{print $1}')
+    if [[ -z "$PRIMARY_DISK" ]]; then
+        error "No disks detected. Please check your system."
+    fi
+    
+    info "Using disk: $PRIMARY_DISK"
+    warning "This will ERASE ALL DATA on $PRIMARY_DISK"
+    
+    # Update config with detected disk
+    sed -i "s|/dev/sda|$PRIMARY_DISK|g" /tmp/re-arch-config.json
+    
+    info "Configuration files prepared successfully"
+    
+    # Run archinstall with local configs for better reliability
+    if archinstall --config /tmp/re-arch-config.json --creds /tmp/re-arch-creds.json; then
         success "Base system installation completed"
     else
         error "archinstall failed. Check the output above for details."
