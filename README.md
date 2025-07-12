@@ -89,6 +89,19 @@ archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/mai
 - Username: `user` | Password: `rearch` | Root: `rearch`
 - *Note: These are fallback credentials to prevent lockouts - you can change them when archinstall opens*
 
+**⚠️ Important: What NOT to Change in archinstall**
+
+When archinstall opens, you can customize many settings, but avoid changing these unless you have specific requirements:
+
+- **❌ Packages**: Don't modify the package list unless you know what you're doing
+- **❌ Disk formatting**: Only change if you need dual boot or custom partitioning  
+- **❌ Filesystem**: Keep Btrfs for snapshot functionality to work properly
+- **❌ Bootloader**: Keep GRUB for snapshot boot integration
+
+**✅ Safe to customize**: Username, passwords, timezone, locale, hostname, network settings
+
+**🔧 Advanced scenarios**: If you need dual boot or custom partitioning, you'll need to modify the disk configuration accordingly, but be aware this may require additional manual steps for the optimization script to work properly.
+
 #### **Step 2: System Optimization**
 ```bash
 # If you used archinstall's chroot option, just run:
