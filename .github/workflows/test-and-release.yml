@@ -29,7 +29,7 @@ jobs:
           echo ""
           echo "Checking required files:"
           test -f re-arch.sh && echo "✓ re-arch.sh exists" || echo "✗ re-arch.sh missing"
-          test -f archinstall-config.json && echo "✓ archinstall-config.json exists" || echo "✗ archinstall-config.json missing"
+          test -f config.json && echo "✓ config.json exists" || echo "✗ config.json missing"
           test -f validate-archinstall.py && echo "✓ validate-archinstall.py exists" || echo "✗ validate-archinstall.py missing"
           
       - name: Run ShellCheck on re-arch.sh
@@ -64,7 +64,7 @@ jobs:
           
       - name: Validate archinstall configuration
         run: |
-          if test -f validate-archinstall.py && test -f archinstall-config.json; then
+          if test -f validate-archinstall.py && test -f config.json; then
             chmod +x validate-archinstall.py
             python3 validate-archinstall.py
             echo "✓ Archinstall configuration validated"
@@ -75,11 +75,11 @@ jobs:
           
       - name: Validate JSON syntax
         run: |
-          if test -f archinstall-config.json; then
-            python3 -m json.tool archinstall-config.json > /dev/null
+          if test -f config.json; then
+            python3 -m json.tool config.json > /dev/null
             echo "✓ JSON syntax valid"
           else
-            echo "✗ archinstall-config.json not found"
+            echo "✗ config.json not found"
             exit 1
           fi
 
@@ -131,7 +131,7 @@ jobs:
             See README.md for complete documentation.
           files: |
             re-arch.sh
-            archinstall-config.json
+            config.json
           draft: false
           prerelease: false
         env:

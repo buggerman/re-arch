@@ -6,14 +6,14 @@ A revolutionary approach that moves 80% of the work into archinstall, with a lig
 
 ### **Step 1: Enhanced archinstall (Does 80% of the work)**
 ```bash
-archinstall --config-url https://re-arch.xyz/archinstall-config.json --creds-url https://re-arch.xyz/archinstall-credentials.json
+archinstall --config-url https://re-arch.xyz/config.json --creds-url https://re-arch.xyz/creds.json
 ```
 
 <details>
 <summary>Alternative URLs (if domain is not working)</summary>
 
 ```bash
-archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/archinstall-config.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/archinstall-credentials.json
+archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/config.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/creds.json
 ```
 </details>
 
@@ -87,7 +87,7 @@ curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch-lite
 
 ### **2. Run Enhanced archinstall with Remote JSON**
 ```bash
-archinstall --config-url https://re-arch.xyz/archinstall-config.json --creds-url https://re-arch.xyz/archinstall-credentials.json
+archinstall --config-url https://re-arch.xyz/config.json --creds-url https://re-arch.xyz/creds.json
 ```
 
 ### **3. Chroot and Run Lite Script**
@@ -101,7 +101,7 @@ curl -fsSL https://re-arch.xyz/re-arch-lite.sh | bash
 
 **Step 2:**
 ```bash
-archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/archinstall-config.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/archinstall-credentials.json
+archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/config.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/creds.json
 ```
 
 **Step 3:**
@@ -132,7 +132,7 @@ reboot
 
 ## 🔧 **What Each Approach Does:**
 
-### **Enhanced archinstall-config.json Handles:**
+### **Enhanced config.json Handles:**
 - 🎯 **Kernel**: linux-zen + headers
 - 🖥️ **Desktop**: Complete KDE Plasma environment
 - 🎵 **Audio**: Full PipeWire stack
