@@ -46,7 +46,7 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     exit 0
 fi
 
-echo "Would run: archinstall --config-url https://re-arch.xyz/archinstall-config.json --creds-url https://re-arch.xyz/archinstall-credentials.json"
+echo "Would run: archinstall --config-url https://re-arch.xyz/config.json --creds-url https://re-arch.xyz/creds.json"
 echo "Would run: arch-chroot /mnt curl -fsSL https://re-arch.xyz/re-arch-lite.sh | bash"
 echo ""
 echo "✅ Debug complete!"
