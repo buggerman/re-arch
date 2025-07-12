@@ -58,7 +58,7 @@ Re-Arch implements a **security-first package management strategy**:
 - 🔒 **Flatpak for GUI apps**: Sandboxed, secure, isolated from system
 - ⚙️ **pacman for system core**: Essential utilities, libraries, command-line tools  
 - 📦 **AUR sparingly**: Only for packages unavailable elsewhere
-- 🍺 **LinuxBrew for development**: Isolated development tools and environments
+- 🍺 **Homebrew for development**: Isolated development tools and environments
 - 🛡️ **No mixed installations**: Each package type has its designated manager
 
 **🚨 Key Rule: Never install GUI applications (Firefox, LibreOffice, GIMP, etc.) via pacman - always use Flatpak for better security and system stability.**
@@ -103,7 +103,7 @@ The Re-Arch Procedure is designed around three core principles:
 - 📱 **GUI Applications**: Flatpak for sandboxed, secure application isolation
 - ⚙️ **System Core**: pacman for essential system utilities and libraries
 - 📦 **AUR Packages**: paru for software unavailable elsewhere (minimal usage)
-- 🛠️ **Development**: LinuxBrew for development tools isolation
+- 🛠️ **Development**: Homebrew for development tools isolation
 - 🔒 **Security**: Each package manager serves specific, secure purposes
 
 ## 📋 Prerequisites
@@ -264,7 +264,7 @@ curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch-lite
   - `ananicy-cpp.service` (process optimization)
   - `packagekit.service` (package management)
   - Note: NetworkManager already enabled by archinstall
-- ⚙️ Flatpak repository setup (no LinuxBrew in recommended method)
+- ⚙️ Flatpak and Homebrew repository setup
 - ⚙️ Mirror optimization with reflector
 
 ### 🎯 **Why This Method?**
@@ -376,7 +376,7 @@ The script will prompt for your username during execution. You can optionally cu
 - 🔨 **pacman**: Core system (base-devel, git, curl, wget, system libraries)
 - 📱 **Flatpak**: GUI applications with Flathub repository (browsers, office, media)
 - 📦 **AUR**: Specialized packages unavailable elsewhere (minimal usage recommended)
-- 🍺 **LinuxBrew**: Development tools isolation
+- 🍺 **Homebrew**: Development tools isolation
 - 🎮 **multilib**: 32-bit compatibility enabled for gaming and legacy software
 
 ### 📚 System Utilities & Fonts
@@ -465,7 +465,7 @@ flatpak install flathub com.spotify.Client
 flatpak install flathub com.discordapp.Discord
 flatpak install flathub org.blender.Blender
 
-# ✅ DEVELOPMENT TOOLS (LinuxBrew) - Isolated development environment
+# ✅ DEVELOPMENT TOOLS (Homebrew) - Isolated development environment
 # brew install nodejs python
 
 # ❌ AVOID: Installing GUI apps via pacman
@@ -480,7 +480,7 @@ flatpak install flathub org.blender.Blender
 - **pacman**: Core system utilities, command-line tools, development libraries
 - **Flatpak**: All GUI applications (browsers, office suites, media players, games)
 - **AUR**: Only for software unavailable in official repos or Flatpak
-- **LinuxBrew**: Development tools isolation
+- **Homebrew**: Development tools isolation
 
 **🌐 Web Browser Required**: The system includes no web browser by default. Install Firefox or your preferred browser via Flatpak as your first step after login.
 
