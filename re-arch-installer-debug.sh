@@ -39,7 +39,7 @@ echo "This is where the actual installation would start."
 echo ""
 
 read -p "Continue with installation? [y/N]: " -n 1 -r
-echo
+echo ""
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     echo "Installation cancelled."
     exit 0
