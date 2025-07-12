@@ -400,11 +400,21 @@
             <p class="subtitle">Complete Arch Linux desktop installer with curated optimizations</p>
             
             <div class="install-section">
-                <h2 style="color: #475569;">🚀 Installation Method</h2>
-                <p style="margin-bottom: 30px; opacity: 0.8; font-size: 1.1em;">Complete Arch Linux system installation in just 2 commands</p>
+                <h2 style="color: #475569;">🚀 Two-Step Installation (Recommended)</h2>
+                <p style="margin-bottom: 30px; opacity: 0.8; font-size: 1.1em;"><strong>🕐 Total time: 25-35 minutes | 📶 Internet required throughout</strong></p>
                 
-                <div style="background: rgba(99, 102, 241, 0.1); border-radius: 12px; padding: 15px; margin-bottom: 20px; border-left: 4px solid #6366f1;">
-                    <p style="margin: 0; color: #475569; font-size: 0.95em;"><strong>💡 Tip:</strong> You can customize username, passwords, and other settings when archinstall opens.</p>
+                <div style="background: rgba(239, 68, 68, 0.1); border-radius: 12px; padding: 20px; margin-bottom: 25px; border-left: 4px solid #ef4444;">
+                    <h4 style="color: #dc2626; margin: 0 0 15px 0; font-size: 1.1em;">🚨 DESTRUCTIVE INSTALLATION WARNING</h4>
+                    <p style="margin: 0; color: #991b1b; font-size: 0.95em; font-weight: 500;">This installer assumes it controls the entire disk. It WILL erase everything on the target disk. Back up important data BEFORE starting.</p>
+                </div>
+                
+                <div style="background: rgba(99, 102, 241, 0.1); border-radius: 12px; padding: 20px; margin-bottom: 25px; border-left: 4px solid #6366f1;">
+                    <h4 style="color: #4338ca; margin: 0 0 15px 0; font-size: 1em;">📋 BEFORE YOU START:</h4>
+                    <ol style="margin: 0; color: #475569; font-size: 0.95em; padding-left: 20px;">
+                        <li style="margin-bottom: 8px;"><strong>Boot from Arch Linux ISO</strong> (download from <a href="https://archlinux.org/download/" style="color: #4338ca;">archlinux.org</a>)</li>
+                        <li style="margin-bottom: 8px;"><strong>Connect to internet:</strong> For WiFi: <code style="background: rgba(99, 102, 241, 0.2); padding: 2px 6px; border-radius: 4px;">iwctl station wlan0 connect "YourNetwork"</code></li>
+                        <li style="margin-bottom: 0;"><strong>Test connection:</strong> <code style="background: rgba(99, 102, 241, 0.2); padding: 2px 6px; border-radius: 4px;">ping google.com</code></li>
+                    </ol>
                 </div>
                 
                 <div style="background: rgba(245, 158, 11, 0.1); border-radius: 12px; padding: 15px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
@@ -436,25 +446,37 @@
                 </div>
                 
                 <div style="margin-bottom: 30px;">
-                    <h3 style="color: #0891b2; margin-bottom: 15px;">Step 1: Automated Installation</h3>
+                    <h3 style="color: #0891b2; margin-bottom: 15px;">🚀 STEP 1: Automated Installation (20-30 minutes)</h3>
+                    <p style="color: #475569; margin-bottom: 15px; font-size: 0.95em;"><strong>Run this command as root:</strong></p>
                     <div class="install-code-wrapper">
                         <div class="install-code-container">
                             <div class="install-code">archinstall --config-url https://re-arch.xyz/config.json --creds-url https://re-arch.xyz/creds.json</div>
                             <button class="copy-button" onclick="copyToClipboard(this)" title="Copy to clipboard">📋</button>
                         </div>
                     </div>
+                    <div style="background: rgba(16, 185, 129, 0.1); border-radius: 8px; padding: 15px; margin-top: 15px; border-left: 3px solid #10b981;">
+                        <p style="margin: 0; font-size: 0.95em; color: #047857;"><strong>✅ Success indicators:</strong> "Installation completed successfully" + prompt asking about chroot</p>
+                    </div>
                 </div>
                 
                 <div style="margin-bottom: 30px;">
-                    <h3 style="color: #0891b2; margin-bottom: 15px;">Step 2: System Optimization</h3>
+                    <h3 style="color: #0891b2; margin-bottom: 15px;">⚙️ STEP 2: System Optimization (2-3 minutes)</h3>
+                    
+                    <div style="background: rgba(99, 102, 241, 0.1); border-radius: 12px; padding: 15px; margin-bottom: 20px; border-left: 4px solid #6366f1;">
+                        <h4 style="color: #4338ca; margin: 0 0 10px 0; font-size: 0.95em;">🤔 Which method to use?</h4>
+                        <p style="margin: 0 0 10px 0; color: #475569; font-size: 0.9em;"><strong>Method A (RECOMMENDED):</strong> When archinstall asks about chroot, select "Yes" → You'll see <code style="background: rgba(99, 102, 241, 0.2); padding: 2px 6px; border-radius: 4px;">(chroot)</code> prompt → Run script</p>
+                        <p style="margin: 0; color: #475569; font-size: 0.9em;"><strong>Method B:</strong> If you selected "No" → Run <code style="background: rgba(99, 102, 241, 0.2); padding: 2px 6px; border-radius: 4px;">arch-chroot /mnt</code> → See <code style="background: rgba(99, 102, 241, 0.2); padding: 2px 6px; border-radius: 4px;">(chroot)</code> prompt → Run script</p>
+                    </div>
+                    
                     <div class="install-code-wrapper">
                         <div class="install-code-container">
                             <div class="install-code">curl -fsSL https://re-arch.xyz/re-arch-lite.sh | bash</div>
                             <button class="copy-button" onclick="copyToClipboard(this)" title="Copy to clipboard">📋</button>
                         </div>
                     </div>
-                    <div style="background: rgba(249, 115, 22, 0.1); border-radius: 8px; padding: 12px; margin-top: 15px; border-left: 3px solid #f97316;">
-                        <p style="margin: 0; font-size: 0.95em; color: #9a3412;"><strong>💡 Note:</strong> If you didn't use archinstall's chroot option, run <code style="background: rgba(249, 115, 22, 0.2); padding: 2px 6px; border-radius: 4px;">arch-chroot /mnt</code> first</p>
+                    
+                    <div style="background: rgba(16, 185, 129, 0.1); border-radius: 8px; padding: 15px; margin-top: 15px; border-left: 3px solid #10b981;">
+                        <p style="margin: 0; font-size: 0.95em; color: #047857;"><strong>✅ Success indicators:</strong> "Re-Arch lite configuration completed successfully" + no error messages</p>
                     </div>
                     
                     <details style="margin-top: 20px; background: rgba(99, 102, 241, 0.05); border-radius: 8px; padding: 15px;">
@@ -492,22 +514,88 @@
                 
                 
                 <div style="background: rgba(8, 145, 178, 0.1); border-radius: 12px; padding: 20px; margin-top: 20px;">
-                    <h3 style="color: #0891b2; margin-bottom: 10px;">🎯 Why Re-Arch?</h3>
-                    <ul style="list-style: none; padding: 0; color: #475569;">
-                        <li>🚀 95% fewer failure points</li>
-                        <li>⚡ Complete system in under 10 minutes</li>
-                        <li>🛡️ Robust installation via archinstall</li>
-                        <li>✨ Production-ready optimized desktop</li>
-                    </ul>
+                    <h3 style="color: #0891b2; margin-bottom: 15px;">🎯 Why This Method?</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 2em; margin-bottom: 5px;">🚀</div>
+                            <p style="color: #0891b2; font-weight: 600; margin: 0; font-size: 0.9em;">95% fewer failure points</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 2em; margin-bottom: 5px;">⚡</div>
+                            <p style="color: #0891b2; font-weight: 600; margin: 0; font-size: 0.9em;">Complete in 25-35 minutes</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 2em; margin-bottom: 5px;">🛡️</div>
+                            <p style="color: #0891b2; font-weight: 600; margin: 0; font-size: 0.9em;">Better reliability</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 2em; margin-bottom: 5px;">✨</div>
+                            <p style="color: #0891b2; font-weight: 600; margin: 0; font-size: 0.9em;">Production ready</p>
+                        </div>
+                    </div>
                 </div>
             </div>
             
-            <div class="warning">
-                <h3>⚠️ Important Note</h3>
-                <p>The optimization script performs final system configuration. Run Step 2 after archinstall completes - either from archinstall's chroot option or manually with arch-chroot.</p>
+            <div style="background: rgba(16, 185, 129, 0.1); border-radius: 12px; padding: 25px; margin-top: 30px; border-left: 4px solid #10b981;">
+                <h3 style="color: #047857; margin-bottom: 15px;">🎉 After Installation Complete</h3>
+                <div style="color: #065f46; font-size: 0.95em;">
+                    <p style="margin: 0 0 10px 0;"><strong>1. Exit chroot:</strong> Type <code style="background: rgba(16, 185, 129, 0.2); padding: 2px 6px; border-radius: 4px;">exit</code></p>
+                    <p style="margin: 0 0 10px 0;"><strong>2. Unmount:</strong> Run <code style="background: rgba(16, 185, 129, 0.2); padding: 2px 6px; border-radius: 4px;">umount -R /mnt</code> (if you manually chrooted)</p>
+                    <p style="margin: 0;"><strong>3. Reboot:</strong> Remove USB/CD and run <code style="background: rgba(16, 185, 129, 0.2); padding: 2px 6px; border-radius: 4px;">reboot</code></p>
+                </div>
             </div>
         </header>
     </div>
+    
+    <section style="background: #f1f5f9; padding: 60px 0;">
+        <div class="container">
+            <div style="max-width: 1000px; margin: 0 auto;">
+                <h2 style="text-align: center; color: #1e293b; margin-bottom: 40px; font-size: 2.2em;">📋 System Requirements & Troubleshooting</h2>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-bottom: 60px;">
+                    <div style="background: rgba(255,255,255,0.8); padding: 25px; border-radius: 16px; border-left: 4px solid #3b82f6;">
+                        <h3 style="color: #1e40af; margin-bottom: 15px;">💻 Hardware Requirements</h3>
+                        <ul style="color: #475569; font-size: 0.95em; padding-left: 20px;">
+                            <li><strong>CPU:</strong> x86_64 processor (Intel/AMD 64-bit)</li>
+                            <li><strong>RAM:</strong> 4GB minimum, 8GB recommended</li>
+                            <li><strong>Storage:</strong> 20GB minimum, 50GB recommended</li>
+                            <li><strong>Boot:</strong> UEFI preferred, Legacy BIOS supported</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="background: rgba(255,255,255,0.8); padding: 25px; border-radius: 16px; border-left: 4px solid #10b981;">
+                        <h3 style="color: #047857; margin-bottom: 15px;">✅ What's Supported</h3>
+                        <ul style="color: #475569; font-size: 0.95em; padding-left: 20px;">
+                            <li><strong>✅ Fresh installations</strong> on dedicated machines</li>
+                            <li><strong>✅ Virtual machines</strong> (VirtualBox, VMware, etc.)</li>
+                            <li><strong>⚠️ Dual-boot systems</strong> (advanced users only)</li>
+                            <li><strong>❌ Systems with existing data</strong> to preserve</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="background: rgba(255,255,255,0.8); padding: 25px; border-radius: 16px; border-left: 4px solid #f59e0b;">
+                        <h3 style="color: #d97706; margin-bottom: 15px;">🚨 Common Issues</h3>
+                        <ul style="color: #475569; font-size: 0.95em; padding-left: 20px;">
+                            <li><strong>No internet:</strong> Connect WiFi before starting</li>
+                            <li><strong>Disk space errors:</strong> Ensure 20GB+ available</li>
+                            <li><strong>Boot issues:</strong> Check UEFI/BIOS settings</li>
+                            <li><strong>Package failures:</strong> Retry with fresh ISO</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="background: rgba(255,255,255,0.8); padding: 25px; border-radius: 16px; border-left: 4px solid #8b5cf6;">
+                        <h3 style="color: #7c3aed; margin-bottom: 15px;">🆘 Getting Help</h3>
+                        <ul style="color: #475569; font-size: 0.95em; padding-left: 20px;">
+                            <li><strong>GitHub Issues:</strong> <a href="https://github.com/buggerman/re-arch/issues" style="color: #7c3aed;">Report bugs</a></li>
+                            <li><strong>Arch Wiki:</strong> <a href="https://wiki.archlinux.org/" style="color: #7c3aed;">General guidance</a></li>
+                            <li><strong>System recovery:</strong> Boot from snapshots in GRUB</li>
+                            <li><strong>Check logs:</strong> <code style="background: rgba(139, 92, 246, 0.2); padding: 2px 6px; border-radius: 4px;">journalctl -b</code></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
     
     <section style="background: #f8fafc; padding: 60px 0;">
         <div class="container">
