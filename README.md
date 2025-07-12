@@ -1,20 +1,19 @@
 # The Re-Arch Procedure
 
-A professional automation script for transforming minimal Arch Linux installations into optimized, resilient desktop systems with KDE Plasma, advanced snapshot management, and performance optimizations.
+A professional, opinionated Arch Linux installer that creates optimized desktop systems with KDE Plasma, advanced snapshot management, and performance optimizations from the ground up.
 
-### ⚠️ WARNING ⚠️
+### ⚠️ IMPORTANT ⚠️
 
-**THIS SCRIPT IS HIGHLY OPINIONATED AND PERFORMS SYSTEM-WIDE CHANGES**
+**THIS IS AN OPINIONATED ARCH LINUX INSTALLER WITH SPECIFIC CONFIGURATION CHOICES**
 
-- This script makes extensive modifications to your system configuration
-- It installs a specific desktop environment, bootloader configuration, and system services
-- **ONLY RUN ON A DEDICATED, FRESHLY INSTALLED SYSTEM**
-- **DO NOT RUN ON PRODUCTION SYSTEMS OR SYSTEMS WITH EXISTING DATA**
-- Always test in a virtual machine first
-- Create backups before proceeding
-- The script assumes you want the exact configuration it provides
+- Creates a complete desktop system with KDE Plasma, performance optimizations, and security features
+- Designed for fresh installations on dedicated hardware or virtual machines
+- **NOT intended for existing systems with data or custom configurations**
+- **ALWAYS test in a virtual machine before installing on real hardware**
+- Makes specific choices about desktop environment, kernel, and system services
+- Best suited for users who want a curated, production-ready Arch Linux setup
 
-**By using this script, you accept full responsibility for any system changes or data loss.**
+**By using this installer, you accept the provided configuration and any system changes.**
 
 ## Philosophy
 
@@ -40,38 +39,35 @@ The Re-Arch Procedure is designed around three core principles:
 
 ## Prerequisites
 
-**STRICT REQUIREMENTS:**
+**REQUIREMENTS:**
 
-1. **Fresh Minimal Arch Linux Installation**
-   - Clean Arch Linux base installation (arch-install-scripts recommended)
-   - System must be bootable with working network connection
+1. **Arch Linux Installation Media**
+   - Download latest Arch Linux ISO
+   - Boot from USB/CD in target system
+   - Network connection available
 
-2. **Btrfs Root Filesystem**
-   - Root partition (/) must be formatted with Btrfs
-   - Verify with: `findmnt -n -o FSTYPE /` should return `btrfs`
+2. **Target System**
+   - Compatible x86_64 hardware
+   - Minimum 4GB RAM recommended
+   - 20GB+ available disk space
+   - UEFI or BIOS boot support
 
-3. **Non-root User Account**
-   - User account created during installation
-   - User must have sudo privileges configured
-   - Verify with: `sudo -l` (should not prompt for password setup)
-
-4. **Chroot Environment**
-   - Script must be run from within a chroot environment
-   - Typically from the Arch installation media after arch-chroot
+**For lite approach:** No additional setup required - archinstall handles everything
+**For traditional approach:** Requires manual Arch base installation with Btrfs root filesystem
 
 
-## Usage
+## Installation
 
-### 🚀 **Lite Approach (Recommended)**
+### 🚀 **Main Installation Method**
 
-**The Re-Arch Procedure has been revolutionized!** Our new lite approach moves 80% of the work into archinstall for maximum reliability and speed:
+**Complete Arch Linux system installation in 2 simple steps:**
 
-#### **Step 1: Enhanced archinstall (Does 80% of the work)**
+#### **Step 1: Automated Installation**
 ```bash
 archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/archinstall-config.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/archinstall-credentials.json
 ```
 
-**What archinstall now handles automatically:**
+**What gets installed automatically:**
 - ✅ Linux Zen kernel + headers
 - ✅ Complete KDE Plasma desktop environment with audio controls
 - ✅ Performance optimizations (ananicy-cpp, zram-generator)
@@ -85,7 +81,7 @@ archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/mai
 - Username: `user` | Password: `rearch` | Root: `rearch`
 - *Note: These are fallback credentials to prevent lockouts - you can change them when archinstall opens*
 
-#### **Step 2: Lite Configuration Script (Final 20%)**
+#### **Step 2: System Optimization**
 ```bash
 # If you used archinstall's chroot option, just run:
 curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch-lite.sh | bash
@@ -95,45 +91,51 @@ arch-chroot /mnt
 curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch-lite.sh | bash
 ```
 
-**What the lite script handles:**
+**What the optimization script configures:**
 - ⚙️ Snapshot configuration and permissions
 - ⚙️ GRUB Btrfs integration setup
 - ⚙️ System service enablement
 - ⚙️ Flatpak and LinuxBrew repository setup
 - ⚙️ Mirror optimization
 
-### 🎯 **Why Choose the Lite Approach?**
+### 🎯 **Why This Method?**
 
-- **🚀 95% fewer failure points** - Most packages installed by proven archinstall
-- **⚡ Faster execution** - Lite script completes in 2-3 minutes vs 15-30 minutes
-- **🛡️ Better reliability** - Leverages archinstall's robustness for package installation
+- **🚀 95% fewer failure points** - Leverages proven archinstall for package installation
+- **⚡ Faster execution** - Complete system ready in under 10 minutes
+- **🛡️ Better reliability** - Robust installation process with minimal manual steps
 - **🔧 Simpler maintenance** - Clean separation between installation and configuration
-- **✨ Same end result** - Complete optimized Arch Linux system
+- **✨ Production ready** - Complete, optimized Arch Linux desktop system
 
 ---
 
-### 📋 **Traditional Approach (Legacy)**
+### ⚗️ **Experimental: Legacy Conversion Method**
 
-*For advanced users who prefer the original single-script approach:*
+**WARNING: This method is failure-prone and not recommended for most users.**
 
-#### **Step 1: Boot into Arch Installation Environment**
+*For advanced users who want to convert an existing minimal Arch installation (requires Btrfs root):*
+
+#### **Prerequisites for Conversion**
+- Existing minimal Arch Linux installation with Btrfs root filesystem
+- Non-root user account with sudo privileges
+- System booted from Arch installation media with chroot access
+
+#### **Conversion Process**
 ```bash
 # Boot from Arch installation media
-# Mount your installed system and chroot into it
+# Mount your existing system and chroot into it
 mount /dev/sdXY /mnt  # Your root partition
 arch-chroot /mnt
-```
 
-#### **Step 2: Run the One-Command Installer**
-```bash
+# Run the conversion script
 curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch.sh | bash
 ```
 
-That's it! The script will:
-- Prompt for your existing username (created during Arch installation)
-- Validate your user account and sudo privileges
-- Guide you through the transformation process
-- Require explicit confirmation before making changes
+**Known Issues with Conversion Method:**
+- Higher failure rates due to package conflicts
+- Complex dependency resolution
+- Requires manual troubleshooting
+- Not suitable for production use
+- **Use the main installation method instead for reliability**
 
 ## Configuration
 
