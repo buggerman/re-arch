@@ -1,2 +1,15 @@
+# Claude AI project memory and working files
+CLAUDE.md
+CLAUDE.local.md
+
 # Domain setup instructions (contains private info)
 domainsetup.md
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
