@@ -2,10 +2,9 @@
 
 <div align="center">
 
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/buggerman/re-arch?style=for-the-badge&logo=github&color=blue)](https://github.com/buggerman/re-arch/releases/latest)
-[![GitHub downloads](https://img.shields.io/github/downloads/buggerman/re-arch/total?style=for-the-badge&logo=github&color=green)](https://github.com/buggerman/re-arch/releases)
 [![GitHub stars](https://img.shields.io/github/stars/buggerman/re-arch?style=for-the-badge&logo=github&color=yellow)](https://github.com/buggerman/re-arch/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/buggerman/re-arch?style=for-the-badge&logo=github&color=orange)](https://github.com/buggerman/re-arch/network/members)
+[![GitHub watchers](https://img.shields.io/github/watchers/buggerman/re-arch?style=for-the-badge&logo=github&color=blue)](https://github.com/buggerman/re-arch/watchers)
 
 [![Arch Linux](https://img.shields.io/badge/Arch_Linux-1793D1?style=for-the-badge&logo=arch-linux&logoColor=white)](https://archlinux.org/)
 [![KDE Plasma](https://img.shields.io/badge/KDE_Plasma-1D99F3?style=for-the-badge&logo=kde&logoColor=white)](https://kde.org/plasma-desktop/)
