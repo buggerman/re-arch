@@ -1,6 +1,30 @@
 # 🏗️ The Re-Arch Procedure
 
-A professional, opinionated Arch Linux installer that creates optimized desktop systems with KDE Plasma, advanced snapshot management, and performance optimizations from the ground up.
+<div align="center">
+
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/buggerman/re-arch?style=for-the-badge&logo=github&color=blue)](https://github.com/buggerman/re-arch/releases/latest)
+[![GitHub downloads](https://img.shields.io/github/downloads/buggerman/re-arch/total?style=for-the-badge&logo=github&color=green)](https://github.com/buggerman/re-arch/releases)
+[![GitHub stars](https://img.shields.io/github/stars/buggerman/re-arch?style=for-the-badge&logo=github&color=yellow)](https://github.com/buggerman/re-arch/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/buggerman/re-arch?style=for-the-badge&logo=github&color=orange)](https://github.com/buggerman/re-arch/network/members)
+
+[![Arch Linux](https://img.shields.io/badge/Arch_Linux-1793D1?style=for-the-badge&logo=arch-linux&logoColor=white)](https://archlinux.org/)
+[![KDE Plasma](https://img.shields.io/badge/KDE_Plasma-1D99F3?style=for-the-badge&logo=kde&logoColor=white)](https://kde.org/plasma-desktop/)
+[![Btrfs](https://img.shields.io/badge/Btrfs-FF6B35?style=for-the-badge&logo=linux&logoColor=white)](https://btrfs.wiki.kernel.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+
+[![Website](https://img.shields.io/badge/🌐_Website-re--arch.xyz-blue?style=for-the-badge)](https://re-arch.xyz/)
+[![GitHub Issues](https://img.shields.io/github/issues/buggerman/re-arch?style=for-the-badge&logo=github)](https://github.com/buggerman/re-arch/issues)
+[![Last Commit](https://img.shields.io/github/last-commit/buggerman/re-arch?style=for-the-badge&logo=github)](https://github.com/buggerman/re-arch/commits/main)
+
+</div>
+
+---
+
+<div align="center">
+<h3>🚀 Professional, opinionated Arch Linux installer that creates optimized desktop systems with KDE Plasma, advanced snapshot management, and performance optimizations from the ground up.</h3>
+</div>
+
+---
 
 ### ⚠️ IMPORTANT ⚠️
 
@@ -25,6 +49,26 @@ Re-Arch implements a **security-first package management strategy**:
 - 🛡️ **No mixed installations**: Each package type has its designated manager
 
 **🚨 Key Rule: Never install GUI applications (Firefox, LibreOffice, GIMP, etc.) via pacman - always use Flatpak for better security and system stability.**
+
+## ✨ Key Features
+
+<div align="center">
+
+| 🚀 **Performance** | 🛡️ **Security** | 🔧 **Reliability** | 🎨 **Modern** |
+|:---:|:---:|:---:|:---:|
+| Linux Zen Kernel | Flatpak Sandboxing | Btrfs Snapshots | KDE Plasma Desktop |
+| Process Optimization | Firewall Protection | Bootable Recovery | Wayland Support |
+| Memory Compression | Package Isolation | Atomic Updates | PipeWire Audio |
+| Mirror Optimization | Secure Defaults | Error Recovery | Bluetooth Ready |
+
+</div>
+
+### 🎯 **Quick Stats**
+- ⏱️ **Installation Time**: 25-35 minutes total
+- 📦 **Package Count**: 50+ optimized packages via archinstall
+- 🔧 **Post-Config**: 2-3 minutes automated setup
+- 💾 **Disk Space**: 20GB minimum, 50GB recommended
+- 🎮 **Gaming Ready**: multilib enabled for 32-bit compatibility
 
 ## 🎯 Philosophy
 
@@ -427,6 +471,42 @@ flatpak install flathub org.blender.Blender
 
 **🌐 Web Browser Required**: The system includes no web browser by default. Install Firefox or your preferred browser via Flatpak as your first step after login.
 
+## 📸 What You Get
+
+<div align="center">
+
+### 🖥️ **Clean KDE Plasma Desktop**
+*Modern, professional desktop environment with Wayland support*
+
+### 📂 **Organized Package Management**
+*Clear separation: System (pacman) • Apps (Flatpak) • Specialized (AUR)*
+
+### 🔄 **Snapshot Recovery System**  
+*Boot from any snapshot via GRUB for instant system recovery*
+
+### ⚡ **Performance Optimized**
+*Zen kernel, process scheduling, and memory compression*
+
+</div>
+
+---
+
+## 🤝 Community & Support
+
+<div align="center">
+
+### 💬 **Get Help**
+[![GitHub Discussions](https://img.shields.io/badge/GitHub_Discussions-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/buggerman/re-arch/discussions)
+[![GitHub Issues](https://img.shields.io/badge/Bug_Reports-red?style=for-the-badge&logo=github&logoColor=white)](https://github.com/buggerman/re-arch/issues)
+
+### 🌟 **Show Support**
+[![GitHub Stars](https://img.shields.io/badge/⭐_Star_Project-yellow?style=for-the-badge&logo=github&logoColor=black)](https://github.com/buggerman/re-arch)
+[![Arch Wiki](https://img.shields.io/badge/Arch_Wiki-1793D1?style=for-the-badge&logo=arch-linux&logoColor=white)](https://wiki.archlinux.org/)
+
+</div>
+
+---
+
 ## 🔧 Troubleshooting
 
 ### 🚨 **If archinstall Fails**
@@ -578,7 +658,38 @@ MIT License - See LICENSE file for details.
 
 ## 🤝 Contributing
 
-- 🐛 **Report issues**: GitHub Issues
-- ✨ **Code style**: shellcheck compliant
-- 🧪 **Testing**: Always test in VMs first
-- 📝 **Documentation**: Update README for any changes
+<div align="center">
+
+[![Contributors](https://img.shields.io/github/contributors/buggerman/re-arch?style=for-the-badge&logo=github)](https://github.com/buggerman/re-arch/graphs/contributors)
+[![Pull Requests](https://img.shields.io/github/issues-pr/buggerman/re-arch?style=for-the-badge&logo=github)](https://github.com/buggerman/re-arch/pulls)
+
+</div>
+
+We welcome contributions! Here's how you can help:
+
+- 🐛 **Report bugs**: [GitHub Issues](https://github.com/buggerman/re-arch/issues)
+- ✨ **Suggest features**: [GitHub Discussions](https://github.com/buggerman/re-arch/discussions)
+- 🔧 **Submit fixes**: Pull requests welcome
+- 📚 **Improve docs**: Help make instructions clearer
+- 🧪 **Test installations**: Share your experience in different environments
+
+### 📋 **Development Guidelines**
+- ✅ All shell scripts must pass `shellcheck`
+- 🧪 Test changes in virtual machines first
+- 📝 Update documentation for any functional changes
+- 🏷️ Follow conventional commit messages
+
+---
+
+<div align="center">
+
+### 🌟 **Made with ❤️ for the Arch Linux Community**
+
+[![Built with](https://img.shields.io/badge/Built_with-Bash-4EAA25?style=for-the-badge&logo=gnu-bash&logoColor=white)](https://www.gnu.org/software/bash/)
+[![Powered by](https://img.shields.io/badge/Powered_by-archinstall-1793D1?style=for-the-badge&logo=arch-linux&logoColor=white)](https://github.com/archlinux/archinstall)
+
+**Re-Arch Procedure** • *Professional Arch Linux Installation*
+
+[🌐 Website](https://re-arch.xyz/) • [📚 Documentation](https://github.com/buggerman/re-arch#readme) • [🐛 Issues](https://github.com/buggerman/re-arch/issues) • [💬 Discussions](https://github.com/buggerman/re-arch/discussions)
+
+</div>
