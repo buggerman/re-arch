@@ -95,7 +95,7 @@ def validate_config(config_path):
             print(f"✅ Username: {username}")
     else:
         # Check for separate credentials file setup
-        creds_path = Path(__file__).parent / "archinstall-credentials.json"
+        creds_path = Path(__file__).parent / "creds.json"
         if creds_path.exists():
             print("✅ User: Configuration in separate credentials file")
         else:
@@ -162,7 +162,7 @@ def validate_config(config_path):
 
 def main():
     """Main validation function"""
-    config_path = Path(__file__).parent / "archinstall-config.json"
+    config_path = Path(__file__).parent / "config.json"
     
     print("Re-Arch Archinstall Configuration Validator")
     print("="*50)
@@ -174,7 +174,7 @@ def main():
         print(f"📁 Config: {config_path}")
         print("\n📋 Usage (Lite Approach - Recommended):")
         print("   1. Boot Arch installation media")
-        print("   2. Run: archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/archinstall-config.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/archinstall-credentials.json")
+        print("   2. Run: archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/config.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/creds.json")
         print("   3. After installation: arch-chroot /mnt")
         print("   4. Run: curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch-lite.sh | bash")
         return 0

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # The Re-Arch Procedure - Lite Version
-# Post-installation configuration script for systems installed with enhanced archinstall-config.json
+# Post-installation configuration script for systems installed with enhanced config.json
 # This script only handles configuration that archinstall cannot do
 
 set -euo pipefail
