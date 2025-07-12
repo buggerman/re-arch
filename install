@@ -126,8 +126,13 @@ run_installation() {
     
     info "Configuration files prepared successfully"
     
-    # Run archinstall with local configs for better reliability
-    if archinstall --config /tmp/re-arch-config.json --creds /tmp/re-arch-creds.json; then
+    # Run archinstall with local configs, restoring stdin for interactivity
+    info "Starting archinstall - you can review and modify the configuration before installing"
+    echo "The configuration has been pre-loaded, but you can change any settings as needed."
+    echo ""
+    
+    # Restore stdin from the terminal for archinstall to be interactive
+    if archinstall --config /tmp/re-arch-config.json --creds /tmp/re-arch-creds.json < /dev/tty; then
         success "Base system installation completed"
     else
         error "archinstall failed. Check the output above for details."
