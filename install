@@ -121,6 +121,27 @@ run_installation() {
     info "Using disk: $PRIMARY_DISK"
     warning "This will ERASE ALL DATA on $PRIMARY_DISK"
     
+    # Clean the disk to prevent GPT header issues
+    info "Cleaning disk to prevent partition table conflicts..."
+    
+    # Zero out the first and last few MB to clear partition tables
+    dd if=/dev/zero of="$PRIMARY_DISK" bs=1M count=10 2>/dev/null || true
+    
+    # Get disk size and clear the end (backup GPT)
+    DISK_SIZE=$(blockdev --getsize64 "$PRIMARY_DISK")
+    LAST_MB=$((DISK_SIZE - 10*1024*1024))
+    dd if=/dev/zero of="$PRIMARY_DISK" bs=1M count=10 seek=$((LAST_MB/1024/1024)) 2>/dev/null || true
+    
+    # Use sgdisk to completely wipe partition tables
+    if command -v sgdisk >/dev/null 2>&1; then
+        sgdisk --zap-all "$PRIMARY_DISK" 2>/dev/null || true
+    fi
+    
+    # Force kernel to re-read partition table
+    partprobe "$PRIMARY_DISK" 2>/dev/null || true
+    
+    success "Disk cleaned successfully"
+    
     # Update config with detected disk
     sed -i "s|/dev/sda|$PRIMARY_DISK|g" /tmp/re-arch-config.json
     
