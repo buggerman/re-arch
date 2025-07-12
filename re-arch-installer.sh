@@ -7,6 +7,9 @@
 
 set -euo pipefail
 
+# Debug mode - uncomment for troubleshooting
+# set -x
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -29,6 +32,7 @@ warning() {
 
 error() {
     echo -e "${RED}❌ $1${NC}" >&2
+    echo "Script failed at line $BASH_LINENO. Check the error above." >&2
     exit 1
 }
 
@@ -146,7 +150,5 @@ main() {
     run_installation
 }
 
-# Run main function if script is executed directly
-if [[ "${BASH_SOURCE[0]:-}" == "${0}" ]]; then
-    main "$@"
-fi
+# Always run main function when script is executed
+main "$@"
