@@ -15,6 +15,17 @@ A professional, opinionated Arch Linux installer that creates optimized desktop 
 
 **By using this installer, you accept the provided configuration and any system changes.**
 
+### 📦 **Package Management Philosophy**
+
+Re-Arch implements a **security-first package management strategy**:
+
+- 🔒 **Flatpak for GUI apps**: Sandboxed, secure, isolated from system
+- ⚙️ **pacman for system core**: Essential utilities, libraries, command-line tools  
+- 📦 **AUR sparingly**: Only for packages unavailable elsewhere
+- 🛡️ **No mixed installations**: Each package type has its designated manager
+
+**🚨 Key Rule: Never install GUI applications (Firefox, LibreOffice, GIMP, etc.) via pacman - always use Flatpak for better security and system stability.**
+
 ## 🎯 Philosophy
 
 The Re-Arch Procedure is designed around three core principles:
@@ -32,10 +43,11 @@ The Re-Arch Procedure is designed around three core principles:
 - 🔥 **Firewall**: firewalld provides network security out of the box
 
 ### 🧩 Clean Separation of Concerns
-- 📱 **User Space**: Flatpak for sandboxed applications
-- 🛠️ **Development**: LinuxBrew for development tools isolation
-- 📦 **AUR Management**: Dedicated AUR helper (paru) for user packages
-- ⚙️ **System Services**: Minimal, well-defined service configuration
+- 📱 **GUI Applications**: Flatpak for sandboxed, secure application isolation
+- ⚙️ **System Core**: pacman for essential system utilities and libraries
+- 📦 **AUR Packages**: paru for software unavailable elsewhere (minimal usage)
+- 🛠️ **Development**: LinuxBrew for development tools (legacy method)
+- 🔒 **Security**: Each package manager serves specific, secure purposes
 
 ## 📋 Prerequisites
 
@@ -302,11 +314,11 @@ The script will prompt for your username during execution. You can optionally cu
 - 🖥️ Mesa graphics drivers
 - 📶 NetworkManager for network management
 
-### 🛠️ Development & Package Management
-- 🔨 base-devel compilation tools
-- 🔀 git, curl, wget for version control and downloads
-- 📱 Flatpak with Flathub repository
-- 🍺 LinuxBrew package manager (Legacy method only)
+### 🛠️ Package Management Architecture
+- 🔨 **pacman**: Core system (base-devel, git, curl, wget, system libraries)
+- 📱 **Flatpak**: GUI applications with Flathub repository (browsers, office, media)
+- 📦 **AUR**: Specialized packages unavailable elsewhere (minimal usage recommended)
+- 🍺 **LinuxBrew**: Development tools isolation (Legacy method only)
 
 ### 📚 System Utilities & Fonts
 - 📖 Manual pages (man-db, man-pages)
@@ -377,21 +389,37 @@ sudo pacman -Syu    # Update all packages
 ```
 
 **3. Install additional software:**
+
+**🚨 IMPORTANT: Use the right package manager for each type of software**
+
 ```bash
-# System packages (traditional method)
-sudo pacman -S firefox libreoffice gimp
+# ✅ SYSTEM PACKAGES (pacman) - Only for core system tools
+sudo pacman -S htop neofetch tree vim
 
-# Flatpak applications (sandboxed, recommended for apps)
-flatpak search spotify
-flatpak install org.gnu.gimp
+# ✅ GUI APPLICATIONS (Flatpak) - Sandboxed, secure, recommended for all apps
+flatpak install flathub org.mozilla.firefox
+flatpak install flathub org.libreoffice.LibreOffice  
+flatpak install flathub org.gimp.GIMP
+flatpak install flathub com.spotify.Client
+flatpak install flathub com.discordapp.Discord
+flatpak install flathub org.blender.Blender
 
-# Development tools (LinuxBrew)
-brew install nodejs python
+# ✅ DEVELOPMENT TOOLS (LinuxBrew) - Legacy method only
+# brew install nodejs python
 
-# AUR packages (optional - requires paru installation first)
-# See "Optional: AUR Access with paru" section above for installation
-# paru -S visual-studio-code-bin
+# ❌ AVOID: Installing GUI apps via pacman
+# sudo pacman -S firefox libreoffice gimp  # DON'T DO THIS
+
+# ✅ AUR PACKAGES (optional - requires paru installation first)
+# See "AUR Access with paru" section above for installation
+# paru -S visual-studio-code-bin  # Only for packages not available in Flatpak
 ```
+
+**📦 Package Manager Guidelines:**
+- **pacman**: Core system utilities, command-line tools, development libraries
+- **Flatpak**: All GUI applications (browsers, office suites, media players, games)
+- **AUR**: Only for software unavailable in official repos or Flatpak
+- **LinuxBrew**: Development tools (legacy method only)
 
 ## 🔧 Troubleshooting
 
