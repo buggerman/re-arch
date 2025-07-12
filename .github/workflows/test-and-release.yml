@@ -18,6 +18,9 @@ jobs:
         run: |
           pacman -Sy --noconfirm
           pacman -S --noconfirm git shellcheck bash python
+          # Verify tools are available
+          shellcheck --version
+          python3 --version
           
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -26,6 +29,11 @@ jobs:
         run: |
           echo "Current directory contents:"
           ls -la
+          echo ""
+          echo "Current working directory: $(pwd)"
+          echo "User: $(whoami)"
+          echo "Python version: $(python3 --version)"
+          echo "ShellCheck version: $(shellcheck --version | head -2)"
           echo ""
           echo "Checking required files:"
           test -f re-arch.sh && echo "✓ re-arch.sh exists" || echo "✗ re-arch.sh missing"
