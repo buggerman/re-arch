@@ -29,38 +29,49 @@ jobs:
           echo ""
           echo "Checking required files:"
           test -f re-arch.sh && echo "✓ re-arch.sh exists" || echo "✗ re-arch.sh missing"
+          test -f re-arch-lite.sh && echo "✓ re-arch-lite.sh exists" || echo "✗ re-arch-lite.sh missing"
+          test -f install && echo "✓ install exists" || echo "✗ install missing"
           test -f config.json && echo "✓ config.json exists" || echo "✗ config.json missing"
+          test -f creds.json && echo "✓ creds.json exists" || echo "✗ creds.json missing"
           test -f validate-archinstall.py && echo "✓ validate-archinstall.py exists" || echo "✗ validate-archinstall.py missing"
           
-      - name: Run ShellCheck on re-arch.sh
+      - name: Run ShellCheck on scripts
         run: |
-          if test -f re-arch.sh; then
-            shellcheck re-arch.sh
-            echo "✓ ShellCheck passed"
-          else
-            echo "✗ re-arch.sh not found"
-            exit 1
-          fi
+          echo "Running ShellCheck on all shell scripts..."
+          for script in re-arch.sh re-arch-lite.sh install; do
+            if test -f "$script"; then
+              echo "Checking $script..."
+              shellcheck "$script"
+              echo "✓ ShellCheck passed for $script"
+            else
+              echo "✗ $script not found, skipping"
+            fi
+          done
           
       - name: Validate script syntax
         run: |
-          if test -f re-arch.sh; then
-            bash -n re-arch.sh
-            echo "✓ Bash syntax valid"
-          else
-            echo "✗ re-arch.sh not found"
-            exit 1
-          fi
+          echo "Validating bash syntax for all shell scripts..."
+          for script in re-arch.sh re-arch-lite.sh install; do
+            if test -f "$script"; then
+              echo "Validating syntax for $script..."
+              bash -n "$script"
+              echo "✓ Bash syntax valid for $script"
+            else
+              echo "✗ $script not found, skipping"
+            fi
+          done
           
       - name: Set script permissions
         run: |
-          if test -f re-arch.sh; then
-            chmod +x re-arch.sh
-            echo "✓ Script permissions set"
-          else
-            echo "✗ re-arch.sh not found"
-            exit 1
-          fi
+          echo "Setting executable permissions for all shell scripts..."
+          for script in re-arch.sh re-arch-lite.sh install; do
+            if test -f "$script"; then
+              chmod +x "$script"
+              echo "✓ Permissions set for $script"
+            else
+              echo "✗ $script not found, skipping"
+            fi
+          done
           
       - name: Validate archinstall configuration
         run: |
@@ -75,13 +86,17 @@ jobs:
           
       - name: Validate JSON syntax
         run: |
-          if test -f config.json; then
-            python3 -m json.tool config.json > /dev/null
-            echo "✓ JSON syntax valid"
-          else
-            echo "✗ config.json not found"
-            exit 1
-          fi
+          echo "Validating JSON files..."
+          for json in config.json creds.json; do
+            if test -f "$json"; then
+              echo "Validating $json..."
+              python3 -m json.tool "$json" > /dev/null
+              echo "✓ JSON syntax valid for $json"
+            else
+              echo "✗ $json not found"
+              exit 1
+            fi
+          done
 
   create_release:
     name: Create Release
@@ -131,7 +146,10 @@ jobs:
             See README.md for complete documentation.
           files: |
             re-arch.sh
+            re-arch-lite.sh
+            install
             config.json
+            creds.json
           draft: false
           prerelease: false
         env:
