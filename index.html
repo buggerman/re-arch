@@ -419,12 +419,24 @@
                 
                 <div style="background: rgba(245, 158, 11, 0.1); border-radius: 12px; padding: 15px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
                     <h4 style="color: #d97706; margin: 0 0 15px 0; font-size: 1em;">⚠️ Important: What NOT to Change</h4>
-                    <ul style="margin: 0; padding-left: 20px; color: #92400e; font-size: 0.95em; text-align: left;">
-                        <li style="margin-bottom: 8px;"><strong>❌ Packages</strong> - Don't modify the package list unless you know what you're doing</li>
-                        <li style="margin-bottom: 8px;"><strong>❌ Disk formatting</strong> - Only change if you need dual boot or custom partitioning</li>
-                        <li style="margin-bottom: 8px;"><strong>❌ Filesystem</strong> - Keep Btrfs for snapshot functionality to work</li>
-                        <li style="margin-bottom: 8px;"><strong>❌ Bootloader</strong> - Keep GRUB for snapshot boot integration</li>
-                    </ul>
+                    <table style="width: 100%; border-collapse: collapse; margin: 0; border: none;">
+                        <tr>
+                            <td style="padding: 4px 8px 4px 0; color: #92400e; font-size: 0.95em; border: none; width: 30px; text-align: right; vertical-align: top;">❌</td>
+                            <td style="padding: 4px 0; color: #92400e; font-size: 0.95em; border: none; text-align: left;"><strong>Packages</strong> - Don't modify the package list unless you know what you're doing</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px 8px 4px 0; color: #92400e; font-size: 0.95em; border: none; width: 30px; text-align: right; vertical-align: top;">❌</td>
+                            <td style="padding: 4px 0; color: #92400e; font-size: 0.95em; border: none; text-align: left;"><strong>Disk formatting</strong> - Only change if you need dual boot or custom partitioning</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px 8px 4px 0; color: #92400e; font-size: 0.95em; border: none; width: 30px; text-align: right; vertical-align: top;">❌</td>
+                            <td style="padding: 4px 0; color: #92400e; font-size: 0.95em; border: none; text-align: left;"><strong>Filesystem</strong> - Keep Btrfs for snapshot functionality to work</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 4px 8px 4px 0; color: #92400e; font-size: 0.95em; border: none; width: 30px; text-align: right; vertical-align: top;">❌</td>
+                            <td style="padding: 4px 0; color: #92400e; font-size: 0.95em; border: none; text-align: left;"><strong>Bootloader</strong> - Keep GRUB for snapshot boot integration</td>
+                        </tr>
+                    </table>
                     <p style="margin: 15px 0 0 0; color: #92400e; font-size: 0.9em; font-style: italic;"><strong>Safe to change:</strong> Username, passwords, timezone, locale, hostname</p>
                 </div>
                 
