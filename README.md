@@ -64,8 +64,16 @@ The Re-Arch Procedure is designed around three core principles:
 
 #### **Step 1: Automated Installation**
 ```bash
+archinstall --config-url https://re-arch.xyz/archinstall-config.json --creds-url https://re-arch.xyz/archinstall-credentials.json
+```
+
+<details>
+<summary>Alternative URLs (if domain is not working)</summary>
+
+```bash
 archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/archinstall-config.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/archinstall-credentials.json
 ```
+</details>
 
 **What gets installed automatically:**
 - ✅ Linux Zen kernel + headers
@@ -84,12 +92,25 @@ archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/mai
 #### **Step 2: System Optimization**
 ```bash
 # If you used archinstall's chroot option, just run:
+curl -fsSL https://re-arch.xyz/re-arch-lite.sh | bash
+
+# If you need to chroot manually:
+arch-chroot /mnt
+curl -fsSL https://re-arch.xyz/re-arch-lite.sh | bash
+```
+
+<details>
+<summary>Alternative URLs (if domain is not working)</summary>
+
+```bash
+# If you used archinstall's chroot option, just run:
 curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch-lite.sh | bash
 
 # If you need to chroot manually:
 arch-chroot /mnt
 curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch-lite.sh | bash
 ```
+</details>
 
 **What the optimization script configures:**
 - ⚙️ Snapshot configuration and permissions
@@ -127,8 +148,16 @@ mount /dev/sdXY /mnt  # Your root partition
 arch-chroot /mnt
 
 # Run the conversion script
+curl -fsSL https://re-arch.xyz/re-arch.sh | bash
+```
+
+<details>
+<summary>Alternative URL (if domain is not working)</summary>
+
+```bash
 curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch.sh | bash
 ```
+</details>
 
 **Known Issues with Conversion Method:**
 - Higher failure rates due to package conflicts
