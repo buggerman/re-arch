@@ -14,28 +14,30 @@ jobs:
     container: archlinux:latest
     
     steps:
-      - name: Setup Arch Linux environment
+      - name: Update system and install dependencies
         run: |
-          pacman -Sy --noconfirm
-          pacman -S --noconfirm git shellcheck bash python
-          # Verify tools are available
-          shellcheck --version
-          python3 --version
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm git shellcheck bash python ca-certificates
           
       - name: Checkout repository
         uses: actions/checkout@v4
         
-      - name: List files for debugging
+      - name: Verify tools and environment
         run: |
-          echo "Current directory contents:"
-          ls -la
-          echo ""
+          echo "=== Environment Info ==="
           echo "Current working directory: $(pwd)"
           echo "User: $(whoami)"
-          echo "Python version: $(python3 --version)"
+          echo "Git version: $(git --version)"
           echo "ShellCheck version: $(shellcheck --version | head -2)"
+          echo "Python version: $(python3 --version)"
+          echo "Bash version: $BASH_VERSION"
+        
+      - name: List files for debugging
+        run: |
+          echo "=== Repository Contents ==="
+          ls -la
           echo ""
-          echo "Checking required files:"
+          echo "=== Required Files Check ==="
           test -f re-arch.sh && echo "✓ re-arch.sh exists" || echo "✗ re-arch.sh missing"
           test -f re-arch-lite.sh && echo "✓ re-arch-lite.sh exists" || echo "✗ re-arch-lite.sh missing"
           test -f install && echo "✓ install exists" || echo "✗ install missing"
