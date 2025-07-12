@@ -95,7 +95,7 @@ run_installation() {
     echo ""
     
     # Run archinstall with our configs
-    if archinstall --config-url https://re-arch.xyz/archinstall-config.json --creds-url https://re-arch.xyz/archinstall-credentials.json; then
+    if archinstall --config-url https://re-arch.xyz/config.json --creds-url https://re-arch.xyz/creds.json; then
         success "Base system installation completed"
     else
         error "archinstall failed. Check the output above for details."
