@@ -32,7 +32,7 @@ warning() {
 
 error() {
     echo -e "${RED}❌ $1${NC}" >&2
-    echo "Script failed at line $BASH_LINENO. Check the error above." >&2
+    echo "Script failed at line ${BASH_LINENO[0]}. Check the error above." >&2
     exit 1
 }
 
