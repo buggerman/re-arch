@@ -82,6 +82,7 @@ run_installation() {
     echo ""
     
     read -p "Continue with installation? [y/N]: " -n 1 -r
+    
     echo ""
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         echo "Installation cancelled."
