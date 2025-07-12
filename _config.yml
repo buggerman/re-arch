@@ -24,10 +24,6 @@ social:
 exclude:
   - README.md
   - LICENSE
-  - re-arch.sh
-  - re-arch-lite.sh
-  - re-arch-installer.sh
-  - re-arch-installer-debug.sh
   - validate-archinstall.py
   - .gitignore
   - .github/
@@ -36,3 +32,7 @@ exclude:
 include:
   - config.json
   - creds.json
+  - re-arch.sh
+  - re-arch-lite.sh
+  - re-arch-installer.sh
+  - re-arch-installer-debug.sh
