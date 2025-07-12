@@ -20,12 +20,19 @@ social:
   links:
     - https://github.com/buggerman/re-arch
 
-# Exclude files from processing
+# Exclude files from processing  
 exclude:
   - README.md
   - LICENSE
   - re-arch.sh
-  - archinstall-config.json
+  - re-arch-lite.sh
+  - re-arch-installer.sh
+  - re-arch-installer-debug.sh
   - validate-archinstall.py
   - .gitignore
   - .github/
+
+# Include important files for web access
+include:
+  - archinstall-config.json
+  - archinstall-credentials.json
