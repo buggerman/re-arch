@@ -124,23 +124,45 @@ run_installation() {
     # Clean the disk to prevent GPT header issues
     info "Cleaning disk to prevent partition table conflicts..."
     
-    # Zero out the first and last few MB to clear partition tables
+    # Method 1: Use wipefs to remove filesystem signatures
+    if command -v wipefs >/dev/null 2>&1; then
+        info "Removing filesystem signatures..."
+        wipefs --all --force "$PRIMARY_DISK" 2>/dev/null || true
+    fi
+    
+    # Method 2: Use gdisk to fix GPT issues if available
+    if command -v gdisk >/dev/null 2>&1; then
+        info "Using gdisk to clean GPT structure..."
+        # Use gdisk's expert mode to zap everything
+        echo -e "x\nz\ny\ny" | gdisk "$PRIMARY_DISK" 2>/dev/null || true
+    fi
+    
+    # Method 3: Use sgdisk to completely wipe partition tables
+    if command -v sgdisk >/dev/null 2>&1; then
+        info "Using sgdisk to zap all partition data..."
+        sgdisk --zap-all "$PRIMARY_DISK" 2>/dev/null || true
+        # Also clear any protective MBR
+        sgdisk --clear --mbrtogpt "$PRIMARY_DISK" 2>/dev/null || true
+    fi
+    
+    # Method 4: Zero out critical areas
+    info "Zeroing critical disk areas..."
+    # Zero out the first and last 10MB to clear partition tables
     dd if=/dev/zero of="$PRIMARY_DISK" bs=1M count=10 2>/dev/null || true
     
     # Get disk size and clear the end (backup GPT)
-    DISK_SIZE=$(blockdev --getsize64 "$PRIMARY_DISK")
-    LAST_MB=$((DISK_SIZE - 10*1024*1024))
-    dd if=/dev/zero of="$PRIMARY_DISK" bs=1M count=10 seek=$((LAST_MB/1024/1024)) 2>/dev/null || true
-    
-    # Use sgdisk to completely wipe partition tables
-    if command -v sgdisk >/dev/null 2>&1; then
-        sgdisk --zap-all "$PRIMARY_DISK" 2>/dev/null || true
+    DISK_SIZE=$(blockdev --getsize64 "$PRIMARY_DISK" 2>/dev/null || echo "0")
+    if [[ "$DISK_SIZE" -gt 0 ]]; then
+        LAST_MB=$((DISK_SIZE - 10*1024*1024))
+        dd if=/dev/zero of="$PRIMARY_DISK" bs=1M count=10 seek=$((LAST_MB/1024/1024)) 2>/dev/null || true
     fi
     
-    # Force kernel to re-read partition table
+    # Force kernel to re-read partition table multiple times
+    partprobe "$PRIMARY_DISK" 2>/dev/null || true
+    sleep 2
     partprobe "$PRIMARY_DISK" 2>/dev/null || true
     
-    success "Disk cleaned successfully"
+    success "Disk cleaned with multiple methods"
     
     # Update config with detected disk
     sed -i "s|/dev/sda|$PRIMARY_DISK|g" /tmp/re-arch-config.json
@@ -154,10 +176,26 @@ run_installation() {
     
     # Restore stdin from the terminal for archinstall to be interactive
     # We'll automatically answer "n" to the chroot prompt so we can handle it ourselves
-    if printf "n\n" | archinstall --config /tmp/re-arch-config.json --creds /tmp/re-arch-creds.json; then
+    info "Running archinstall with configuration..."
+    echo "If you see GPT errors, the disk cleaning may need manual intervention."
+    echo "You can exit archinstall and run: gdisk $PRIMARY_DISK → x → z → y → y"
+    echo ""
+    
+    ARCHINSTALL_EXIT_CODE=0
+    printf "n\n" | archinstall --config /tmp/re-arch-config.json --creds /tmp/re-arch-creds.json || ARCHINSTALL_EXIT_CODE=$?
+    
+    if [[ $ARCHINSTALL_EXIT_CODE -eq 0 ]]; then
         success "Base system installation completed"
     else
-        error "archinstall failed. Check the output above for details."
+        error "archinstall failed with exit code $ARCHINSTALL_EXIT_CODE. 
+        
+Common solutions:
+1. GPT header issues - manually clean disk: gdisk $PRIMARY_DISK → x → z → y → y
+2. Network issues - check internet connection
+3. Disk space - ensure at least 20GB available
+4. UEFI/BIOS settings - check boot mode
+
+Check the output above for specific error details."
     fi
     
     echo ""
