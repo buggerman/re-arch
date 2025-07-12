@@ -407,6 +407,17 @@
                     <p style="margin: 0; color: #475569; font-size: 0.95em;"><strong>💡 Tip:</strong> You can customize username, passwords, and other settings when archinstall opens.</p>
                 </div>
                 
+                <div style="background: rgba(245, 158, 11, 0.1); border-radius: 12px; padding: 15px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
+                    <h4 style="color: #d97706; margin: 0 0 10px 0; font-size: 1em;">⚠️ Important: What NOT to Change</h4>
+                    <ul style="margin: 0; padding-left: 20px; color: #92400e; font-size: 0.95em;">
+                        <li><strong>Packages:</strong> Don't modify the package list unless you know what you're doing</li>
+                        <li><strong>Disk formatting:</strong> Only change if you need dual boot or custom partitioning</li>
+                        <li><strong>Filesystem:</strong> Keep Btrfs for snapshot functionality to work</li>
+                        <li><strong>Bootloader:</strong> Keep GRUB for snapshot boot integration</li>
+                    </ul>
+                    <p style="margin: 10px 0 0 0; color: #92400e; font-size: 0.9em; font-style: italic;"><strong>Safe to change:</strong> Username, passwords, timezone, locale, hostname</p>
+                </div>
+                
                 <div style="background: rgba(16, 185, 129, 0.1); border-radius: 12px; padding: 15px; margin-bottom: 20px; border-left: 4px solid #10b981;">
                     <p style="margin: 0; color: #047857; font-size: 0.95em;"><strong>🔐 Default Credentials:</strong> Username: <code style="background: rgba(16, 185, 129, 0.2); padding: 2px 6px; border-radius: 4px;">user</code> | Password: <code style="background: rgba(16, 185, 129, 0.2); padding: 2px 6px; border-radius: 4px;">rearch</code> | Root: <code style="background: rgba(16, 185, 129, 0.2); padding: 2px 6px; border-radius: 4px;">rearch</code></p>
                     <p style="margin: 5px 0 0 0; color: #065f46; font-size: 0.9em; font-style: italic;">Change these during archinstall setup or after first login for security</p>
