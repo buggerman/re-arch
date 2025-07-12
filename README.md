@@ -58,31 +58,9 @@ The Re-Arch Procedure is designed around three core principles:
 
 ## Installation
 
-### ⚡ **Single Command Installation (Recommended)**
+### 📋 **Two-Step Installation (Recommended)**
 
-**Complete Arch Linux system installation with one command:**
-
-```bash
-curl -fsSL https://re-arch.xyz/install | bash
-```
-
-**What this does:**
-- Automatically validates your environment 
-- Runs archinstall with optimized configuration
-- Handles chroot and post-installation optimization
-- Provides clear progress feedback throughout
-- No manual steps or typing required!
-
-**Requirements:**
-- Boot from Arch Linux installation media
-- Internet connection
-- Run as root (the script will check)
-
----
-
-### 📋 **Two-Step Installation (Advanced Users)**
-
-**For users who prefer the traditional approach:**
+**Complete Arch Linux system installation in just 2 commands:**
 
 #### **Step 1: Automated Installation**
 ```bash
@@ -148,6 +126,21 @@ curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch-lite
 - **🛡️ Better reliability** - Robust installation process with minimal manual steps
 - **🔧 Simpler maintenance** - Clean separation between installation and configuration
 - **✨ Production ready** - Complete, optimized Arch Linux desktop system
+
+---
+
+### ⚗️ **Experimental: Single Command Installation**
+
+**⚠️ Currently has interaction issues - use two-step method above for reliable installation.**
+
+```bash
+curl -fsSL https://re-arch.xyz/install | bash
+```
+
+**Known Issues:**
+- May freeze during archinstall due to stdin conflicts
+- Interactive prompts may not work properly when piped
+- **Recommended**: Use the two-step method until these issues are resolved
 
 ---
 
