@@ -305,6 +305,7 @@ The script will prompt for your username during execution. You can optionally cu
 - 📱 Essential applications: Konsole, Dolphin, Discover (package manager)
 - 🔍 PackageKit integration for software management
 - 🔵 Bluetooth support (bluez, bluez-utils, bluedevil)
+- ⚠️ **No web browser included** - install via Flatpak after first boot
 
 ### ⚡ Performance & Security
 - 🎛️ ananicy-cpp for automatic process optimization
@@ -393,11 +394,13 @@ sudo pacman -Syu    # Update all packages
 **🚨 IMPORTANT: Use the right package manager for each type of software**
 
 ```bash
+# ✅ FIRST: Install a web browser (REQUIRED - none included by default)
+flatpak install flathub org.mozilla.firefox
+
 # ✅ SYSTEM PACKAGES (pacman) - Only for core system tools
 sudo pacman -S htop neofetch tree vim
 
 # ✅ GUI APPLICATIONS (Flatpak) - Sandboxed, secure, recommended for all apps
-flatpak install flathub org.mozilla.firefox
 flatpak install flathub org.libreoffice.LibreOffice  
 flatpak install flathub org.gimp.GIMP
 flatpak install flathub com.spotify.Client
@@ -420,6 +423,8 @@ flatpak install flathub org.blender.Blender
 - **Flatpak**: All GUI applications (browsers, office suites, media players, games)
 - **AUR**: Only for software unavailable in official repos or Flatpak
 - **LinuxBrew**: Development tools (legacy method only)
+
+**🌐 Web Browser Required**: The system includes no web browser by default. Install Firefox or your preferred browser via Flatpak as your first step after login.
 
 ## 🔧 Troubleshooting
 
