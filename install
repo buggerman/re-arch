@@ -132,7 +132,8 @@ run_installation() {
     echo ""
     
     # Restore stdin from the terminal for archinstall to be interactive
-    if archinstall --config /tmp/re-arch-config.json --creds /tmp/re-arch-creds.json < /dev/tty; then
+    # We'll automatically answer "n" to the chroot prompt so we can handle it ourselves
+    if printf "n\n" | archinstall --config /tmp/re-arch-config.json --creds /tmp/re-arch-creds.json; then
         success "Base system installation completed"
     else
         error "archinstall failed. Check the output above for details."
