@@ -251,6 +251,8 @@ curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch.sh |
 - Not suitable for production use
 - **Use the main installation method instead for reliability**
 
+**Note:** The legacy conversion method (`re-arch.sh`) DOES include paru and AUR packages, unlike the recommended two-step method which excludes them for speed and reliability.
+
 ## Configuration
 
 The script will prompt for your username during execution. You can optionally customize these settings by editing the script:
@@ -282,11 +284,20 @@ The script will prompt for your username during execution. You can optionally cu
 - 🔥 firewalld network security
 
 ### 🛠️ Development & Package Management
-- 📦 paru AUR helper
 - 🔨 base-devel compilation tools
 - 🔀 git version control
 - 📱 Flatpak with Flathub repository
 - 🍺 LinuxBrew package manager
+
+**Note:** The recommended two-step installation does NOT include paru (AUR helper) for faster, more reliable installation. Users can install paru manually if needed:
+
+```bash
+# Optional: Install paru AUR helper (after first boot)
+sudo pacman -S --needed base-devel git
+git clone https://aur.archlinux.org/paru.git
+cd paru
+makepkg -si
+```
 
 ## 🏁 Post-Installation
 
@@ -343,6 +354,10 @@ flatpak install org.gnu.gimp
 
 # Development tools (LinuxBrew)
 brew install nodejs python
+
+# AUR packages (optional - requires paru installation first)
+# See "What Gets Installed" section for paru installation instructions
+# paru -S visual-studio-code-bin
 ```
 
 ## 🔧 Troubleshooting
