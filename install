@@ -81,11 +81,20 @@ run_installation() {
     warning "Default credentials: user/rearch (change after first login)"
     echo ""
     
-    read -p "Continue with installation? [y/N]: " -n 1 -r
-    echo ""
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo "Installation cancelled."
-        exit 0
+    # Check if running in non-interactive mode (piped from curl)
+    if [[ -t 0 ]]; then
+        # Interactive mode - ask for confirmation
+        read -p "Continue with installation? [y/N]: " -n 1 -r
+        echo ""
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            echo "Installation cancelled."
+            exit 0
+        fi
+    else
+        # Non-interactive mode - auto-proceed with warning
+        warning "Running in non-interactive mode - proceeding automatically"
+        echo "To cancel, press Ctrl+C within 5 seconds..."
+        sleep 5
     fi
     
     echo ""
@@ -133,14 +142,22 @@ run_installation() {
     echo "  5. Enjoy your new system!"
     echo ""
     
-    read -p "Reboot now? [y/N]: " -n 1 -r
-    echo ""
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        echo "Rebooting in 3 seconds..."
-        sleep 3
-        reboot
+    # Check if running in non-interactive mode for reboot prompt
+    if [[ -t 0 ]]; then
+        # Interactive mode - ask about reboot
+        read -p "Reboot now? [y/N]: " -n 1 -r
+        echo ""
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            echo "Rebooting in 3 seconds..."
+            sleep 3
+            reboot
+        else
+            echo "Remember to reboot when ready!"
+        fi
     else
+        # Non-interactive mode - just remind to reboot
         echo "Remember to reboot when ready!"
+        echo "Run: reboot"
     fi
 }
 
