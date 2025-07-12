@@ -24,8 +24,6 @@ social:
 exclude:
   - README.md
   - LICENSE
-  - re-arch.sh
-  - archinstall-config.json
   - validate-archinstall.py
   - .gitignore
   - .github/
