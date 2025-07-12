@@ -82,7 +82,7 @@ run_installation() {
     echo ""
     
     read -p "Continue with installation? [y/N]: " -n 1 -r
-    echo
+    echo ""
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         echo "Installation cancelled."
         exit 0
@@ -134,7 +134,7 @@ run_installation() {
     echo ""
     
     read -p "Reboot now? [y/N]: " -n 1 -r
-    echo
+    echo ""
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         echo "Rebooting in 3 seconds..."
         sleep 3
