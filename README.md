@@ -58,9 +58,31 @@ The Re-Arch Procedure is designed around three core principles:
 
 ## Installation
 
-### 🚀 **Main Installation Method**
+### ⚡ **Single Command Installation (Recommended)**
 
-**Complete Arch Linux system installation in 2 simple steps:**
+**Complete Arch Linux system installation with one command:**
+
+```bash
+curl -fsSL https://re-arch.xyz/install | bash
+```
+
+**What this does:**
+- Automatically validates your environment 
+- Runs archinstall with optimized configuration
+- Handles chroot and post-installation optimization
+- Provides clear progress feedback throughout
+- No manual steps or typing required!
+
+**Requirements:**
+- Boot from Arch Linux installation media
+- Internet connection
+- Run as root (the script will check)
+
+---
+
+### 📋 **Two-Step Installation (Advanced Users)**
+
+**For users who prefer the traditional approach:**
 
 #### **Step 1: Automated Installation**
 ```bash
