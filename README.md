@@ -127,10 +127,12 @@ archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/mai
 | **Filesystem (Btrfs)** | Required for snapshots | No system recovery ability |
 | **Bootloader (GRUB)** | Snapshot integration | Can't boot from snapshots |
 
-**🔐 Security Note:** 
-- Default credentials (`user`/`rearch`) are fallbacks to prevent lockouts
-- **CHANGE THEM** during archinstall for security
-- You can also change them after first login
+**🔐 Default Credentials:** 
+- **Username**: `user`
+- **Password**: `rearch`
+- These are the actual login credentials if not changed during archinstall
+- **STRONGLY RECOMMENDED**: Change them during archinstall for security
+- Alternative: Change them after first login with `passwd` command
 
 **⏱️ What happens during installation:**
 1. **Disk partitioning** (2-3 minutes)
@@ -185,16 +187,24 @@ curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch-lite
 **What the optimization script configures:**
 - ⚙️ Snapshot configuration and permissions
 - ⚙️ GRUB Btrfs integration setup
-- ⚙️ System service enablement
-- ⚙️ Flatpak and LinuxBrew repository setup
-- ⚙️ Mirror optimization
+- ⚙️ **System services enabled**:
+  - `sddm.service` (display manager)
+  - `firewalld.service` (network security)
+  - `snapper-timeline.timer` & `snapper-cleanup.timer` (snapshots)
+  - `grub-btrfsd.service` (bootable snapshots)
+  - `ananicy-cpp.service` (process optimization)
+  - `packagekit.service` (package management)
+  - Note: NetworkManager already enabled by archinstall
+- ⚙️ Flatpak repository setup (no LinuxBrew in recommended method)
+- ⚙️ Mirror optimization with reflector
 
 ### 🎯 **Why This Method?**
 
-- **🚀 95% fewer failure points** - Leverages proven archinstall for package installation
-- **⚡ Faster execution** - Complete system ready in under 10 minutes
-- **🛡️ Better reliability** - Robust installation process with minimal manual steps
-- **🔧 Simpler maintenance** - Clean separation between installation and configuration
+- **🏗️ Architecture separation** - archinstall handles packages (80% of work), lite script handles configuration (20%)
+- **⚡ Faster execution** - Complete system ready in 25-35 minutes
+- **🛡️ Better reliability** - Proven archinstall for package management reduces dependency conflicts
+- **🔧 Simpler maintenance** - Clear separation between installation and configuration phases
+- **🧪 Tested approach** - Leverages archinstall's extensive testing and validation
 - **✨ Production ready** - Complete, optimized Arch Linux desktop system
 
 ---
@@ -269,31 +279,53 @@ The script will prompt for your username during execution. You can optionally cu
 - 🚀 linux-zen kernel for desktop optimization
 - 🥾 GRUB bootloader with Btrfs snapshot support
 - 📸 snapper + snap-pac for automatic system snapshots
+- 🗂️ **Btrfs Subvolume Layout:**
+  - `@` → `/` (root filesystem)
+  - `@home` → `/home` (user data)
+  - `@log` → `/var/log` (system logs)
+  - `@pkg` → `/var/cache/pacman/pkg` (package cache)
+  - Compression: zstd for optimal performance
 
 ### 🖥️ Desktop Environment
-- 🎨 KDE Plasma desktop (plasma-desktop)
-- 🏠 SDDM display manager
-- 🌊 Plasma Wayland session support
-- 📱 Essential applications: Konsole, Dolphin
+- 🎨 KDE Plasma desktop (plasma-desktop, plasma-nm, plasma-pa, powerdevil)
+- 🏠 SDDM display manager with Breeze theme
+- 🌊 Plasma Wayland protocols and xdg-desktop-portal-kde
+- 📱 Essential applications: Konsole, Dolphin, Discover (package manager)
+- 🔍 PackageKit integration for software management
+- 🔵 Bluetooth support (bluez, bluez-utils, bluedevil)
 
 ### ⚡ Performance & Security
 - 🎛️ ananicy-cpp for automatic process optimization
 - 🧠 zram-generator for compressed memory management
-- 🎵 PipeWire complete audio system
+- 🎵 PipeWire complete audio system (pipewire, pipewire-alsa, pipewire-pulse, pipewire-jack, wireplumber)
 - 🔥 firewalld network security
+- 🖥️ Mesa graphics drivers
+- 📶 NetworkManager for network management
 
 ### 🛠️ Development & Package Management
 - 🔨 base-devel compilation tools
-- 🔀 git version control
+- 🔀 git, curl, wget for version control and downloads
 - 📱 Flatpak with Flathub repository
-- 🍺 LinuxBrew package manager
+- 🍺 LinuxBrew package manager (Legacy method only)
 
-**📦 Optional: AUR Access with paru**
+### 📚 System Utilities & Fonts
+- 📖 Manual pages (man-db, man-pages)
+- 📝 nano text editor
+- 📂 File system support (ntfs-3g for Windows drives)
+- 🗜️ Archive support (unzip)
+- 🔤 Quality fonts (Liberation, DejaVu, Open Sans, Noto)
+- 🪞 reflector for mirror optimization
 
-Re-Arch does not include an AUR helper by default for faster, more reliable installation. If you need AUR packages, you can install paru after the system is running:
+**📦 AUR Access with paru**
 
+AUR helper availability depends on installation method:
+
+- **📋 Two-Step Method (Recommended)**: No AUR helper included for faster, more reliable installation
+- **⚗️ Legacy Conversion Method**: Includes automatic paru installation
+
+**Install paru manually (Two-Step Method):**
 ```bash
-# Optional: Install paru AUR helper (after first boot)
+# After first boot - install paru AUR helper
 sudo pacman -S --needed base-devel git
 git clone https://aur.archlinux.org/paru.git
 cd paru
@@ -379,6 +411,11 @@ brew install nodejs python
 - 🔄 **Use alternative URLs**: The GitHub URLs in documentation as fallback
 - 🌐 **Check internet**: Ensure you can access websites
 
+**💾 GPT header conflicts (UTM/VirtualBox):**
+- 🧹 **Disk cleaning**: Script automatically cleans GPT headers with multiple methods
+- 🔧 **Manual fix**: If needed, run `gdisk /dev/sda` → `x` → `z` → `y` → `y`
+- 🔄 **Reboot VM**: Sometimes requires a fresh start
+
 ### 🚨 **If re-arch-lite.sh Fails**
 
 **🔒 Permission errors:**
@@ -397,7 +434,13 @@ cp /etc/resolv.conf /mnt/etc/resolv.conf
 
 **📦 Package conflicts:**
 - 🔄 **Retry once**: Sometimes transient network issues cause failures
+- 🪞 **Mirror failures**: Script automatically retries with different mirrors
 - 🐛 **If repeated failures**: Report as bug with error output
+
+**🔧 Service enablement issues:**
+- 🔍 **Check logs**: Script shows which services failed to enable
+- ⚠️ **Non-critical**: Most service failures won't prevent system boot
+- 🔄 **Manual enable**: After reboot, run `sudo systemctl enable <service-name>`
 
 ### 🚨 **Boot Issues After Installation**
 
