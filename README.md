@@ -320,6 +320,7 @@ The script will prompt for your username during execution. You can optionally cu
 - 📱 **Flatpak**: GUI applications with Flathub repository (browsers, office, media)
 - 📦 **AUR**: Specialized packages unavailable elsewhere (minimal usage recommended)
 - 🍺 **LinuxBrew**: Development tools isolation (Legacy method only)
+- 🎮 **multilib**: 32-bit compatibility enabled for gaming and legacy software
 
 ### 📚 System Utilities & Fonts
 - 📖 Manual pages (man-db, man-pages)
