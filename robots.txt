@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://re-arch.xyz/sitemap.xml
+
+# Crawl-delay for politeness
+Crawl-delay: 1
