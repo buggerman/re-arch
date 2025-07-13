@@ -49,7 +49,7 @@ What began as a simple script to automate our repetitive setup tasks has evolved
 - **Performance optimization** - Desktop responsiveness that rivals any OS
 - **Clean architecture** - Logical separation of system and user applications
 
-The project has grown from "let's automate our weekend Arch installs" to a robust solution used by the broader community. While it remains opinionated (reflecting our collective preferences), every choice has been battle-tested through real daily usage across different hardware configurations and use cases.
+The project has grown from "let's automate our weekend Arch installs" to a robust solution that can be used by the broader community. While it remains opinionated (reflecting our collective preferences), every choice has been battle-tested through real daily usage across different hardware configurations and use cases.
 
 ### 📦 **Package Management Philosophy**
 
