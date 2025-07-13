@@ -399,7 +399,7 @@ The script will prompt for your username during execution. You can optionally cu
 ### 🛠️ Package Management Architecture
 - 🔨 **pacman**: Core system (base-devel, git, curl, wget, system libraries)
 - 📱 **Flatpak**: GUI applications with Flathub repository (browsers, office, media)
-- 📦 **AUR**: Specialized packages unavailable elsewhere (minimal usage recommended)
+- 📦 **AUR**: Manual paru installation required for specialized packages
 - 🍺 **Homebrew**: Development tools isolation
 - 🎮 **multilib**: 32-bit compatibility enabled for gaming and legacy software
 
@@ -516,7 +516,7 @@ flatpak install flathub org.blender.Blender
 *Modern, professional desktop environment with Wayland support*
 
 ### 📂 **Organized Package Management**
-*Clear separation: System (pacman) • Apps (Flatpak) • Specialized (AUR)*
+*Clear separation: System (pacman) • Apps (Flatpak) • Development (Homebrew) • Specialized (manual AUR)*
 
 ### 🔄 **Snapshot Recovery System**  
 *Boot from any snapshot via GRUB for instant system recovery*
