@@ -506,11 +506,29 @@
                 </div>
                 
                 <div style="margin-bottom: 30px;">
-                    <h3 style="color: #0891b2; margin-bottom: 15px;">🚀 STEP 1: Automated Installation (20-30 minutes)</h3>
+                    <h3 style="color: #0891b2; margin-bottom: 15px;">🚀 STEP 1: Choose Your Desktop Environment</h3>
+                    <p style="color: #475569; margin-bottom: 15px; font-size: 0.95em;"><strong>Select your preferred desktop environment:</strong></p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                        <div onclick="selectDesktop('kde')" id="kde-option" style="background: rgba(8, 145, 178, 0.1); border: 2px solid #0891b2; border-radius: 12px; padding: 15px; cursor: pointer; text-align: center; transition: all 0.2s;">
+                            <h4 style="color: #0891b2; margin: 0 0 5px 0;">KDE Plasma</h4>
+                            <p style="color: #475569; margin: 0; font-size: 0.9em;">Modern, feature-rich (Default)</p>
+                        </div>
+                        <div onclick="selectDesktop('gnome')" id="gnome-option" style="background: rgba(99, 102, 241, 0.1); border: 2px solid #6366f1; border-radius: 12px; padding: 15px; cursor: pointer; text-align: center; transition: all 0.2s;">
+                            <h4 style="color: #6366f1; margin: 0 0 5px 0;">GNOME</h4>
+                            <p style="color: #475569; margin: 0; font-size: 0.9em;">Clean, minimalist</p>
+                        </div>
+                        <div onclick="selectDesktop('xfce')" id="xfce-option" style="background: rgba(16, 185, 129, 0.1); border: 2px solid #10b981; border-radius: 12px; padding: 15px; cursor: pointer; text-align: center; transition: all 0.2s;">
+                            <h4 style="color: #10b981; margin: 0 0 5px 0;">XFCE</h4>
+                            <p style="color: #475569; margin: 0; font-size: 0.9em;">Lightweight, fast</p>
+                        </div>
+                    </div>
+                    
+                    <h4 style="color: #0891b2; margin-bottom: 10px;">🔧 Run Installation Command (20-30 minutes)</h4>
                     <p style="color: #475569; margin-bottom: 15px; font-size: 0.95em;"><strong>Run this command as root:</strong></p>
                     <div class="install-code-wrapper">
                         <div class="install-code-container">
-                            <div class="install-code">archinstall --config-url https://re-arch.xyz/config.json --creds-url https://re-arch.xyz/creds.json</div>
+                            <div class="install-code" id="install-command">archinstall --config-url https://re-arch.xyz/config.json --creds-url https://re-arch.xyz/creds.json</div>
                             <button class="copy-button" onclick="copyToClipboard(this)" title="Copy to clipboard">📋</button>
                         </div>
                     </div>
@@ -542,9 +560,17 @@
                     <details style="margin-top: 20px; background: rgba(99, 102, 241, 0.05); border-radius: 8px; padding: 15px;">
                         <summary style="cursor: pointer; color: #6366f1; font-weight: 500;">🔄 Alternative URLs (if domain is not working)</summary>
                         <div style="margin-top: 15px;">
-                            <h4 style="color: #4b5563; margin-bottom: 10px;">Step 1:</h4>
+                            <h4 style="color: #4b5563; margin-bottom: 10px;">Step 1 (Default - KDE):</h4>
                             <div style="background: #1f2937; color: #10b981; border-radius: 6px; padding: 10px; font-family: 'JetBrains Mono', monospace; font-size: 12px; overflow-x: auto;">
                                 archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/config.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/creds.json
+                            </div>
+                            <h4 style="color: #4b5563; margin: 15px 0 10px 0;">Step 1 (GNOME):</h4>
+                            <div style="background: #1f2937; color: #10b981; border-radius: 6px; padding: 10px; font-family: 'JetBrains Mono', monospace; font-size: 12px; overflow-x: auto;">
+                                archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/config-gnome.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/creds.json
+                            </div>
+                            <h4 style="color: #4b5563; margin: 15px 0 10px 0;">Step 1 (XFCE):</h4>
+                            <div style="background: #1f2937; color: #10b981; border-radius: 6px; padding: 10px; font-family: 'JetBrains Mono', monospace; font-size: 12px; overflow-x: auto;">
+                                archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/config-xfce.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/creds.json
                             </div>
                             <h4 style="color: #4b5563; margin: 15px 0 10px 0;">Step 2:</h4>
                             <div style="background: #1f2937; color: #10b981; border-radius: 6px; padding: 10px; font-family: 'JetBrains Mono', monospace; font-size: 12px; overflow-x: auto;">
@@ -842,6 +868,38 @@
                 }, 1500);
             });
         }
+
+        function selectDesktop(desktop) {
+            // Reset all options
+            document.querySelectorAll('[id$="-option"]').forEach(option => {
+                option.style.borderWidth = '2px';
+                option.style.transform = 'scale(1)';
+            });
+            
+            // Highlight selected option
+            const selectedOption = document.getElementById(desktop + '-option');
+            selectedOption.style.borderWidth = '3px';
+            selectedOption.style.transform = 'scale(1.02)';
+            
+            // Update install command
+            const installCommand = document.getElementById('install-command');
+            const baseUrl = 'https://re-arch.xyz/config';
+            const credsUrl = 'https://re-arch.xyz/creds.json';
+            
+            let configUrl;
+            if (desktop === 'kde') {
+                configUrl = baseUrl + '.json';
+            } else {
+                configUrl = baseUrl + '-' + desktop + '.json';
+            }
+            
+            installCommand.textContent = `archinstall --config-url ${configUrl} --creds-url ${credsUrl}`;
+        }
+
+        // Initialize with KDE selected
+        document.addEventListener('DOMContentLoaded', function() {
+            selectDesktop('kde');
+        });
     </script>
 </body>
 </html>

@@ -20,7 +20,7 @@
 ---
 
 <div align="center">
-<h3>🚀 Professional, opinionated Arch Linux installer that creates optimized desktop systems with KDE Plasma, advanced snapshot management, and performance optimizations from the ground up.</h3>
+<h3>🚀 Professional, opinionated Arch Linux installer that creates optimized desktop systems with multiple desktop environments, advanced snapshot management, and performance optimizations from the ground up.</h3>
 </div>
 
 ---
@@ -29,7 +29,7 @@
 
 **THIS IS AN OPINIONATED ARCH LINUX INSTALLER WITH SPECIFIC CONFIGURATION CHOICES**
 
-- 🖥️ Creates a complete desktop system with KDE Plasma, performance optimizations, and security features
+- 🖥️ Creates a complete desktop system with choice of KDE Plasma, GNOME, or XFCE, plus performance optimizations and security features
 - 💻 Designed for fresh installations on dedicated hardware or virtual machines
 - ❌ **NOT intended for existing systems with data or custom configurations**
 - 🧪 **ALWAYS test in a virtual machine before installing on real hardware**
@@ -44,7 +44,7 @@
 
 What began as a simple script to automate our repetitive setup tasks has evolved into a comprehensive, production-ready installer that embodies years of collective experience with Arch Linux. The configurations and package choices reflect real-world usage patterns from developers and power users who wanted:
 
-- **Immediate productivity** - Boot straight into a fully functional KDE desktop
+- **Immediate productivity** - Boot straight into a fully functional desktop (KDE, GNOME, or XFCE)
 - **System resilience** - Never lose work due to system breakage
 - **Performance optimization** - Desktop responsiveness that rivals any OS
 - **Clean architecture** - Logical separation of system and user applications
@@ -93,7 +93,7 @@ sudo reboot                          # Boot into previous working state
 
 | 🚀 **Performance** | 🛡️ **Security** | 🔧 **Reliability** | 🎨 **Modern** |
 |:---:|:---:|:---:|:---:|
-| Linux Zen Kernel | Flatpak Sandboxing | Btrfs Snapshots | KDE Plasma Desktop |
+| Linux Zen Kernel | Flatpak Sandboxing | Btrfs Snapshots | Multiple Desktop Environments |
 | Process Optimization | Firewall Protection | Bootable Recovery | Wayland Support |
 | Memory Compression | Package Isolation | Atomic Updates | PipeWire Audio |
 | Mirror Optimization | Secure Defaults | Error Recovery | Bluetooth Ready |
@@ -188,18 +188,32 @@ This installer assumes it controls the entire disk. It WILL erase everything on 
 
 ---
 
-#### **🚀 STEP 1: Automated Installation (20-30 minutes)**
+#### **🚀 STEP 1: Choose Desktop Environment & Install (20-30 minutes)**
 
-**Run this command as root:**
-```bash
-archinstall --config-url https://re-arch.xyz/config.json --creds-url https://re-arch.xyz/creds.json
-```
+**🎨 Choose Your Desktop Environment:**
+
+| Desktop | Command |
+|---------|---------|
+| **KDE Plasma** (Default) | `archinstall --config-url https://re-arch.xyz/config.json --creds-url https://re-arch.xyz/creds.json` |
+| **GNOME** | `archinstall --config-url https://re-arch.xyz/config-gnome.json --creds-url https://re-arch.xyz/creds.json` |
+| **XFCE** | `archinstall --config-url https://re-arch.xyz/config-xfce.json --creds-url https://re-arch.xyz/creds.json` |
 
 <details>
 <summary>🔄 Alternative URLs (if domain is not working)</summary>
 
+**KDE Plasma (Default):**
 ```bash
 archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/config.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/creds.json
+```
+
+**GNOME:**
+```bash
+archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/config-gnome.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/creds.json
+```
+
+**XFCE:**
+```bash
+archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/config-xfce.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/creds.json
 ```
 </details>
 
