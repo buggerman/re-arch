@@ -116,33 +116,46 @@ run_basic_checks() {
 detect_desktop_environment() {
     info "Detecting desktop environment..."
     
+    local detected_des=()
+    
     # Check for KDE Plasma
     if pacman -Qq plasma-desktop &>/dev/null; then
-        echo "kde"
-        return 0
+        detected_des+=("kde")
     fi
     
     # Check for GNOME
     if pacman -Qq gnome-shell &>/dev/null; then
-        echo "gnome"
-        return 0
+        detected_des+=("gnome")
     fi
     
     # Check for XFCE
     if pacman -Qq xfce4 &>/dev/null; then
-        echo "xfce"
-        return 0
+        detected_des+=("xfce")
     fi
     
     # Check for Hyprland
     if pacman -Qq hyprland &>/dev/null; then
-        echo "hyprland"
-        return 0
+        detected_des+=("hyprland")
     fi
     
-    # Default/unknown
-    echo "unknown"
-    return 1
+    # Handle detection results
+    if [[ ${#detected_des[@]} -eq 0 ]]; then
+        warning "No supported desktop environment detected"
+        warning "Supported DEs: KDE Plasma, GNOME, XFCE, Hyprland"
+        warning "Falling back to unknown (will use SDDM as display manager)"
+        echo "unknown"
+        return 1
+    elif [[ ${#detected_des[@]} -eq 1 ]]; then
+        info "Detected desktop environment: ${detected_des[0]}"
+        echo "${detected_des[0]}"
+        return 0
+    else
+        warning "Multiple desktop environments detected: ${detected_des[*]}"
+        warning "Using first detected: ${detected_des[0]}"
+        info "If this is incorrect, please ensure only one DE is installed"
+        echo "${detected_des[0]}"
+        return 0
+    fi
 }
 
 get_display_manager() {
@@ -240,11 +253,28 @@ enable_services() {
     # Detect desktop environment and get appropriate display manager
     local desktop_env
     desktop_env=$(detect_desktop_environment)
+    local detection_result=$?
+    
+    if [[ $detection_result -ne 0 ]]; then
+        warning "Desktop environment detection had issues, but continuing with fallback"
+    fi
+    
     local display_manager
     display_manager=$(get_display_manager "$desktop_env")
     
-    info "Detected desktop environment: $desktop_env"
     info "Using display manager: $display_manager"
+    
+    # Validate display manager package is installed
+    local dm_package
+    case "$display_manager" in
+        "sddm.service") dm_package="sddm" ;;
+        "gdm.service") dm_package="gdm" ;;
+        "lightdm.service") dm_package="lightdm" ;;
+    esac
+    
+    if ! pacman -Qq "$dm_package" &>/dev/null; then
+        error "Display manager package '$dm_package' is not installed. This should not happen with archinstall configs."
+    fi
     
     # Base services that are always enabled
     local base_services=(
