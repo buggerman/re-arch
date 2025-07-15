@@ -184,7 +184,14 @@ This installer assumes it controls the entire disk. It WILL erase everything on 
    # Test connection:
    ping google.com
    ```
-3. ✅ **You're ready when:** You see successful pings to google.com
+3. ⚠️ **IMPORTANT - Disk Configuration:**
+   - **Default configs target `/dev/sda`** (first SATA drive)
+   - **If your disk is different** (e.g., `/dev/nvme0n1`, `/dev/vda`, `/dev/sdb`):
+     - Download the config file first: `curl -O https://raw.githubusercontent.com/buggerman/re-arch/main/config-kde.json`
+     - Edit line 15: change `"device": "/dev/sda"` to your actual disk
+     - Use `--config config-kde.json` instead of `--config-url` in the command
+   - **Check your disk name:** `lsblk` or `fdisk -l`
+4. ✅ **You're ready when:** You see successful pings to google.com
 
 ---
 
