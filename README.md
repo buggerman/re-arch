@@ -29,7 +29,7 @@
 
 **THIS IS AN OPINIONATED ARCH LINUX INSTALLER WITH SPECIFIC CONFIGURATION CHOICES**
 
-- 🖥️ Creates a complete desktop system with choice of KDE Plasma, GNOME, or XFCE, plus performance optimizations and security features
+- 🖥️ Creates a complete desktop system with choice of KDE Plasma, GNOME, XFCE, or Hyprland, plus performance optimizations and security features
 - 💻 Designed for fresh installations on dedicated hardware or virtual machines
 - ❌ **NOT intended for existing systems with data or custom configurations**
 - 🧪 **ALWAYS test in a virtual machine before installing on real hardware**
@@ -44,7 +44,7 @@
 
 What began as a simple script to automate our repetitive setup tasks has evolved into a comprehensive, production-ready installer that embodies years of collective experience with Arch Linux. The configurations and package choices reflect real-world usage patterns from developers and power users who wanted:
 
-- **Immediate productivity** - Boot straight into a fully functional desktop (KDE, GNOME, or XFCE)
+- **Immediate productivity** - Boot straight into a fully functional desktop (KDE, GNOME, XFCE, or Hyprland)
 - **System resilience** - Never lose work due to system breakage
 - **Performance optimization** - Desktop responsiveness that rivals any OS
 - **Clean architecture** - Logical separation of system and user applications
@@ -197,6 +197,7 @@ This installer assumes it controls the entire disk. It WILL erase everything on 
 | **KDE Plasma** (Default) | `archinstall --config-url https://re-arch.xyz/config.json --creds-url https://re-arch.xyz/creds.json` |
 | **GNOME** | `archinstall --config-url https://re-arch.xyz/config-gnome.json --creds-url https://re-arch.xyz/creds.json` |
 | **XFCE** | `archinstall --config-url https://re-arch.xyz/config-xfce.json --creds-url https://re-arch.xyz/creds.json` |
+| **Hyprland** | `archinstall --config-url https://re-arch.xyz/config-hyprland.json --creds-url https://re-arch.xyz/creds.json` |
 
 <details>
 <summary>🔄 Alternative URLs (if domain is not working)</summary>
@@ -214,6 +215,11 @@ archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/mai
 **XFCE:**
 ```bash
 archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/config-xfce.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/creds.json
+```
+
+**Hyprland:**
+```bash
+archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/config-hyprland.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/creds.json
 ```
 </details>
 

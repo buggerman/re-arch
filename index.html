@@ -509,7 +509,7 @@
                     <h3 style="color: #0891b2; margin-bottom: 15px;">🚀 STEP 1: Choose Your Desktop Environment</h3>
                     <p style="color: #475569; margin-bottom: 15px; font-size: 0.95em;"><strong>Select your preferred desktop environment:</strong></p>
                     
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
                         <div onclick="selectDesktop('kde')" id="kde-option" style="background: rgba(8, 145, 178, 0.1); border: 2px solid #0891b2; border-radius: 12px; padding: 15px; cursor: pointer; text-align: center; transition: all 0.2s;">
                             <h4 style="color: #0891b2; margin: 0 0 5px 0;">KDE Plasma</h4>
                             <p style="color: #475569; margin: 0; font-size: 0.9em;">Modern, feature-rich (Default)</p>
@@ -521,6 +521,10 @@
                         <div onclick="selectDesktop('xfce')" id="xfce-option" style="background: rgba(16, 185, 129, 0.1); border: 2px solid #10b981; border-radius: 12px; padding: 15px; cursor: pointer; text-align: center; transition: all 0.2s;">
                             <h4 style="color: #10b981; margin: 0 0 5px 0;">XFCE</h4>
                             <p style="color: #475569; margin: 0; font-size: 0.9em;">Lightweight, fast</p>
+                        </div>
+                        <div onclick="selectDesktop('hyprland')" id="hyprland-option" style="background: rgba(168, 85, 247, 0.1); border: 2px solid #a855f7; border-radius: 12px; padding: 15px; cursor: pointer; text-align: center; transition: all 0.2s;">
+                            <h4 style="color: #a855f7; margin: 0 0 5px 0;">Hyprland</h4>
+                            <p style="color: #475569; margin: 0; font-size: 0.9em;">Tiling, Wayland</p>
                         </div>
                     </div>
                     
@@ -571,6 +575,10 @@
                             <h4 style="color: #4b5563; margin: 15px 0 10px 0;">Step 1 (XFCE):</h4>
                             <div style="background: #1f2937; color: #10b981; border-radius: 6px; padding: 10px; font-family: 'JetBrains Mono', monospace; font-size: 12px; overflow-x: auto;">
                                 archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/config-xfce.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/creds.json
+                            </div>
+                            <h4 style="color: #4b5563; margin: 15px 0 10px 0;">Step 1 (Hyprland):</h4>
+                            <div style="background: #1f2937; color: #10b981; border-radius: 6px; padding: 10px; font-family: 'JetBrains Mono', monospace; font-size: 12px; overflow-x: auto;">
+                                archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/config-hyprland.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/creds.json
                             </div>
                             <h4 style="color: #4b5563; margin: 15px 0 10px 0;">Step 2:</h4>
                             <div style="background: #1f2937; color: #10b981; border-radius: 6px; padding: 10px; font-family: 'JetBrains Mono', monospace; font-size: 12px; overflow-x: auto;">
