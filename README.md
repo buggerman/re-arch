@@ -194,7 +194,7 @@ This installer assumes it controls the entire disk. It WILL erase everything on 
 
 | Desktop | Command |
 |---------|---------|
-| **KDE Plasma** (Default) | `archinstall --config-url https://re-arch.xyz/config.json --creds-url https://re-arch.xyz/creds.json` |
+| **KDE Plasma** (Default) | `archinstall --config-url https://re-arch.xyz/config-kde.json --creds-url https://re-arch.xyz/creds.json` |
 | **GNOME** | `archinstall --config-url https://re-arch.xyz/config-gnome.json --creds-url https://re-arch.xyz/creds.json` |
 | **XFCE** | `archinstall --config-url https://re-arch.xyz/config-xfce.json --creds-url https://re-arch.xyz/creds.json` |
 | **Hyprland** | `archinstall --config-url https://re-arch.xyz/config-hyprland.json --creds-url https://re-arch.xyz/creds.json` |
