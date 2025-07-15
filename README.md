@@ -40,16 +40,9 @@
 
 ## 🚀 Origin Story
 
-**Re-Arch started as a personal automation project** to solve a common problem among my friend group - we were constantly setting up new Arch Linux installations for testing, development, and fresh installs. Every time someone needed a new Arch system, it meant hours of manual configuration to get a desktop environment, audio, snapshots, and all the essential tools working properly.
+**Re-Arch started as a personal automation project** to solve the repetitive task of setting up new Arch Linux installations. What began as a simple script to automate weekend Arch installs has evolved into a comprehensive, production-ready installer that embodies years of collective experience with Arch Linux.
 
-What began as a simple script to automate our repetitive setup tasks has evolved into a comprehensive, production-ready installer that embodies years of collective experience with Arch Linux. The configurations and package choices reflect real-world usage patterns from developers and power users who wanted:
-
-- **Immediate productivity** - Boot straight into a fully functional desktop (KDE, GNOME, XFCE, or Hyprland)
-- **System resilience** - Never lose work due to system breakage
-- **Performance optimization** - Desktop responsiveness that rivals any OS
-- **Clean architecture** - Logical separation of system and user applications
-
-The project has grown from "let's automate our weekend Arch installs" to a robust solution that can be used by the broader community. While it remains opinionated (reflecting our collective preferences), every choice has been battle-tested through real daily usage across different hardware configurations and use cases.
+The configurations and package choices reflect real-world usage patterns from developers and power users who wanted immediate productivity, system resilience, performance optimization, and clean architecture. Every choice has been battle-tested through daily usage across different hardware configurations.
 
 ### 📦 **Package Management Philosophy**
 
@@ -109,21 +102,11 @@ sudo reboot                          # Boot into previous working state
 
 ## 🎯 Philosophy
 
-The Re-Arch Procedure is designed around three core principles:
+**Performance**: Zen kernel, process optimization (ananicy-cpp), memory compression (zram), and low-latency audio (PipeWire)
 
-### ⚡ Performance
-- 🚀 **Zen Kernel**: Uses linux-zen for improved desktop responsiveness
-- 🎛️ **Process Optimization**: Automatic process scheduling with ananicy-cpp
-- 🧠 **Memory Management**: zram-generator for efficient memory utilization
-- 🎵 **Modern Audio**: PipeWire for low-latency audio processing
+**Resilience**: Automatic Btrfs snapshots, bootable recovery via GRUB, atomic updates, and firewall protection
 
-### 🛡️ Resilience
-- 📸 **Btrfs Snapshots**: Automatic system snapshots before package updates
-- ⏪ **Bootable Snapshots**: GRUB integration allows booting from any snapshot
-- ⚛️ **Atomic Updates**: snap-pac ensures consistent system state during updates
-- 🔥 **Firewall**: firewalld provides network security out of the box
-
-### 🧩 Clean Separation of Concerns
+**Clean Architecture**: Separated package management (pacman for system, Flatpak for apps, AUR sparingly)
 - 📱 **GUI Applications**: Flatpak for sandboxed, secure application isolation
 - ⚙️ **System Core**: pacman for essential system utilities and libraries
 - 📦 **AUR Packages**: paru for software unavailable elsewhere (minimal usage)
@@ -308,7 +291,7 @@ curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch-lite
 - ⚙️ Snapshot configuration and permissions
 - ⚙️ GRUB Btrfs integration setup
 - ⚙️ **System services enabled**:
-  - `sddm.service` (display manager)
+  - Appropriate display manager (`sddm.service` for KDE, `gdm.service` for GNOME, `lightdm.service` for XFCE/Hyprland)
   - `firewalld.service` (network security)
   - `snapper-timeline.timer` & `snapper-cleanup.timer` (snapshots)
   - `grub-btrfsd.service` (bootable snapshots)
@@ -329,57 +312,8 @@ curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch-lite
 
 ---
 
-### ⚗️ **Experimental: Single Command Installation**
-
-**⚠️ Currently has interaction issues - use two-step method above for reliable installation.**
-
-```bash
-curl -fsSL https://re-arch.xyz/install | bash
-```
-
-**Known Issues:**
-- May freeze during archinstall due to stdin conflicts
-- Interactive prompts may not work properly when piped
-- **Recommended**: Use the two-step method until these issues are resolved
-
 ---
 
-### ⚗️ **Experimental: Legacy Conversion Method**
-
-**WARNING: This method is failure-prone and not recommended for most users.**
-
-*For advanced users who want to convert an existing minimal Arch installation (requires Btrfs root):*
-
-#### **Prerequisites for Conversion**
-- Existing minimal Arch Linux installation with Btrfs root filesystem
-- Non-root user account with sudo privileges
-- System booted from Arch installation media with chroot access
-
-#### **Conversion Process**
-```bash
-# Boot from Arch installation media
-# Mount your existing system and chroot into it
-mount /dev/sdXY /mnt  # Your root partition
-arch-chroot /mnt
-
-# Run the conversion script
-curl -fsSL https://re-arch.xyz/re-arch.sh | bash
-```
-
-<details>
-<summary>Alternative URL (if domain is not working)</summary>
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch.sh | bash
-```
-</details>
-
-**Known Issues with Conversion Method:**
-- Higher failure rates due to package conflicts
-- Complex dependency resolution
-- Requires manual troubleshooting
-- Not suitable for production use
-- **Use the main installation method instead for reliability**
 
 
 ## Configuration
@@ -395,48 +329,17 @@ The script will prompt for your username during execution. You can optionally cu
 
 ## 📦 What Gets Installed
 
-### 🔧 Core System
-- 🚀 linux-zen kernel for desktop optimization
-- 🥾 GRUB bootloader with Btrfs snapshot support
-- 📸 snapper + snap-pac for automatic system snapshots
-- 🗂️ **Btrfs Subvolume Layout:**
-  - `@` → `/` (root filesystem)
-  - `@home` → `/home` (user data)
-  - `@log` → `/var/log` (system logs)
-  - `@pkg` → `/var/cache/pacman/pkg` (package cache)
-  - Compression: zstd for optimal performance
+**🔧 Core System**: linux-zen kernel, GRUB with Btrfs snapshot support, snapper automation, optimized Btrfs subvolume layout with zstd compression
 
-### 🖥️ Desktop Environment
-- 🎨 KDE Plasma desktop (plasma-desktop, plasma-nm, plasma-pa, powerdevil)
-- 🏠 SDDM display manager with Breeze theme
-- 🌊 Plasma Wayland protocols and xdg-desktop-portal-kde
-- 📱 Essential applications: Konsole, Dolphin, Discover (package manager)
-- 🔍 PackageKit integration for software management
-- 🔵 Bluetooth support (bluez, bluez-utils, bluedevil)
-- ⚠️ **No web browser included** - install via Flatpak after first boot
+**🖥️ Desktop Environment**: Your chosen DE (KDE Plasma, GNOME, XFCE, or Hyprland) with appropriate display manager, Wayland support, essential applications, and Bluetooth
 
-### ⚡ Performance & Security
-- 🎛️ ananicy-cpp for automatic process optimization
-- 🧠 zram-generator for compressed memory management
-- 🎵 PipeWire complete audio system (pipewire, pipewire-alsa, pipewire-pulse, pipewire-jack, wireplumber)
-- 🔥 firewalld network security
-- 🖥️ Mesa graphics drivers
-- 📶 NetworkManager for network management
+**⚡ Performance & Security**: ananicy-cpp process optimization, zram memory compression, PipeWire audio, firewalld security, Mesa graphics
 
-### 🛠️ Package Management Architecture
-- 🔨 **pacman**: Core system (base-devel, git, curl, wget, system libraries)
-- 📱 **Flatpak**: GUI applications with Flathub repository (browsers, office, media)
-- 📦 **AUR**: Manual paru installation required for specialized packages
-- 🍺 **Homebrew**: Development tools isolation
-- 🎮 **multilib**: 32-bit compatibility enabled for gaming and legacy software
+**🛠️ Package Management**: pacman (system core), Flatpak (GUI apps), AUR access, Homebrew (development), multilib (32-bit compatibility)
 
-### 📚 System Utilities & Fonts
-- 📖 Manual pages (man-db, man-pages)
-- 📝 nano text editor
-- 📂 File system support (ntfs-3g for Windows drives)
-- 🗜️ Archive support (unzip)
-- 🔤 Quality fonts (Liberation, DejaVu, Open Sans, Noto)
-- 🪞 reflector for mirror optimization
+**📚 Utilities**: Manual pages, nano editor, file system support, quality fonts, mirror optimization
+
+⚠️ **No web browser included** - install via Flatpak after first boot for security
 
 **📦 AUR Access with paru**
 
@@ -715,6 +618,25 @@ systemctl --user status pipewire
 - **GitHub Issues**: https://github.com/buggerman/re-arch/issues
 - **Arch Wiki**: https://wiki.archlinux.org/
 - **Forums**: r/archlinux, Arch Linux forums
+
+---
+
+## **Alternative Installation Methods**
+
+### **Single Command Installation** (Experimental)
+```bash
+curl -fsSL https://re-arch.xyz/install | bash
+```
+**⚠️ Has interaction issues - use two-step method for reliable installation.**
+
+### **Legacy Conversion Method** (Advanced Users Only)
+```bash
+# For existing minimal Arch installations with Btrfs root
+curl -fsSL https://re-arch.xyz/re-arch.sh | bash
+```
+**⚠️ Failure-prone and not recommended - use main installation method instead.**
+
+---
 
 ## 📄 License
 
