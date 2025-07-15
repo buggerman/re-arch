@@ -110,6 +110,61 @@ run_basic_checks() {
 }
 
 #===============================================================================
+# DESKTOP ENVIRONMENT DETECTION
+#===============================================================================
+
+detect_desktop_environment() {
+    info "Detecting desktop environment..."
+    
+    # Check for KDE Plasma
+    if pacman -Qq plasma-desktop &>/dev/null; then
+        echo "kde"
+        return 0
+    fi
+    
+    # Check for GNOME
+    if pacman -Qq gnome-shell &>/dev/null; then
+        echo "gnome"
+        return 0
+    fi
+    
+    # Check for XFCE
+    if pacman -Qq xfce4 &>/dev/null; then
+        echo "xfce"
+        return 0
+    fi
+    
+    # Check for Hyprland
+    if pacman -Qq hyprland &>/dev/null; then
+        echo "hyprland"
+        return 0
+    fi
+    
+    # Default/unknown
+    echo "unknown"
+    return 1
+}
+
+get_display_manager() {
+    local de="$1"
+    
+    case "$de" in
+        "kde")
+            echo "sddm.service"
+            ;;
+        "gnome")
+            echo "gdm.service"
+            ;;
+        "xfce"|"hyprland")
+            echo "lightdm.service"
+            ;;
+        *)
+            echo "sddm.service"  # Default fallback
+            ;;
+    esac
+}
+
+#===============================================================================
 # CONFIGURATION FUNCTIONS
 #===============================================================================
 
@@ -182,8 +237,17 @@ configure_bootloader() {
 enable_services() {
     info "Enabling system services..."
     
-    local services=(
-        "sddm.service"
+    # Detect desktop environment and get appropriate display manager
+    local desktop_env
+    desktop_env=$(detect_desktop_environment)
+    local display_manager
+    display_manager=$(get_display_manager "$desktop_env")
+    
+    info "Detected desktop environment: $desktop_env"
+    info "Using display manager: $display_manager"
+    
+    # Base services that are always enabled
+    local base_services=(
         "firewalld.service"
         "snapper-timeline.timer"
         "snapper-cleanup.timer"
@@ -192,7 +256,8 @@ enable_services() {
         "packagekit.service"
     )
     
-    for service in "${services[@]}"; do
+    # Enable base services
+    for service in "${base_services[@]}"; do
         if systemctl enable "$service" 2>/dev/null; then
             success "✓ $service enabled"
         else
@@ -200,9 +265,88 @@ enable_services() {
         fi
     done
     
+    # Enable the appropriate display manager
+    if systemctl enable "$display_manager" 2>/dev/null; then
+        success "✓ $display_manager enabled"
+    else
+        warning "✗ Failed to enable $display_manager"
+    fi
+    
+    # Enable desktop environment specific services
+    enable_desktop_specific_services "$desktop_env"
+    
     success "System services configuration completed"
 }
 
+enable_desktop_specific_services() {
+    local desktop_env="$1"
+    
+    info "Enabling desktop-specific services for $desktop_env..."
+    
+    case "$desktop_env" in
+        "kde")
+            # KDE-specific services
+            local kde_services=(
+                "bluetooth.service"
+            )
+            
+            for service in "${kde_services[@]}"; do
+                if systemctl enable "$service" 2>/dev/null; then
+                    success "✓ $service enabled (KDE)"
+                else
+                    warning "✗ Failed to enable $service (KDE)"
+                fi
+            done
+            ;;
+        "gnome")
+            # GNOME-specific services
+            local gnome_services=(
+                "bluetooth.service"
+            )
+            
+            for service in "${gnome_services[@]}"; do
+                if systemctl enable "$service" 2>/dev/null; then
+                    success "✓ $service enabled (GNOME)"
+                else
+                    warning "✗ Failed to enable $service (GNOME)"
+                fi
+            done
+            ;;
+        "xfce")
+            # XFCE-specific services
+            local xfce_services=(
+                "bluetooth.service"
+            )
+            
+            for service in "${xfce_services[@]}"; do
+                if systemctl enable "$service" 2>/dev/null; then
+                    success "✓ $service enabled (XFCE)"
+                else
+                    warning "✗ Failed to enable $service (XFCE)"
+                fi
+            done
+            ;;
+        "hyprland")
+            # Hyprland-specific services
+            local hyprland_services=(
+                "bluetooth.service"
+            )
+            
+            for service in "${hyprland_services[@]}"; do
+                if systemctl enable "$service" 2>/dev/null; then
+                    success "✓ $service enabled (Hyprland)"
+                else
+                    warning "✗ Failed to enable $service (Hyprland)"
+                fi
+            done
+            ;;
+        *)
+            warning "Unknown desktop environment: $desktop_env, skipping desktop-specific services"
+            ;;
+    esac
+    
+    success "Desktop-specific services configuration completed"
+}
 
 setup_user_environment() {
     info "Setting up user environment..."
