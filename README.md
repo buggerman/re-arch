@@ -204,7 +204,7 @@ This installer assumes it controls the entire disk. It WILL erase everything on 
 
 **KDE Plasma (Default):**
 ```bash
-archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/config.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/creds.json
+archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/config-kde.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/creds.json
 ```
 
 **GNOME:**
