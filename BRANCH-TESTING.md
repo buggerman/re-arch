@@ -41,27 +41,35 @@ export RE_ARCH_DEBUG=1
 RE_ARCH_DEBUG=1 ./install
 
 # If that fails, try the manual approach the script suggests:
-archinstall --config /tmp/config.json --creds /tmp/creds.json
-# Then in chroot:
+# For remote URLs (production):
+archinstall --config-url https://re-arch.xyz/config-kde.json --creds-url https://re-arch.xyz/creds.json
+
+# For local files (testing):
+archinstall --config ./config-kde.json --creds ./creds.json
+
+# Then run post-config:
 arch-chroot /mnt
 curl -fsSL https://re-arch.xyz/re-arch-lite.sh | bash
 ```
 
 ### Troubleshooting Tips
-1. **Check downloaded files**: Script validates JSON syntax automatically
+1. **URL validation**: Script validates remote URLs and local files before use
 2. **Enable debug mode**: Shows detailed execution steps
 3. **Manual fallback**: Script provides exact manual commands to try
 4. **Mount point validation**: Script checks if /mnt is properly mounted
+5. **Smart config handling**: Uses --config-url for remote, --config for local
+6. **Disk customization**: Automatically handles non-/dev/sda disks
 
 ### Error Prevention
 The install script now properly handles:
-- ✅ Local file paths (no "Malformed URL" errors)
-- ✅ Remote URLs (HTTP/HTTPS)
-- ✅ Automatic detection of file vs URL
-- ✅ Proper error messages for missing files
-- ✅ JSON validation of config files
+- ✅ Remote URLs with --config-url and --creds-url options
+- ✅ Local file paths with --config and --creds options
+- ✅ Automatic detection of URL vs file path
+- ✅ Disk customization for any target disk
+- ✅ Proper error messages for missing files/URLs
+- ✅ JSON validation of config files (when downloaded)
 - ✅ Debug mode for troubleshooting
-- ✅ Better archinstall execution (no stdin interference)
+- ✅ Smart archinstall execution matching manual methods
 
 ### Website Testing
 The website now uses relative paths for:
