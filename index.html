@@ -333,14 +333,19 @@
 
                 <p class="hero-subtitle">Opinionated Arch Linux Desktop Installer</p>
                 <p class="hero-description">
-                    Production-ready Arch Linux with snapshots, optimizations, and four desktop environments.
-                    One command. Zero hassle.
+                    Boot from Arch Linux ISO, connect to internet, and run one command.<br>
+                    Get production-ready Arch Linux with snapshots, optimizations, and four desktop environments.
                 </p>
                 
                 <div class="install-section">
                     <div class="install-header">
                         <h3 class="install-title">🚀 Quick Install</h3>
                         <button class="copy-btn" onclick="copyInstall()">Copy</button>
+                    </div>
+                    <div style="background: rgba(255, 193, 7, 0.1); border: 1px solid #ffc107; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                        <p style="color: #ffc107; font-weight: 600; margin: 0; font-size: 0.95rem;">
+                            ⚠️ <strong>Prerequisites:</strong> Boot from Arch Linux ISO and connect to internet first
+                        </p>
                     </div>
                     <div class="install-code" id="install-command">
                         curl -fsSL https://re-arch.xyz/install | bash
@@ -416,6 +421,10 @@
             <div class="install-section">
                 <h3 class="install-title">📋 System Requirements</h3>
                 <ul style="list-style: none; padding: 0; margin-top: 1rem;">
+                    <li style="color: var(--accent); margin-bottom: 0.75rem; padding-left: 1.5rem; position: relative; font-weight: 600;">
+                        <span style="color: var(--accent); position: absolute; left: 0;">●</span>
+                        Boot from Arch Linux ISO (latest stable)
+                    </li>
                     <li style="color: var(--text-secondary); margin-bottom: 0.75rem; padding-left: 1.5rem; position: relative;">
                         <span style="color: var(--accent); position: absolute; left: 0;">●</span>
                         4GB+ RAM (8GB+ recommended)
@@ -441,6 +450,11 @@
 
             <div class="install-section">
                 <h3 class="install-title">🔧 Manual Installation (If Single Command Fails)</h3>
+                <div style="background: rgba(255, 193, 7, 0.1); border: 1px solid #ffc107; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+                    <p style="color: #ffc107; font-weight: 600; margin: 0; font-size: 0.95rem;">
+                        ⚠️ <strong>Prerequisites:</strong> Boot from Arch Linux ISO and connect to internet first
+                    </p>
+                </div>
                 <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
                     If the one-command installer doesn't work, you can install manually:
                 </p>

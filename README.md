@@ -15,10 +15,12 @@
 ## 🚀 Quick Install
 
 ```bash
-# 1. Boot Arch Linux ISO and connect to internet
+# 1. Boot from Arch Linux ISO and connect to internet
 # 2. Run the installer:
 curl -fsSL https://re-arch.xyz/install | bash
 ```
+
+**Prerequisites:** You must boot from the latest Arch Linux ISO first!
 
 **That's it!** Choose your desktop environment and let it install. 25-35 minutes later you have a complete desktop system.
 
@@ -33,6 +35,7 @@ curl -fsSL https://re-arch.xyz/install | bash
 
 ## 📋 Requirements
 
+- **Arch Linux ISO**: Latest stable version (boot from this first!)
 - **Hardware**: 4GB+ RAM, 20GB+ storage, x86_64 CPU
 - **Internet**: Required throughout installation
 - **Target**: Fresh installation (will erase entire disk)
