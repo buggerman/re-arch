@@ -22,6 +22,12 @@ curl -fsSL https://re-arch.xyz/install | bash
 
 **Prerequisites:** You must boot from the latest Arch Linux ISO first!
 
+**Default Login Credentials:**
+- **Username:** `user`
+- **Password:** `rearch`
+
+⚠️ **Change these immediately after first login for security!**
+
 **That's it!** Choose your desktop environment and let it install. 25-35 minutes later you have a complete desktop system.
 
 ## ✨ What You Get
@@ -41,8 +47,6 @@ curl -fsSL https://re-arch.xyz/install | bash
 - **Target**: Fresh installation (will erase entire disk)
 
 ## 🏃‍♂️ Post-Installation
-
-**Default login:** `user` / `rearch` (change immediately)
 
 ```bash
 # Install web browser (required - none included)
