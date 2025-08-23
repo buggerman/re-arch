@@ -97,15 +97,15 @@ curl -fsSL https://re-arch.xyz/install | bash
 - **Analysis paralysis** (too many options presented upfront)
 - **Information overload** (excessive documentation detail)
 
-## 📈 **Comparison with Omarchy**
+## 📈 **Technical Advantages**
 
-| Aspect | **Re-Arch (Simplified)** | **Omarchy** | **Advantage** |
-|--------|---------------------------|-------------|---------------|
-| Installation | `curl \| bash` (truly automated) | Manual archinstall + script | **Re-Arch** |
-| Desktop Choice | 4 environments | Hyprland only | **Re-Arch** |
-| Reliability | Atomic snapshots + rollback | No mention of recovery | **Re-Arch** |
-| Code Complexity | 400 lines total | Unknown (likely more) | **Re-Arch** |
-| User Experience | Single command + choices | Manual steps required | **Re-Arch** |
+| Aspect | **Re-Arch Features** | **Benefit** |
+|--------|----------------------|-------------|
+| Installation | `curl \| bash` (fully automated) | One-command setup |
+| Desktop Choice | 4 environments (KDE, GNOME, XFCE, Hyprland) | User flexibility |
+| Reliability | Atomic snapshots + rollback capability | System recovery |
+| Code Complexity | 400 lines total (81% reduction) | Easy maintenance |
+| User Experience | Single command + minimal choices | Reduced friction |
 
 ## 🎪 **The Bottom Line**
 

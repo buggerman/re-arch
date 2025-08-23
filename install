@@ -7,6 +7,13 @@
 
 set -euo pipefail
 
+# Base URL configuration
+# Can be overridden with: RE_ARCH_BASE_URL="./" ./install
+BASE_URL="${RE_ARCH_BASE_URL:-https://re-arch.xyz}"
+
+# Remove trailing slash if present
+BASE_URL="${BASE_URL%/}"
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -115,9 +122,9 @@ main() {
     
     # Download and customize config
     info "Downloading configuration for $desktop..."
-    curl -fsSL "https://re-arch.xyz/config-${desktop}.json" > /tmp/config.json || \
+    curl -fsSL "${BASE_URL}/config-${desktop}.json" > /tmp/config.json || \
         error "Failed to download configuration. Check internet connection."
-    curl -fsSL "https://re-arch.xyz/creds.json" > /tmp/creds.json || \
+    curl -fsSL "${BASE_URL}/creds.json" > /tmp/creds.json || \
         error "Failed to download credentials file."
     
     # Update disk in config
@@ -137,7 +144,7 @@ main() {
     
     # Run post-configuration
     info "Running post-installation configuration..."
-    arch-chroot /mnt curl -fsSL https://re-arch.xyz/re-arch-lite.sh | arch-chroot /mnt bash || {
+    arch-chroot /mnt curl -fsSL "${BASE_URL}/re-arch-lite.sh" | arch-chroot /mnt bash || {
         warning "Post-configuration had issues but system should still be bootable"
     }
     
