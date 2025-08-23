@@ -4,17 +4,39 @@
 # For testing branches locally or with GitHub Pages branches
 #
 
+# Function to check if running in a suitable test environment
+check_test_environment() {
+    if [ ! -f "./install" ]; then
+        echo "❌ Error: install script not found in current directory"
+        echo "Please run this from the re-arch project directory"
+        exit 1
+    fi
+}
+
+# Make sure we're in the right place
+check_test_environment
+
 # Detect if we're running from a local directory or GitHub Pages
-if [ -f "./config-kde.json" ]; then
+if [ -f "./config-kde.json" ] && [ -f "./creds.json" ]; then
     # Local testing - use current directory
-    echo "🧪 Running in test mode (local files)"
-    RE_ARCH_BASE_URL="$(pwd)" ./install
+    echo "🧪 Running in test mode (local files detected)"
+    echo "📁 Using files from: $(pwd)"
+    
+    # Use absolute path to avoid URL issues
+    current_dir="$(pwd)"
+    export RE_ARCH_BASE_URL="$current_dir"
+    exec ./install
+    
 elif [ -n "${GITHUB_PAGES_URL:-}" ]; then
     # GitHub Pages branch testing
     echo "🧪 Running in GitHub Pages test mode"
-    RE_ARCH_BASE_URL="$GITHUB_PAGES_URL" ./install
+    echo "🌐 Using URL: $GITHUB_PAGES_URL"
+    export RE_ARCH_BASE_URL="$GITHUB_PAGES_URL"
+    exec ./install
+    
 else
     # Fallback to production
-    echo "🚀 Running in production mode"
+    echo "🚀 Running in production mode (no local config files found)"
+    echo "🌐 Using: https://re-arch.xyz"
     curl -fsSL https://re-arch.xyz/install | bash
 fi
