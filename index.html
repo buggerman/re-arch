@@ -9,7 +9,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
     <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
     <link rel="apple-touch-icon" href="favicon-192.png">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     
     <style>
         :root {
@@ -34,7 +34,7 @@
         }
         
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Orbitron', 'JetBrains Mono', 'Courier New', monospace;
             background: var(--bg-primary);
             color: var(--text-primary);
             line-height: 1.6;
@@ -97,7 +97,9 @@
             font-size: clamp(1.25rem, 3vw, 1.75rem);
             color: var(--text-secondary);
             margin-bottom: 1.5rem;
-            font-weight: 500;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
         }
         
         .hero-description {
@@ -105,6 +107,8 @@
             color: var(--text-muted);
             margin-bottom: 3rem;
             line-height: 1.7;
+            letter-spacing: 0.05em;
+            font-weight: 400;
         }
         
         /* Install Command */
@@ -137,8 +141,10 @@
         
         .install-title {
             font-size: 1.25rem;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--text-primary);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
         }
         
         .copy-btn {
@@ -147,10 +153,13 @@
             border: none;
             padding: 8px 16px;
             border-radius: 8px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
             font-size: 0.875rem;
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
         }
         
         .copy-btn:hover {
@@ -186,9 +195,11 @@
         .features-title {
             text-align: center;
             font-size: 2.5rem;
-            font-weight: 700;
+            font-weight: 800;
             margin-bottom: 1rem;
             color: var(--text-primary);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
         }
         
         .features-subtitle {
@@ -199,6 +210,7 @@
             max-width: 600px;
             margin-left: auto;
             margin-right: auto;
+            letter-spacing: 0.025em;
         }
         
         .features-grid {
@@ -231,9 +243,11 @@
         
         .feature-title {
             font-size: 1.25rem;
-            font-weight: 600;
+            font-weight: 700;
             margin-bottom: 0.75rem;
             color: var(--text-primary);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
         }
         
         .feature-description {
