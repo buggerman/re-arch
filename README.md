@@ -21,7 +21,7 @@ curl -fsSL https://re-arch.xyz/install | bash
 - **Performance**: Linux Zen kernel, optimized settings, zram compression
 - **Snapshots**: Automatic Btrfs snapshots with GRUB boot integration
 - **Security**: Firewall enabled, Flatpak sandboxing for apps
-- **Package Managers**: pacman (system), Flatpak (apps), paru (AUR)
+- **Package Managers**: pacman (system), Flatpak (apps), paru (AUR), Homebrew (development)
 - **Modern Audio**: PipeWire with low-latency configuration
 
 ## 📋 Requirements
@@ -48,6 +48,10 @@ sudo pacman -Syu
 # Install AUR helper (optional)
 git clone https://aur.archlinux.org/paru.git && cd paru
 makepkg -si && cd .. && rm -rf paru
+
+# Install development tools via Homebrew (restart shell first)
+brew install nodejs python go
+brew install fzf ripgrep
 ```
 
 ## 🛡️ Package Management Philosophy
@@ -55,6 +59,7 @@ makepkg -si && cd .. && rm -rf paru
 - **pacman**: System core (kernel, drivers, libraries)
 - **Flatpak**: GUI applications (secure, sandboxed)
 - **paru/AUR**: Packages not available elsewhere (minimal use)
+- **Homebrew**: Development tools (isolated environment)
 
 **Rule:** Never install GUI apps via pacman - always use Flatpak for security.
 

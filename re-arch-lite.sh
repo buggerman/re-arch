@@ -113,12 +113,43 @@ EOF
     info "Configuring Flatpak..."
     flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo || true
     
+    # Setup Homebrew for development tools
+    info "Setting up Homebrew for development tools..."
+    local user_home
+    user_home=$(getent passwd "$USERNAME" | cut -d: -f6)
+    
+    # Create Homebrew directory
+    sudo -u "$USERNAME" mkdir -p "$user_home/.linuxbrew"
+    
+    # Install Homebrew if not present
+    if [[ ! -d "$user_home/.linuxbrew/Homebrew" ]]; then
+        info "Installing Homebrew..."
+        sudo -u "$USERNAME" git clone https://github.com/Homebrew/brew "$user_home/.linuxbrew/Homebrew" 2>/dev/null || true
+    fi
+    
+    # Add Homebrew to shell configuration
+    if [[ -f "$user_home/.bashrc" ]] && ! grep -q "linuxbrew" "$user_home/.bashrc" 2>/dev/null; then
+        sudo -u "$USERNAME" bash -c "cat >> '$user_home/.bashrc'" << EOF
+
+# Homebrew for development tools
+export PATH="$user_home/.linuxbrew/Homebrew/bin:\$PATH"
+export MANPATH="$user_home/.linuxbrew/Homebrew/share/man:\$MANPATH"
+export INFOPATH="$user_home/.linuxbrew/Homebrew/share/info:\$INFOPATH"
+EOF
+    fi
+    
     success "Configuration complete!"
     echo ""
     info "Next steps after reboot:"
     echo "  • Login: $USERNAME/rearch"
     echo "  • Install browser: flatpak install flathub org.mozilla.firefox"
     echo "  • Update system: sudo pacman -Syu"
+    echo "  • Package managers available:"
+    echo "    - pacman: System core (kernel, drivers, libraries)"
+    echo "    - flatpak: GUI applications (secure, sandboxed)"
+    echo "    - paru: AUR packages (install with: git clone https://aur.archlinux.org/paru.git)"
+    echo "    - brew: Development tools (restart shell to activate)"
+}
 }
 
 main "$@"
