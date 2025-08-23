@@ -3,911 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Re-Arch Procedure - Professional Arch Linux Installer</title>
-    <meta name="description" content="Professional, opinionated Arch Linux installer that creates optimized desktop systems with KDE Plasma, Btrfs snapshots, and performance optimizations. One-command installation with automated configuration.">
-    <meta name="keywords" content="Arch Linux, installer, KDE Plasma, Btrfs, snapshots, Linux desktop, archinstall, automated installation, performance optimization">
-    <meta name="author" content="Re-Arch Project">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://re-arch.xyz/">
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://re-arch.xyz/">
-    <meta property="og:title" content="The Re-Arch Procedure - Professional Arch Linux Installer">
-    <meta property="og:description" content="Professional, opinionated Arch Linux installer that creates optimized desktop systems with KDE Plasma, Btrfs snapshots, and performance optimizations.">
-    <meta property="og:image" content="https://re-arch.xyz/assets/images/arch-logo.svg">
-    <meta property="og:site_name" content="Re-Arch">
-    
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://re-arch.xyz/">
-    <meta property="twitter:title" content="The Re-Arch Procedure - Professional Arch Linux Installer">
-    <meta property="twitter:description" content="Professional, opinionated Arch Linux installer that creates optimized desktop systems with KDE Plasma, Btrfs snapshots, and performance optimizations.">
-    <meta property="twitter:image" content="https://re-arch.xyz/assets/images/arch-logo.svg">
-    
-    <!-- Additional SEO -->
-    <meta name="theme-color" content="#0ea5e9">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Re-Arch">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="assets/images/arch-logo.svg">
-    <link rel="apple-touch-icon" href="assets/images/arch-logo.svg">
-    
-    <!-- Structured Data -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "The Re-Arch Procedure",
-      "description": "Professional, opinionated Arch Linux installer that creates optimized desktop systems with KDE Plasma, Btrfs snapshots, and performance optimizations.",
-      "url": "https://re-arch.xyz/",
-      "applicationCategory": "SystemUtility",
-      "operatingSystem": "Linux",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "author": {
-        "@type": "Organization",
-        "name": "Re-Arch Project"
-      },
-      "downloadUrl": "https://re-arch.xyz/install",
-      "softwareVersion": "latest",
-      "requirements": "Arch Linux ISO, Internet connection, 20GB+ disk space"
-    }
-    </script>
+    <title>Re-Arch: Simple Arch Linux Desktop Installer</title>
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
             line-height: 1.6;
-            color: #334155;
-            background: linear-gradient(135deg, #0ea5e9 0%, #0891b2 50%, #0284c7 100%);
-            min-height: 100vh;
         }
         
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
         
         header {
             text-align: center;
             padding: 80px 0;
-            color: white;
-        }
-        
-        .logo {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 30px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        
-        .logo img {
-            width: 120px;
-            height: 120px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
         }
         
         h1 {
-            font-family: 'JetBrains Mono', 'SF Mono', Monaco, monospace;
-            font-size: 3.2em;
-            font-weight: 500;
+            font-size: 4rem;
             margin-bottom: 20px;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            letter-spacing: -0.02em;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
         }
         
         .subtitle {
-            font-size: 1.4em;
-            font-weight: 300;
-            opacity: 0.9;
+            font-size: 1.5rem;
             margin-bottom: 40px;
+            opacity: 0.9;
         }
         
-        .install-section {
-            background: rgba(255,255,255,0.95);
-            border-radius: 20px;
-            padding: 40px;
-            margin: 40px 0;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.3);
-        }
-        
-        .install-code-wrapper {
-            margin: 20px 0;
-        }
-        
-        .install-code-container {
-            background: #000000;
+        .install-box {
+            background: rgba(0,0,0,0.8);
             border-radius: 12px;
-            margin-bottom: 20px;
-            overflow: hidden;
-            border: 1px solid #1f2937;
+            padding: 30px;
+            margin: 40px auto;
+            max-width: 600px;
             position: relative;
-            display: flex;
-            align-items: center;
         }
         
         .install-code {
-            color: #f1f5f9;
-            padding: 25px 30px;
-            padding-right: 70px;
-            font-family: 'JetBrains Mono', 'SF Mono', Monaco, monospace;
-            font-size: 1.05em;
-            font-weight: 400;
-            margin: 0;
-            overflow-x: hidden;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            flex: 1;
-            line-height: 1.4;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            color: #4ade80;
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #4ade80;
         }
         
-        .install-code::before {
-            content: '$ ';
-            color: #86efac;
-            font-weight: 500;
-        }
-        
-        .copy-button {
+        .copy-btn {
             position: absolute;
-            right: 15px;
-            background: rgba(255,255,255,0.1);
-            color: #f1f5f9;
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 8px;
+            top: 20px;
+            right: 20px;
+            background: #4ade80;
+            color: #000;
+            border: none;
+            padding: 8px 12px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 1.1em;
-            transition: all 0.2s ease;
-            backdrop-filter: blur(10px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 36px;
-            height: 36px;
-        }
-        
-        .copy-button:hover {
-            background: rgba(255,255,255,0.2);
-            border-color: rgba(255,255,255,0.4);
-            transform: scale(1.1);
-        }
-        
-        .copy-button:active {
-            transform: scale(0.95);
-        }
-        
-        .install-instructions {
-            background: #374151;
-            border: 1px solid #4b5563;
-            border-radius: 12px;
-            padding: 24px;
-            margin: 20px 0;
-            font-size: 1.05em;
-            line-height: 1.7;
-            color: #f3f4f6;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-        }
-        
-        .install-instructions strong {
-            color: #ffffff;
             font-weight: 600;
+            transition: all 0.2s;
         }
         
-        .install-instructions code {
-            background: rgba(34, 197, 94, 0.2);
-            padding: 3px 8px;
-            border-radius: 6px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9em;
-            color: #4ade80;
-            border: 1px solid rgba(34, 197, 94, 0.3);
-            font-weight: 500;
-        }
+        .copy-btn:hover { transform: scale(1.05); }
         
         .features {
-            background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-            padding: 80px 0;
-        }
-        
-        .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 40px;
-            margin-top: 50px;
+            gap: 30px;
+            margin: 60px 0;
         }
         
         .feature {
-            text-align: center;
+            background: rgba(255,255,255,0.15);
             padding: 30px;
-            border-radius: 16px;
-            background: rgba(255,255,255,0.7);
-            border: 1px solid rgba(148,163,184,0.2);
+            border-radius: 12px;
             backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-        }
-        
-        .feature:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
-            background: rgba(255,255,255,0.85);
-        }
-        
-        .feature-icon {
-            font-size: 3em;
-            margin-bottom: 20px;
         }
         
         .feature h3 {
-            font-size: 1.5em;
+            font-size: 1.3rem;
             margin-bottom: 15px;
-            color: #1e293b;
-            font-weight: 600;
-        }
-        
-        .feature p {
-            color: #475569;
-            line-height: 1.6;
-        }
-        
-        .section-title {
-            text-align: center;
-            font-size: 2.5em;
-            font-weight: 600;
-            margin-bottom: 20px;
-            color: #1e293b;
-        }
-        
-        .section-subtitle {
-            text-align: center;
-            font-size: 1.2em;
-            color: #475569;
-            margin-bottom: 40px;
+            color: #4ade80;
         }
         
         .warning {
-            background: rgba(254, 226, 226, 0.8);
-            border: 2px solid rgba(252, 165, 165, 0.6);
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid #ef4444;
             border-radius: 12px;
-            padding: 20px;
-            margin: 30px 0;
-            backdrop-filter: blur(10px);
+            padding: 25px;
+            margin: 40px 0;
+            text-align: center;
         }
         
         .warning h3 {
-            color: #dc2626;
+            color: #fca5a5;
             margin-bottom: 10px;
-            font-weight: 600;
-        }
-        
-        .warning p {
-            color: #991b1b;
-        }
-        
-        .workflow {
-            background: linear-gradient(180deg, #e2e8f0 0%, #cbd5e1 100%);
-            padding: 80px 0;
-        }
-        
-        
-        .workflow-steps {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
-            margin-top: 50px;
-        }
-        
-        .step {
-            background: rgba(255,255,255,0.8);
-            padding: 30px;
-            border-radius: 16px;
-            text-align: center;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(148,163,184,0.2);
-            transition: all 0.3s ease;
-        }
-        
-        .step:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 35px rgba(0,0,0,0.12);
-        }
-        
-        .step-number {
-            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
-            color: white;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5em;
-            font-weight: 600;
-            margin: 0 auto 20px;
-            font-family: 'JetBrains Mono', monospace;
         }
         
         footer {
-            background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
-            color: #f9fafb;
-            padding: 40px 0;
             text-align: center;
-        }
-        
-        .footer-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-        
-        .footer-links a {
-            color: #d1d5db;
-            text-decoration: none;
-            margin: 0 15px;
-            transition: color 0.2s;
-        }
-        
-        .footer-links a:hover {
-            color: #f9fafb;
-        }
-        
-        .arch-attribution {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #d1d5db;
-        }
-        
-        .arch-attribution img {
-            width: 24px;
-            height: 24px;
+            padding: 40px 0;
+            margin-top: 80px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            opacity: 0.7;
         }
         
         @media (max-width: 768px) {
-            h1 {
-                font-size: 2.5em;
-            }
-            
-            .subtitle {
-                font-size: 1.2em;
-            }
-            
-            .install-code {
-                font-size: 0.9em;
-                padding: 20px 25px;
-                padding-right: 60px;
-            }
-            
-            .copy-button {
-                width: 32px;
-                height: 32px;
-                font-size: 1em;
-            }
-            
-            .install-instructions {
-                font-size: 1em;
-                padding: 16px;
-            }
-            
-            
-            .footer-content {
-                flex-direction: column;
-                text-align: center;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .install-code {
-                font-size: 0.85em;
-                padding: 18px 20px;
-                padding-right: 55px;
-            }
-            
-            .copy-button {
-                width: 30px;
-                height: 30px;
-                font-size: 0.9em;
-                right: 12px;
-            }
-            
-            .install-instructions {
-                font-size: 0.95em;
-                padding: 14px;
-            }
+            h1 { font-size: 2.5rem; }
+            .subtitle { font-size: 1.2rem; }
+            .install-code { font-size: 0.9rem; padding: 15px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="logo">
-                <img src="assets/images/arch-logo.svg" alt="Arch Linux Logo">
-            </div>
-            <h1>The Re-Arch Procedure</h1>
-            <p class="subtitle">Complete Arch Linux desktop installer with curated optimizations</p>
-            
-            <div class="install-section">
-                <h2 style="color: #475569;">🚀 Two-Step Installation (Recommended)</h2>
-                <p style="margin-bottom: 30px; color: #4b5563; font-size: 1.1em;"><strong>🕐 Total time: 25-35 minutes | 📶 Internet required throughout</strong></p>
-                
-                <div style="background: rgba(239, 68, 68, 0.1); border-radius: 12px; padding: 20px; margin-bottom: 25px; border-left: 4px solid #ef4444;">
-                    <h4 style="color: #dc2626; margin: 0 0 15px 0; font-size: 1.1em;">🚨 DESTRUCTIVE INSTALLATION WARNING</h4>
-                    <p style="margin: 0; color: #991b1b; font-size: 0.95em; font-weight: 500;">This installer assumes it controls the entire disk. It WILL erase everything on the target disk. Back up important data BEFORE starting.</p>
-                </div>
-                
-                <div style="background: rgba(99, 102, 241, 0.1); border-radius: 12px; padding: 20px; margin-bottom: 25px; border-left: 4px solid #6366f1;">
-                    <h4 style="color: #4338ca; margin: 0 0 15px 0; font-size: 1em; text-align: left;">📋 BEFORE YOU START:</h4>
-                    <table style="width: 100%; border-collapse: collapse; margin: 0; border: none;">
-                        <tr>
-                            <td style="padding: 4px 8px 4px 0; color: #4338ca; font-size: 0.95em; border: none; width: 30px; text-align: right; vertical-align: top;">🔲</td>
-                            <td style="padding: 4px 0; color: #475569; font-size: 0.95em; border: none; text-align: left;"><strong>Boot from Arch Linux ISO</strong> (download from <a href="https://archlinux.org/download/" style="color: #4338ca;">archlinux.org</a>)</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 4px 8px 4px 0; color: #4338ca; font-size: 0.95em; border: none; width: 30px; text-align: right; vertical-align: top;">🔲</td>
-                            <td style="padding: 4px 0; color: #475569; font-size: 0.95em; border: none; text-align: left;"><strong>Connect to internet:</strong> For WiFi: <code style="background: rgba(99, 102, 241, 0.2); padding: 2px 6px; border-radius: 4px;">iwctl station wlan0 connect "YourNetwork"</code></td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 4px 8px 4px 0; color: #4338ca; font-size: 0.95em; border: none; width: 30px; text-align: right; vertical-align: top;">🔲</td>
-                            <td style="padding: 4px 0; color: #475569; font-size: 0.95em; border: none; text-align: left;"><strong>Test connection:</strong> <code style="background: rgba(99, 102, 241, 0.2); padding: 2px 6px; border-radius: 4px;">ping google.com</code></td>
-                        </tr>
-                    </table>
-                </div>
-                
-                <div style="background: rgba(245, 158, 11, 0.1); border-radius: 12px; padding: 15px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
-                    <h4 style="color: #d97706; margin: 0 0 15px 0; font-size: 1em;">⚠️ Important: What NOT to Change</h4>
-                    <table style="width: 100%; border-collapse: collapse; margin: 0; border: none;">
-                        <tr>
-                            <td style="padding: 4px 8px 4px 0; color: #92400e; font-size: 0.95em; border: none; width: 30px; text-align: right; vertical-align: top;">❌</td>
-                            <td style="padding: 4px 0; color: #92400e; font-size: 0.95em; border: none; text-align: left;"><strong>Packages</strong> - Don't modify the package list unless you know what you're doing</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 4px 8px 4px 0; color: #92400e; font-size: 0.95em; border: none; width: 30px; text-align: right; vertical-align: top;">❌</td>
-                            <td style="padding: 4px 0; color: #92400e; font-size: 0.95em; border: none; text-align: left;"><strong>Disk formatting</strong> - Only change if you need dual boot or custom partitioning</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 4px 8px 4px 0; color: #92400e; font-size: 0.95em; border: none; width: 30px; text-align: right; vertical-align: top;">❌</td>
-                            <td style="padding: 4px 0; color: #92400e; font-size: 0.95em; border: none; text-align: left;"><strong>Filesystem</strong> - Keep Btrfs for snapshot functionality to work</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 4px 8px 4px 0; color: #92400e; font-size: 0.95em; border: none; width: 30px; text-align: right; vertical-align: top;">❌</td>
-                            <td style="padding: 4px 0; color: #92400e; font-size: 0.95em; border: none; text-align: left;"><strong>Bootloader</strong> - Keep GRUB for snapshot boot integration</td>
-                        </tr>
-                    </table>
-                    <p style="margin: 15px 0 0 0; color: #92400e; font-size: 0.9em; font-style: italic;"><strong>Safe to change:</strong> Username, passwords, timezone, locale, hostname</p>
-                </div>
-                
-                <div style="background: rgba(16, 185, 129, 0.1); border-radius: 12px; padding: 15px; margin-bottom: 20px; border-left: 4px solid #10b981;">
-                    <p style="margin: 0; color: #047857; font-size: 0.95em;"><strong>🔐 Default Credentials:</strong> Username: <code style="background: rgba(16, 185, 129, 0.2); padding: 2px 6px; border-radius: 4px;">user</code> | Password: <code style="background: rgba(16, 185, 129, 0.2); padding: 2px 6px; border-radius: 4px;">rearch</code> | Root: <code style="background: rgba(16, 185, 129, 0.2); padding: 2px 6px; border-radius: 4px;">rearch</code></p>
-                    <p style="margin: 5px 0 0 0; color: #065f46; font-size: 0.9em; font-style: italic;">Change these during archinstall setup or after first login for security</p>
-                </div>
-                
-                <div style="margin-bottom: 30px;">
-                    <h3 style="color: #0891b2; margin-bottom: 15px;">🚀 STEP 1: Choose Your Desktop Environment</h3>
-                    <p style="color: #475569; margin-bottom: 15px; font-size: 0.95em;"><strong>Select your preferred desktop environment:</strong></p>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
-                        <div onclick="selectDesktop('kde')" id="kde-option" style="background: rgba(8, 145, 178, 0.1); border: 2px solid #0891b2; border-radius: 12px; padding: 15px; cursor: pointer; text-align: center; transition: all 0.2s;">
-                            <h4 style="color: #0891b2; margin: 0 0 5px 0;">KDE Plasma</h4>
-                            <p style="color: #475569; margin: 0; font-size: 0.9em;">Modern, feature-rich (Default)</p>
-                        </div>
-                        <div onclick="selectDesktop('gnome')" id="gnome-option" style="background: rgba(99, 102, 241, 0.1); border: 2px solid #6366f1; border-radius: 12px; padding: 15px; cursor: pointer; text-align: center; transition: all 0.2s;">
-                            <h4 style="color: #6366f1; margin: 0 0 5px 0;">GNOME</h4>
-                            <p style="color: #475569; margin: 0; font-size: 0.9em;">Clean, minimalist</p>
-                        </div>
-                        <div onclick="selectDesktop('xfce')" id="xfce-option" style="background: rgba(16, 185, 129, 0.1); border: 2px solid #10b981; border-radius: 12px; padding: 15px; cursor: pointer; text-align: center; transition: all 0.2s;">
-                            <h4 style="color: #10b981; margin: 0 0 5px 0;">XFCE</h4>
-                            <p style="color: #475569; margin: 0; font-size: 0.9em;">Lightweight, fast</p>
-                        </div>
-                        <div onclick="selectDesktop('hyprland')" id="hyprland-option" style="background: rgba(168, 85, 247, 0.1); border: 2px solid #a855f7; border-radius: 12px; padding: 15px; cursor: pointer; text-align: center; transition: all 0.2s;">
-                            <h4 style="color: #a855f7; margin: 0 0 5px 0;">Hyprland</h4>
-                            <p style="color: #475569; margin: 0; font-size: 0.9em;">Tiling, Wayland</p>
-                        </div>
-                    </div>
-                    
-                    <h4 style="color: #0891b2; margin-bottom: 10px;">🔧 Run Installation Command (20-30 minutes)</h4>
-                    <p style="color: #475569; margin-bottom: 15px; font-size: 0.95em;"><strong>Run this command as root:</strong></p>
-                    <div class="install-code-wrapper">
-                        <div class="install-code-container">
-                            <div class="install-code" id="install-command">archinstall --config-url https://re-arch.xyz/config-kde.json --creds-url https://re-arch.xyz/creds.json</div>
-                            <button class="copy-button" onclick="copyToClipboard(this)" title="Copy to clipboard">📋</button>
-                        </div>
-                    </div>
-                    <div style="background: rgba(16, 185, 129, 0.1); border-radius: 8px; padding: 15px; margin-top: 15px; border-left: 3px solid #10b981;">
-                        <p style="margin: 0; font-size: 0.95em; color: #047857;"><strong>✅ Success indicators:</strong> "Installation completed successfully" + prompt asking about chroot</p>
-                    </div>
-                </div>
-                
-                <div style="margin-bottom: 30px;">
-                    <h3 style="color: #0891b2; margin-bottom: 15px;">⚙️ STEP 2: System Optimization (2-3 minutes)</h3>
-                    
-                    <div style="background: rgba(99, 102, 241, 0.1); border-radius: 12px; padding: 15px; margin-bottom: 20px; border-left: 4px solid #6366f1;">
-                        <h4 style="color: #4338ca; margin: 0 0 10px 0; font-size: 0.95em;">🤔 Which method to use?</h4>
-                        <p style="margin: 0 0 10px 0; color: #475569; font-size: 0.9em;"><strong>Method A (RECOMMENDED):</strong> When archinstall asks about chroot, select "Yes" → You'll see <code style="background: rgba(99, 102, 241, 0.2); padding: 2px 6px; border-radius: 4px;">(chroot)</code> prompt → Run script</p>
-                        <p style="margin: 0; color: #475569; font-size: 0.9em;"><strong>Method B:</strong> If you selected "No" → Run <code style="background: rgba(99, 102, 241, 0.2); padding: 2px 6px; border-radius: 4px;">arch-chroot /mnt</code> → See <code style="background: rgba(99, 102, 241, 0.2); padding: 2px 6px; border-radius: 4px;">(chroot)</code> prompt → Run script</p>
-                    </div>
-                    
-                    <div class="install-code-wrapper">
-                        <div class="install-code-container">
-                            <div class="install-code">curl -fsSL https://re-arch.xyz/re-arch-lite.sh | bash</div>
-                            <button class="copy-button" onclick="copyToClipboard(this)" title="Copy to clipboard">📋</button>
-                        </div>
-                    </div>
-                    
-                    <div style="background: rgba(16, 185, 129, 0.1); border-radius: 8px; padding: 15px; margin-top: 15px; border-left: 3px solid #10b981;">
-                        <p style="margin: 0; font-size: 0.95em; color: #047857;"><strong>✅ Success indicators:</strong> "Re-Arch lite configuration completed successfully" + no error messages</p>
-                    </div>
-                    
-                    <details style="margin-top: 20px; background: rgba(99, 102, 241, 0.05); border-radius: 8px; padding: 15px;">
-                        <summary style="cursor: pointer; color: #6366f1; font-weight: 500;">🔄 Alternative URLs (if domain is not working)</summary>
-                        <div style="margin-top: 15px;">
-                            <h4 style="color: #4b5563; margin-bottom: 10px;">Step 1 (Default - KDE):</h4>
-                            <div style="background: #1f2937; color: #10b981; border-radius: 6px; padding: 10px; font-family: 'JetBrains Mono', monospace; font-size: 12px; overflow-x: auto;">
-                                archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/config-kde.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/creds.json
-                            </div>
-                            <h4 style="color: #4b5563; margin: 15px 0 10px 0;">Step 1 (GNOME):</h4>
-                            <div style="background: #1f2937; color: #10b981; border-radius: 6px; padding: 10px; font-family: 'JetBrains Mono', monospace; font-size: 12px; overflow-x: auto;">
-                                archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/config-gnome.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/creds.json
-                            </div>
-                            <h4 style="color: #4b5563; margin: 15px 0 10px 0;">Step 1 (XFCE):</h4>
-                            <div style="background: #1f2937; color: #10b981; border-radius: 6px; padding: 10px; font-family: 'JetBrains Mono', monospace; font-size: 12px; overflow-x: auto;">
-                                archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/config-xfce.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/creds.json
-                            </div>
-                            <h4 style="color: #4b5563; margin: 15px 0 10px 0;">Step 1 (Hyprland):</h4>
-                            <div style="background: #1f2937; color: #10b981; border-radius: 6px; padding: 10px; font-family: 'JetBrains Mono', monospace; font-size: 12px; overflow-x: auto;">
-                                archinstall --config-url https://raw.githubusercontent.com/buggerman/re-arch/main/config-hyprland.json --creds-url https://raw.githubusercontent.com/buggerman/re-arch/main/creds.json
-                            </div>
-                            <h4 style="color: #4b5563; margin: 15px 0 10px 0;">Step 2:</h4>
-                            <div style="background: #1f2937; color: #10b981; border-radius: 6px; padding: 10px; font-family: 'JetBrains Mono', monospace; font-size: 12px; overflow-x: auto;">
-                                curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch-lite.sh | bash
-                            </div>
-                        </div>
-                    </details>
-                </div>
-                
-                <!-- Single Command Method moved to experimental -->
-                <details style="background: rgba(239, 68, 68, 0.05); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
-                    <summary style="cursor: pointer; color: #dc2626; font-weight: 600; font-size: 1.1em;">⚗️ Experimental: Single Command Installation</summary>
-                    <div style="margin-top: 20px;">
-                        <div style="background: rgba(254, 226, 226, 0.8); border: 2px solid rgba(252, 165, 165, 0.6); border-radius: 12px; padding: 15px; margin-bottom: 20px;">
-                            <h4 style="color: #dc2626; margin-bottom: 10px;">⚠️ Currently has interaction issues</h4>
-                            <p style="color: #991b1b; margin: 0; font-size: 0.95em;">The single-command installer may freeze during archinstall. Use the two-step method above for reliable installation.</p>
-                        </div>
-                        
-                        <div class="install-code-wrapper">
-                            <div class="install-code-container">
-                                <div class="install-code">curl -fsSL https://re-arch.xyz/install | bash</div>
-                                <button class="copy-button" onclick="copyToClipboard(this)" title="Copy to clipboard">📋</button>
-                            </div>
-                        </div>
-                    </div>
-                </details>
-                
-                
-                <div style="background: rgba(8, 145, 178, 0.1); border-radius: 12px; padding: 20px; margin-top: 20px;">
-                    <h3 style="color: #0891b2; margin-bottom: 15px;">🎯 Why This Method?</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                        <div style="text-align: center;">
-                            <div style="font-size: 2em; margin-bottom: 5px;">🚀</div>
-                            <p style="color: #0891b2; font-weight: 600; margin: 0; font-size: 0.9em;">95% fewer failure points</p>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 2em; margin-bottom: 5px;">⚡</div>
-                            <p style="color: #0891b2; font-weight: 600; margin: 0; font-size: 0.9em;">Complete in 25-35 minutes</p>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 2em; margin-bottom: 5px;">⚛️</div>
-                            <p style="color: #0891b2; font-weight: 600; margin: 0; font-size: 0.9em;">Atomic recovery</p>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 2em; margin-bottom: 5px;">✨</div>
-                            <p style="color: #0891b2; font-weight: 600; margin: 0; font-size: 0.9em;">Production ready</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div style="background: rgba(16, 185, 129, 0.1); border-radius: 16px; padding: 30px; margin-top: 25px; text-align: center; border: 1px solid rgba(16, 185, 129, 0.2);">
-                    <div style="font-size: 3em; margin-bottom: 15px;">⚛️</div>
-                    <h3 style="color: #047857; margin-bottom: 20px; font-size: 1.4em; font-weight: 600;">Enterprise-Grade Atomic Recovery</h3>
-                    <p style="color: #065f46; margin-bottom: 25px; font-size: 1.05em; max-width: 600px; margin-left: auto; margin-right: auto;">Unlike traditional Linux installations, system breakage becomes virtually impossible with automatic snapshot protection.</p>
-                    
-                    <div style="display: flex; justify-content: center; align-items: center; gap: 40px; margin: 25px 0; flex-wrap: wrap;">
-                        <div style="text-align: center; min-width: 140px;">
-                            <div style="font-size: 2.2em; margin-bottom: 8px;">🛡️</div>
-                            <h4 style="color: #047857; margin: 0 0 5px 0; font-size: 0.95em; font-weight: 600;">Auto-Protected</h4>
-                            <p style="color: #065f46; margin: 0; font-size: 0.85em;">Every update snapshotted</p>
-                        </div>
-                        <div style="color: #10b981; font-size: 1.5em; font-weight: 300;">→</div>
-                        <div style="text-align: center; min-width: 140px;">
-                            <div style="font-size: 2.2em; margin-bottom: 8px;">💥</div>
-                            <h4 style="color: #dc2626; margin: 0 0 5px 0; font-size: 0.95em; font-weight: 600;">System Breaks</h4>
-                            <p style="color: #7f1d1d; margin: 0; font-size: 0.85em;">Bad update or config</p>
-                        </div>
-                        <div style="color: #10b981; font-size: 1.5em; font-weight: 300;">→</div>
-                        <div style="text-align: center; min-width: 140px;">
-                            <div style="font-size: 2.2em; margin-bottom: 8px;">🔄</div>
-                            <h4 style="color: #047857; margin: 0 0 5px 0; font-size: 0.95em; font-weight: 600;">30-Sec Fix</h4>
-                            <p style="color: #065f46; margin: 0; font-size: 0.85em;">Reboot to snapshot</p>
-                        </div>
-                    </div>
-                    
-                    <p style="color: #047857; margin: 0; font-size: 1em; font-weight: 600; background: rgba(16, 185, 129, 0.15); padding: 12px 20px; border-radius: 8px; display: inline-block;">💼 Production Impact: Hours of troubleshooting → 30-second recovery</p>
-                </div>
-            </div>
-            
-            <div style="background: #fafafa; border-radius: 12px; padding: 25px; margin-top: 30px; border-left: 4px solid #10b981;">
-                <h3 style="color: #047857; margin-bottom: 15px;">🎉 After Installation Complete</h3>
-                <div style="color: #065f46; font-size: 0.95em;">
-                    <p style="margin: 0 0 10px 0;"><strong>1. Exit chroot:</strong> Type <code style="background: rgba(16, 185, 129, 0.2); padding: 2px 6px; border-radius: 4px;">exit</code></p>
-                    <p style="margin: 0 0 10px 0;"><strong>2. Unmount:</strong> Run <code style="background: rgba(16, 185, 129, 0.2); padding: 2px 6px; border-radius: 4px;">umount -R /mnt</code> (if you manually chrooted)</p>
-                    <p style="margin: 0;"><strong>3. Reboot:</strong> Remove USB/CD and run <code style="background: rgba(16, 185, 129, 0.2); padding: 2px 6px; border-radius: 4px;">reboot</code></p>
-                </div>
-            </div>
-        </header>
-    </div>
-    
-    <section style="background: #f1f5f9; padding: 60px 0;">
+    <header>
         <div class="container">
-            <div style="max-width: 1000px; margin: 0 auto;">
-                <h2 style="text-align: center; color: #1e293b; margin-bottom: 40px; font-size: 2.2em;">📋 System Requirements & Troubleshooting</h2>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-bottom: 60px;">
-                    <div style="background: rgba(255,255,255,0.8); padding: 25px; border-radius: 16px; border-left: 4px solid #3b82f6;">
-                        <h3 style="color: #1e40af; margin-bottom: 15px;">💻 Hardware Requirements</h3>
-                        <ul style="color: #475569; font-size: 0.95em; padding-left: 20px;">
-                            <li><strong>CPU:</strong> x86_64 processor (Intel/AMD 64-bit)</li>
-                            <li><strong>RAM:</strong> 4GB minimum, 8GB recommended</li>
-                            <li><strong>Storage:</strong> 20GB minimum, 50GB recommended</li>
-                            <li><strong>Boot:</strong> UEFI preferred, Legacy BIOS supported</li>
-                        </ul>
-                    </div>
-                    
-                    <div style="background: rgba(255,255,255,0.8); padding: 25px; border-radius: 16px; border-left: 4px solid #10b981;">
-                        <h3 style="color: #047857; margin-bottom: 15px;">✅ What's Supported</h3>
-                        <ul style="color: #475569; font-size: 0.95em; padding-left: 20px;">
-                            <li><strong>✅ Fresh installations</strong> on dedicated machines</li>
-                            <li><strong>✅ Virtual machines</strong> (VirtualBox, VMware, etc.)</li>
-                            <li><strong>⚠️ Dual-boot systems</strong> (advanced users only)</li>
-                            <li><strong>❌ Systems with existing data</strong> to preserve</li>
-                        </ul>
-                    </div>
-                    
-                    <div style="background: rgba(255,255,255,0.8); padding: 25px; border-radius: 16px; border-left: 4px solid #f59e0b;">
-                        <h3 style="color: #d97706; margin-bottom: 15px;">🚨 Common Issues</h3>
-                        <ul style="color: #475569; font-size: 0.95em; padding-left: 20px;">
-                            <li><strong>No internet:</strong> Connect WiFi before starting</li>
-                            <li><strong>Disk space errors:</strong> Ensure 20GB+ available</li>
-                            <li><strong>Boot issues:</strong> Check UEFI/BIOS settings</li>
-                            <li><strong>Package failures:</strong> Retry with fresh ISO</li>
-                        </ul>
-                    </div>
-                    
-                    <div style="background: rgba(255,255,255,0.8); padding: 25px; border-radius: 16px; border-left: 4px solid #8b5cf6;">
-                        <h3 style="color: #7c3aed; margin-bottom: 15px;">🆘 Getting Help</h3>
-                        <ul style="color: #475569; font-size: 0.95em; padding-left: 20px;">
-                            <li><strong>GitHub Issues:</strong> <a href="https://github.com/buggerman/re-arch/issues" style="color: #7c3aed;">Report bugs</a></li>
-                            <li><strong>Arch Wiki:</strong> <a href="https://wiki.archlinux.org/" style="color: #7c3aed;">General guidance</a></li>
-                            <li><strong>System recovery:</strong> Boot from snapshots in GRUB</li>
-                            <li><strong>Check logs:</strong> <code style="background: rgba(139, 92, 246, 0.2); padding: 2px 6px; border-radius: 4px;">journalctl -b</code></li>
-                        </ul>
-                    </div>
+            <h1>🏗️ Re-Arch</h1>
+            <p class="subtitle">Simple Arch Linux Desktop Installer</p>
+            <p>Professional, one-command installation with snapshots and optimizations</p>
+        </div>
+    </header>
+
+    <section>
+        <div class="container">
+            <div class="install-box">
+                <button class="copy-btn" onclick="copyInstall()">Copy</button>
+                <h3>🚀 Installation</h3>
+                <div class="install-code">curl -fsSL https://re-arch.xyz/install | bash</div>
+                <p><strong>That's it!</strong> Choose your desktop environment and let it install.</p>
+            </div>
+
+            <div class="warning">
+                <h3>⚠️ Warning</h3>
+                <p>This will completely erase the target disk. Always test in a VM first!</p>
+            </div>
+
+            <div class="features">
+                <div class="feature">
+                    <h3>🎨 Desktop Environments</h3>
+                    <p>Choose from KDE Plasma, GNOME, XFCE, or Hyprland during installation.</p>
                 </div>
+                
+                <div class="feature">
+                    <h3>🚀 Performance</h3>
+                    <p>Linux Zen kernel, memory compression, process optimization, low-latency audio.</p>
+                </div>
+                
+                <div class="feature">
+                    <h3>🛡️ Snapshots</h3>
+                    <p>Automatic Btrfs snapshots with GRUB integration. Rollback in 30 seconds.</p>
+                </div>
+                
+                <div class="feature">
+                    <h3>🔒 Security</h3>
+                    <p>Firewall enabled, Flatpak sandboxing for apps, minimal attack surface.</p>
+                </div>
+            </div>
+
+            <div class="install-box">
+                <h3>📋 Requirements</h3>
+                <ul style="list-style: none; padding-left: 0;">
+                    <li>💻 4GB+ RAM, 20GB+ storage</li>
+                    <li>🌐 Internet connection required</li>
+                    <li>🏗️ Fresh installation (erases disk)</li>
+                    <li>🧪 Test in VM first</li>
+                </ul>
+            </div>
+
+            <div class="install-box">
+                <h3>🏃‍♂️ After Installation</h3>
+                <div class="install-code"># Login: user/rearch (change immediately)
+# Install web browser
+flatpak install flathub org.mozilla.firefox
+
+# Update system  
+sudo pacman -Syu</div>
             </div>
         </div>
     </section>
-    
-    <section style="background: #f8fafc; padding: 60px 0;">
-        <div class="container">
-            <div style="max-width: 800px; margin: 0 auto; text-align: center;">
-                <h2 style="color: #ef4444; margin-bottom: 20px;">⚗️ Experimental: Legacy Conversion Method</h2>
-                <div style="background: #fef2f2; border: 2px solid #fecaca; border-radius: 12px; padding: 30px; margin: 20px 0;">
-                    <h3 style="color: #dc2626; margin-bottom: 15px;">⚠️ WARNING: NOT RECOMMENDED</h3>
-                    <p style="color: #7f1d1d; margin-bottom: 20px; font-weight: 500;">This method is failure-prone and should only be used by advanced users for converting existing minimal Arch installations.</p>
-                    
-                    <div style="background: white; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: left;">
-                        <h4 style="color: #4b5563; margin-bottom: 10px;">Prerequisites for Conversion:</h4>
-                        <ul style="color: #6b7280; padding-left: 20px;">
-                            <li>Existing minimal Arch Linux with Btrfs root</li>
-                            <li>Non-root user with sudo privileges</li>
-                            <li>Boot from Arch installation media</li>
-                        </ul>
-                    </div>
-                    
-                    <div style="background: #1f2937; border-radius: 8px; padding: 15px; margin: 20px 0;">
-                        <code style="color: #10b981; font-family: 'JetBrains Mono', monospace; font-size: 14px;">
-                            curl -fsSL https://re-arch.xyz/re-arch.sh | bash
-                        </code>
-                    </div>
-                    
-                    <div style="background: white; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: left;">
-                        <h4 style="color: #dc2626; margin-bottom: 10px;">Known Issues:</h4>
-                        <ul style="color: #6b7280; padding-left: 20px;">
-                            <li>Higher failure rates due to package conflicts</li>
-                            <li>Complex dependency resolution required</li>
-                            <li>Manual troubleshooting often needed</li>
-                            <li>Not suitable for production environments</li>
-                        </ul>
-                    </div>
-                    
-                    <p style="color: #dc2626; font-weight: 600; margin-top: 20px;">
-                        🚀 Use the main installation method above for reliability and ease of use
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <section class="features">
-        <div class="container">
-            <h2 class="section-title">Built for Performance & Resilience</h2>
-            <p class="section-subtitle">Enterprise-grade features for your desktop</p>
-            
-            <div class="features-grid">
-                <div class="feature">
-                    <div class="feature-icon">⚡</div>
-                    <h3>Performance</h3>
-                    <p>Linux Zen kernel, automatic process optimization with ananicy-cpp, and zram memory management for maximum responsiveness.</p>
-                </div>
-                
-                <div class="feature">
-                    <div class="feature-icon">⚛️</div>
-                    <h3>Atomic Recovery</h3>
-                    <p>Enterprise-grade atomic recovery: every update creates bootable snapshots. System breakage? 30-second reboot fixes it vs. hours rebuilding.</p>
-                </div>
-                
-                <div class="feature">
-                    <div class="feature-icon">🎯</div>
-                    <h3>Clean Architecture</h3>
-                    <p>Separated package management: pacman for system, Flatpak for apps, Homebrew for development. AUR support available via manual paru installation.</p>
-                </div>
-                
-                <div class="feature">
-                    <div class="feature-icon">🎨</div>
-                    <h3>Modern Desktop</h3>
-                    <p>KDE Plasma with Wayland support, PipeWire audio, and carefully curated applications.</p>
-                </div>
-                
-                <div class="feature">
-                    <div class="feature-icon">🔒</div>
-                    <h3>Security</h3>
-                    <p>Firewalld network protection and secure defaults throughout the system configuration.</p>
-                </div>
-                
-                <div class="feature">
-                    <div class="feature-icon">⚙️</div>
-                    <h3>Automation</h3>
-                    <p>Fully automated installation with interactive prompts and comprehensive validation checks.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <section class="workflow">
-        <div class="container">
-            <h2 class="section-title">Complete Installation Workflow</h2>
-            <p class="section-subtitle">From bare metal to production desktop in minutes</p>
-            
-            <div class="workflow-steps">
-                <div class="step">
-                    <div class="step-number">1</div>
-                    <h3>Install Arch Linux</h3>
-                    <p>Use archinstall with our provided configuration for automated base system setup with Btrfs.</p>
-                </div>
-                
-                <div class="step">
-                    <div class="step-number">2</div>
-                    <h3>Enter Chroot</h3>
-                    <p>Either use archinstall's chroot option at completion, or manually chroot into your installed system.</p>
-                </div>
-                
-                <div class="step">
-                    <div class="step-number">3</div>
-                    <h3>Run Re-Arch</h3>
-                    <p>Execute our one-command installer. The script handles everything else automatically.</p>
-                </div>
-                
-                <div class="step">
-                    <div class="step-number">4</div>
-                    <h3>Reboot & Enjoy</h3>
-                    <p>Reboot into your optimized system with KDE Plasma, snapshots, and performance tuning.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-    
+
     <footer>
         <div class="container">
-            <div class="footer-content">
-                <div class="footer-links">
-                    <a href="https://github.com/buggerman/re-arch">GitHub</a>
-                    <a href="https://github.com/buggerman/re-arch/blob/main/README.md">Documentation</a>
-                    <a href="https://github.com/buggerman/re-arch/releases">Releases</a>
-                    <a href="https://github.com/buggerman/re-arch/issues">Support</a>
-                </div>
-                
-                <div class="arch-attribution">
-                    <img src="assets/images/arch-logo.svg" alt="Arch Linux">
-                    <span>Powered by <a href="https://archlinux.org" style="color: #68d391;">Arch Linux</a></span>
-                </div>
-            </div>
+            <p>Made with ❤️ for the Arch Linux community</p>
+            <p><a href="https://github.com/buggerman/re-arch" style="color: #4ade80;">GitHub</a> | MIT License</p>
         </div>
     </footer>
 
     <script>
-        function copyToClipboard(button) {
-            // Get the command text from the sibling element
-            const commandElement = button.previousElementSibling;
-            const command = commandElement.textContent.replace(/^\$ /, ''); // Remove the $ prompt
-            
-            navigator.clipboard.writeText(command).then(() => {
-                const originalText = button.textContent;
-                button.textContent = '✓';
-                button.style.background = 'rgba(34, 197, 94, 0.2)';
-                button.style.borderColor = 'rgba(34, 197, 94, 0.6)';
-                button.style.color = '#22c55e';
-                setTimeout(() => {
-                    button.textContent = originalText;
-                    button.style.background = 'rgba(255,255,255,0.1)';
-                    button.style.borderColor = 'rgba(255,255,255,0.2)';
-                    button.style.color = '#f1f5f9';
-                }, 1500);
-            });
+        function copyInstall() {
+            navigator.clipboard.writeText('curl -fsSL https://re-arch.xyz/install | bash');
+            const btn = document.querySelector('.copy-btn');
+            btn.textContent = '✓';
+            setTimeout(() => btn.textContent = 'Copy', 2000);
         }
-
-        function selectDesktop(desktop) {
-            // Reset all options
-            document.querySelectorAll('[id$="-option"]').forEach(option => {
-                option.style.borderWidth = '2px';
-                option.style.transform = 'scale(1)';
-            });
-            
-            // Highlight selected option
-            const selectedOption = document.getElementById(desktop + '-option');
-            selectedOption.style.borderWidth = '3px';
-            selectedOption.style.transform = 'scale(1.02)';
-            
-            // Update install command
-            const installCommand = document.getElementById('install-command');
-            const baseUrl = 'https://re-arch.xyz/config';
-            const credsUrl = 'https://re-arch.xyz/creds.json';
-            
-            let configUrl;
-            if (desktop === 'kde') {
-                configUrl = baseUrl + '.json';
-            } else {
-                configUrl = baseUrl + '-' + desktop + '.json';
-            }
-            
-            installCommand.textContent = `archinstall --config-url ${configUrl} --creds-url ${credsUrl}`;
-        }
-
-        // Initialize with KDE selected
-        document.addEventListener('DOMContentLoaded', function() {
-            selectDesktop('kde');
-        });
     </script>
 </body>
 </html>
