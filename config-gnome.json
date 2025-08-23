@@ -5,6 +5,7 @@
     },
     "bootloader": "Grub",
     "custom_commands": [],
+    "debug": false,
     "disk_config": {
         "btrfs_options": {
             "snapshot_config": null
@@ -106,7 +107,9 @@
     "network_config": {
         "type": "nm"
     },
+    "no_pkg_lookups": false,
     "ntp": true,
+    "offline": false,
     "packages": [
         "git",
         "curl",
@@ -150,9 +153,6 @@
         "gnome-software"
     ],
     "parallel_downloads": 5,
-    "repositories": [
-        "multilib"
-    ],
     "profile_config": {
         "gfx_driver": null,
         "greeter": null,
@@ -162,7 +162,12 @@
             "main": "Minimal"
         }
     },
+    "repositories": [
+        "multilib"
+    ],
+    "script": "guided",
     "services": [],
+    "silent": false,
     "swap": false,
     "timezone": "UTC",
     "version": null
