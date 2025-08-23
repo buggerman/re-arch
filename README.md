@@ -77,10 +77,12 @@ brew install fzf ripgrep
 If you want to customize before installation:
 
 ```bash
-# Download configs
+# Option 1: Direct URL method (recommended)
+archinstall --config-url https://re-arch.xyz/config-kde.json --creds-url https://re-arch.xyz/creds.json
+
+# Option 2: Download and customize
 curl -O https://re-arch.xyz/config-kde.json
 curl -O https://re-arch.xyz/creds.json
-
 # Edit as needed, then:
 archinstall --config config-kde.json --creds creds.json
 

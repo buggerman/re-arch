@@ -7,6 +7,11 @@
 
 set -euo pipefail
 
+# Debug mode - set RE_ARCH_DEBUG=1 for verbose output
+if [[ "${RE_ARCH_DEBUG:-0}" == "1" ]]; then
+    set -x
+fi
+
 # Base URL configuration
 # Can be overridden with: RE_ARCH_BASE_URL="./" ./install
 BASE_URL="${RE_ARCH_BASE_URL:-https://re-arch.xyz}"
@@ -141,36 +146,111 @@ main() {
     partprobe "$disk" 2>/dev/null || true
     sleep 2
     
-    # Download and customize config
-    info "Downloading configuration for $desktop..."
-    download_file "${BASE_URL}/config-${desktop}.json" "/tmp/config.json" "configuration file"
-    download_file "${BASE_URL}/creds.json" "/tmp/creds.json" "credentials file"
+    # Prepare archinstall URLs
+    info "Preparing installation for $desktop..."
+    local config_url="${BASE_URL}/config-${desktop}.json"
+    local creds_url="${BASE_URL}/creds.json"
     
-    # Update disk in config
-    sed -i "s|/dev/sda|$disk|g" /tmp/config.json
+    # Handle disk customization - we need to modify the config if disk != /dev/sda
+    if [ "$disk" != "/dev/sda" ]; then
+        info "Customizing config for disk: $disk"
+        
+        # Download config to modify disk setting
+        download_file "$config_url" "/tmp/config.json" "configuration file"
+        
+        # Update disk in config
+        sed -i "s|/dev/sda|$disk|g" /tmp/config.json
+        
+        # Use local modified config
+        config_url="/tmp/config.json"
+        info "Using modified config with disk: $disk"
+    fi
     
-    # Run archinstall
+    # Show what we're using
+    info "Config URL: $config_url"
+    info "Creds URL: $creds_url"
+    
+    # Validate URLs/files exist before passing to archinstall
+    if [[ "$config_url" =~ ^https?:// ]]; then
+        # Remote URL - test with curl
+        if ! curl -fsSL --head "$config_url" >/dev/null; then
+            error "Cannot access configuration at $config_url"
+        fi
+        if ! curl -fsSL --head "$creds_url" >/dev/null; then
+            error "Cannot access credentials at $creds_url"
+        fi
+    else
+        # Local file - check existence
+        if [ ! -f "$config_url" ]; then
+            error "Configuration file not found: $config_url"
+        fi
+        if [ ! -f "$creds_url" ]; then
+            error "Credentials file not found: $creds_url"
+        fi
+    fi
+    
+    success "Configuration URLs validated"
+    
+    # Run archinstall with appropriate options
     info "Running archinstall (this may take 15-25 minutes)..."
-    printf "n\n" | archinstall --config /tmp/config.json --creds /tmp/creds.json || {
-        error "archinstall failed. Common solutions:
-1. Check internet connection
-2. Ensure disk has enough space (20GB+)
-3. Try rebooting and running again
-4. Check the error output above for specific issues"
-    }
+    
+    # Determine the right archinstall command based on config type
+    if [[ "$config_url" =~ ^https?:// ]]; then
+        # Remote URLs - use --config-url and --creds-url
+        info "Using remote configuration URLs"
+        info "Manual equivalent: archinstall --config-url $config_url --creds-url $creds_url"
+        
+        if ! archinstall --config-url "$config_url" --creds-url "$creds_url"; then
+            error "archinstall failed. Try manual: archinstall --config-url $config_url --creds-url $creds_url"
+        fi
+    else
+        # Local files - use --config and --creds
+        info "Using local configuration files"
+        info "Manual equivalent: archinstall --config $config_url --creds $creds_url"
+        
+        if ! archinstall --config "$config_url" --creds "$creds_url"; then
+            error "archinstall failed. Try manual: archinstall --config $config_url --creds $creds_url"
+        fi
+    fi
     
     success "Base system installation completed!"
     
     # Run post-configuration
     info "Running post-installation configuration..."
     
-    # Download the post-config script
-    download_file "${BASE_URL}/re-arch-lite.sh" "/tmp/re-arch-lite.sh" "post-installation script"
+    # Check if /mnt exists and is mounted
+    if ! mountpoint -q /mnt; then
+        error "Installation mount point /mnt not found or not mounted. archinstall may have failed."
+    fi
     
-    # Run the script in chroot
-    arch-chroot /mnt bash /tmp/re-arch-lite.sh || {
-        warning "Post-configuration had issues but system should still be bootable"
-    }
+    # Handle post-config script execution
+    local lite_script_url="${BASE_URL}/re-arch-lite.sh"
+    
+    if [[ "$lite_script_url" =~ ^https?:// ]]; then
+        # Remote URL - use curl directly in chroot (matches working manual method)
+        info "Running post-config from URL: $lite_script_url"
+        info "Manual equivalent: arch-chroot /mnt curl -fsSL $lite_script_url | bash"
+        
+        if ! arch-chroot /mnt curl -fsSL "$lite_script_url" | arch-chroot /mnt bash; then
+            warning "Post-configuration had issues but system should still be bootable"
+            warning "You can manually run: arch-chroot /mnt && curl -fsSL $lite_script_url | bash"
+        fi
+    else
+        # Local file - copy and execute
+        info "Running post-config from local file: $lite_script_url"
+        
+        # Download/copy the post-config script
+        download_file "$lite_script_url" "/tmp/re-arch-lite.sh" "post-installation script"
+        
+        # Make it executable and copy to chroot
+        chmod +x /tmp/re-arch-lite.sh
+        cp /tmp/re-arch-lite.sh /mnt/tmp/re-arch-lite.sh
+        
+        if ! arch-chroot /mnt bash /tmp/re-arch-lite.sh; then
+            warning "Post-configuration had issues but system should still be bootable"
+            warning "You can manually run: arch-chroot /mnt && bash /tmp/re-arch-lite.sh"
+        fi
+    fi
     
     success "Installation complete!"
     echo ""
