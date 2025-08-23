@@ -1,260 +1,152 @@
 #!/bin/bash
 #
-# Re-Arch Single Command Installer
-# Professional, opinionated Arch Linux installer
+# Re-Arch: Simple Arch Linux Desktop Installer
+# One-command installation with desktop environment choice
 # https://re-arch.xyz
 #
 
 set -euo pipefail
 
-# Debug mode - uncomment for troubleshooting
-# set -x
-
-# Colors for output
+# Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
 # Logging functions
-info() {
-    echo -e "${BLUE}ℹ️  $1${NC}"
+info() { echo -e "${BLUE}ℹ️  $1${NC}"; }
+success() { echo -e "${GREEN}✅ $1${NC}"; }
+warning() { echo -e "${YELLOW}⚠️  $1${NC}"; }
+error() { echo -e "${RED}❌ $1${NC}" >&2; exit 1; }
+
+
+# Desktop environment selection
+select_desktop() {
+    echo ""
+    echo "🎨 Choose Desktop Environment:"
+    echo "1) KDE Plasma (recommended - modern, feature-rich)"
+    echo "2) GNOME (clean, user-friendly)"
+    echo "3) XFCE (lightweight, traditional)"
+    echo "4) Hyprland (tiling window manager)"
+    echo ""
+    
+    while true; do
+        read -p "Enter choice [1-4]: " choice
+        case $choice in
+            1) echo "kde"; break ;;
+            2) echo "gnome"; break ;;
+            3) echo "xfce"; break ;;
+            4) echo "hyprland"; break ;;
+            *) warning "Invalid choice. Please enter 1-4." ;;
+        esac
+    done
 }
 
-success() {
-    echo -e "${GREEN}✅ $1${NC}"
+# Disk detection and selection
+select_disk() {
+    info "Available disks:"
+    lsblk -dnpo NAME,SIZE,MODEL | grep "disk" | nl -v1
+    
+    echo ""
+    local disks=($(lsblk -dnpo NAME | grep -E "(sd[a-z]|nvme[0-9]+n[0-9]+|vd[a-z])$"))
+    
+    if [ ${#disks[@]} -eq 1 ]; then
+        info "Auto-selecting: ${disks[0]}"
+        echo "${disks[0]}"
+        return
+    fi
+    
+    while true; do
+        read -p "Select disk number [1-${#disks[@]}]: " num
+        if [[ "$num" =~ ^[0-9]+$ ]] && [ "$num" -ge 1 ] && [ "$num" -le "${#disks[@]}" ]; then
+            echo "${disks[$((num-1))]}"
+            break
+        fi
+        warning "Invalid selection. Enter a number between 1 and ${#disks[@]}."
+    done
 }
-
-warning() {
-    echo -e "${YELLOW}⚠️  $1${NC}"
-}
-
-error() {
-    echo -e "${RED}❌ $1${NC}" >&2
-    echo "Script failed at line ${BASH_LINENO[0]}. Check the error above." >&2
-    exit 1
-}
-
-# Validation functions
-check_environment() {
+# Main installation function
+main() {
+    echo ""
+    echo "🚀 Re-Arch: Simple Arch Linux Desktop Installer"
+    echo "================================================"
+    echo ""
+    
+    # Validate environment
     info "Validating installation environment..."
-    
-    # Check if running as root
-    if [[ $EUID -ne 0 ]]; then
-        error "This script must be run as root. Use: sudo bash"
-    fi
-    
-    # Check if archinstall is available
-    if ! command -v archinstall &> /dev/null; then
-        error "archinstall not found. Are you running from Arch installation media?"
-    fi
-    
-    # Check internet connectivity
-    if ! ping -c 1 archlinux.org &>/dev/null; then
-        error "No internet connection. Please connect to the internet first."
-    fi
-    
-    # Check if we're in a live environment (basic check)
-    if [[ ! -f /etc/arch-release ]]; then
-        error "This doesn't appear to be an Arch Linux environment."
-    fi
+    [[ $EUID -eq 0 ]] || error "Must run as root. Use: sudo bash"
+    command -v archinstall >/dev/null || error "archinstall not found. Are you on Arch installation media?"
+    ping -c 1 archlinux.org >/dev/null || error "No internet connection. Please connect first."
+    [[ -f /etc/arch-release ]] || error "This doesn't appear to be Arch Linux."
     
     success "Environment validation passed"
-}
-
-# Main installation function
-run_installation() {
-    echo ""
-    echo "🚀 Re-Arch Single Command Installer"
-    echo "===================================="
-    echo ""
-    info "Professional Arch Linux desktop system installation"
-    echo ""
     
-    warning "This will install a complete desktop system with:"
-    echo "  • KDE Plasma desktop environment"
-    echo "  • Linux Zen kernel for performance" 
-    echo "  • Automatic Btrfs snapshots"
-    echo "  • Security and optimization packages"
+    # Get user choices
+    local desktop=$(select_desktop)
+    local disk=$(select_disk)
+    
+    # Show summary and confirm
     echo ""
-    warning "Default credentials: user/rearch (change after first login)"
+    warning "Installation Summary:"
+    echo "  • Desktop Environment: $desktop"
+    echo "  • Target Disk: $disk (ALL DATA WILL BE ERASED)"
+    echo "  • Installation Time: ~25-35 minutes"
+    echo "  • Default Login: user/rearch"
     echo ""
     
-    # Check if running in non-interactive mode (piped from curl)
-    if [[ -t 0 ]]; then
-        # Interactive mode - ask for confirmation
-        read -p "Continue with installation? [y/N]: " -n 1 -r
-        echo ""
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            echo "Installation cancelled."
-            exit 0
-        fi
-    else
-        # Non-interactive mode - auto-proceed with warning
-        warning "Running in non-interactive mode - proceeding automatically"
-        echo "To cancel, press Ctrl+C within 5 seconds..."
-        sleep 5
+    read -p "Type 'YES' to continue or 'NO' to cancel: " confirm
+    case "$confirm" in
+        "YES") info "Starting installation..." ;;
+        "NO"|*) echo "Installation cancelled."; exit 0 ;;
+    esac
+    
+    # Clean disk to prevent issues
+    info "Preparing disk $disk..."
+    wipefs -af "$disk" 2>/dev/null || true
+    if command -v sgdisk >/dev/null; then
+        sgdisk --zap-all "$disk" 2>/dev/null || true
     fi
-    
-    echo ""
-    info "Step 1/2: Installing base system with archinstall..."
-    echo "This may take 10-20 minutes depending on your internet connection."
-    echo ""
-    
-    # Download and verify configs first
-    info "Downloading configuration files..."
-    if ! curl -fsSL https://re-arch.xyz/config.json > /tmp/re-arch-config.json; then
-        error "Failed to download config.json"
-    fi
-    if ! curl -fsSL https://re-arch.xyz/creds.json > /tmp/re-arch-creds.json; then
-        error "Failed to download creds.json"
-    fi
-    
-    # Auto-detect the primary disk
-    info "Detecting available disks..."
-    PRIMARY_DISK=$(lsblk -dnpo NAME,SIZE,TYPE | grep "disk" | head -1 | awk '{print $1}')
-    if [[ -z "$PRIMARY_DISK" ]]; then
-        error "No disks detected. Please check your system."
-    fi
-    
-    info "Using disk: $PRIMARY_DISK"
-    warning "This will ERASE ALL DATA on $PRIMARY_DISK"
-    
-    # Clean the disk to prevent GPT header issues
-    info "Cleaning disk to prevent partition table conflicts..."
-    
-    # Method 1: Use wipefs to remove filesystem signatures
-    if command -v wipefs >/dev/null 2>&1; then
-        info "Removing filesystem signatures..."
-        wipefs --all --force "$PRIMARY_DISK" 2>/dev/null || true
-    fi
-    
-    # Method 2: Use gdisk to fix GPT issues if available
-    if command -v gdisk >/dev/null 2>&1; then
-        info "Using gdisk to clean GPT structure..."
-        # Use gdisk's expert mode to zap everything
-        echo -e "x\nz\ny\ny" | gdisk "$PRIMARY_DISK" 2>/dev/null || true
-    fi
-    
-    # Method 3: Use sgdisk to completely wipe partition tables
-    if command -v sgdisk >/dev/null 2>&1; then
-        info "Using sgdisk to zap all partition data..."
-        sgdisk --zap-all "$PRIMARY_DISK" 2>/dev/null || true
-        # Also clear any protective MBR
-        sgdisk --clear --mbrtogpt "$PRIMARY_DISK" 2>/dev/null || true
-    fi
-    
-    # Method 4: Zero out critical areas
-    info "Zeroing critical disk areas..."
-    # Zero out the first and last 10MB to clear partition tables
-    dd if=/dev/zero of="$PRIMARY_DISK" bs=1M count=10 2>/dev/null || true
-    
-    # Get disk size and clear the end (backup GPT)
-    DISK_SIZE=$(blockdev --getsize64 "$PRIMARY_DISK" 2>/dev/null || echo "0")
-    if [[ "$DISK_SIZE" -gt 0 ]]; then
-        LAST_MB=$((DISK_SIZE - 10*1024*1024))
-        dd if=/dev/zero of="$PRIMARY_DISK" bs=1M count=10 seek=$((LAST_MB/1024/1024)) 2>/dev/null || true
-    fi
-    
-    # Force kernel to re-read partition table multiple times
-    partprobe "$PRIMARY_DISK" 2>/dev/null || true
+    partprobe "$disk" 2>/dev/null || true
     sleep 2
-    partprobe "$PRIMARY_DISK" 2>/dev/null || true
     
-    success "Disk cleaned with multiple methods"
+    # Download and customize config
+    info "Downloading configuration for $desktop..."
+    curl -fsSL "https://re-arch.xyz/config-${desktop}.json" > /tmp/config.json || \
+        error "Failed to download configuration. Check internet connection."
+    curl -fsSL "https://re-arch.xyz/creds.json" > /tmp/creds.json || \
+        error "Failed to download credentials file."
     
-    # Update config with detected disk
-    sed -i "s|/dev/sda|$PRIMARY_DISK|g" /tmp/re-arch-config.json
+    # Update disk in config
+    sed -i "s|/dev/sda|$disk|g" /tmp/config.json
     
-    info "Configuration files prepared successfully"
+    # Run archinstall
+    info "Running archinstall (this may take 15-25 minutes)..."
+    printf "n\n" | archinstall --config /tmp/config.json --creds /tmp/creds.json || {
+        error "archinstall failed. Common solutions:
+1. Check internet connection
+2. Ensure disk has enough space (20GB+)
+3. Try rebooting and running again
+4. Check the error output above for specific issues"
+    }
     
-    # Run archinstall with local configs, restoring stdin for interactivity
-    info "Starting archinstall - you can review and modify the configuration before installing"
-    echo "The configuration has been pre-loaded, but you can change any settings as needed."
-    echo ""
+    success "Base system installation completed!"
     
-    # Restore stdin from the terminal for archinstall to be interactive
-    # We'll automatically answer "n" to the chroot prompt so we can handle it ourselves
-    info "Running archinstall with configuration..."
-    echo "If you see GPT errors, the disk cleaning may need manual intervention."
-    echo "You can exit archinstall and run: gdisk $PRIMARY_DISK → x → z → y → y"
-    echo ""
+    # Run post-configuration
+    info "Running post-installation configuration..."
+    arch-chroot /mnt curl -fsSL https://re-arch.xyz/re-arch-lite.sh | arch-chroot /mnt bash || {
+        warning "Post-configuration had issues but system should still be bootable"
+    }
     
-    ARCHINSTALL_EXIT_CODE=0
-    printf "n\n" | archinstall --config /tmp/re-arch-config.json --creds /tmp/re-arch-creds.json || ARCHINSTALL_EXIT_CODE=$?
-    
-    if [[ $ARCHINSTALL_EXIT_CODE -eq 0 ]]; then
-        success "Base system installation completed"
-    else
-        error "archinstall failed with exit code $ARCHINSTALL_EXIT_CODE. 
-        
-Common solutions:
-1. GPT header issues - manually clean disk: gdisk $PRIMARY_DISK → x → z → y → y
-2. Network issues - check internet connection
-3. Disk space - ensure at least 20GB available
-4. UEFI/BIOS settings - check boot mode
-
-Check the output above for specific error details."
-    fi
-    
-    echo ""
-    info "Step 2/2: Optimizing system configuration..."
-    echo "Configuring snapshots, services, and final optimizations..."
-    echo ""
-    
-    # Check if /mnt exists and is mounted
-    if ! mountpoint -q /mnt; then
-        error "Installation target /mnt is not mounted. archinstall may have failed."
-    fi
-    
-    # Run optimization script in chroot
-    if arch-chroot /mnt bash -c "curl -fsSL https://re-arch.xyz/re-arch-lite.sh | bash"; then
-        success "System optimization completed"
-    else
-        warning "Optimization script failed, but base system is installed"
-        warning "You can manually run the optimization after reboot:"
-        warning "curl -fsSL https://re-arch.xyz/re-arch-lite.sh | bash"
-    fi
-    
-    echo ""
-    echo "🎉 Installation Complete!"
-    echo "========================"
-    echo ""
-    success "Your optimized Arch Linux desktop is ready!"
+    success "Installation complete!"
     echo ""
     info "Next steps:"
-    echo "  1. Remove the installation USB/CD"
-    echo "  2. Reboot your system"
-    echo "  3. Login with: user / rearch"
-    echo "  4. Change your password: passwd"
-    echo "  5. Enjoy your new system!"
+    echo "1. umount -R /mnt && reboot"
+    echo "2. Login with: user/rearch (change password immediately)"
+    echo "3. Install web browser: flatpak install flathub org.mozilla.firefox"
+    echo "4. Update system: sudo pacman -Syu"
     echo ""
-    
-    # Check if running in non-interactive mode for reboot prompt
-    if [[ -t 0 ]]; then
-        # Interactive mode - ask about reboot
-        read -p "Reboot now? [y/N]: " -n 1 -r
-        echo ""
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            echo "Rebooting in 3 seconds..."
-            sleep 3
-            reboot
-        else
-            echo "Remember to reboot when ready!"
-        fi
-    else
-        # Non-interactive mode - just remind to reboot
-        echo "Remember to reboot when ready!"
-        echo "Run: reboot"
-    fi
+    success "Your optimized Arch Linux desktop is ready!"
 }
 
-# Main execution
-main() {
-    check_environment
-    run_installation
-}
-
-# Always run main function when script is executed
 main "$@"
