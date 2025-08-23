@@ -3,205 +3,507 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Re-Arch: Simple Arch Linux Desktop Installer</title>
+    <title>Re-Arch: Opinionated Arch Linux Desktop Installer</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
+    <link rel="apple-touch-icon" href="favicon-192.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-card: #1a1a1a;
+            --accent: #00d9ff;
+            --accent-hover: #00c4e6;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --border: #27272a;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #ffffff;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             line-height: 1.6;
+            overflow-x: hidden;
         }
         
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        
-        header {
-            text-align: center;
-            padding: 80px 0;
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
         }
         
-        h1 {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            font-weight: 700;
-            font-family: 'JetBrains Mono', monospace;
-        }
-        
-        .subtitle {
-            font-size: 1.5rem;
-            margin-bottom: 40px;
-            opacity: 0.9;
-        }
-        
-        .install-box {
-            background: rgba(0,0,0,0.8);
-            border-radius: 12px;
-            padding: 30px;
-            margin: 40px auto;
-            max-width: 600px;
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
             position: relative;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><radialGradient id="c" cx="50%25" cy="50%25" r="50%25"><stop offset="0%25" style="stop-color:%2300d9ff;stop-opacity:0.1"/><stop offset="100%25" style="stop-color:%2300d9ff;stop-opacity:0"/></radialGradient></defs><circle cx="500" cy="500" r="500" fill="url(%23c)"/></svg>') center/cover;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .ascii-logo {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .ascii-logo pre {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(0.5rem, 2vw, 0.8rem);
+            line-height: 1;
+            color: var(--accent);
+            background: none;
+            border: none;
+            padding: 0;
+            margin: 0;
+            display: inline-block;
+            text-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
+        }
+        .hero-subtitle {
+            font-size: clamp(1.25rem, 3vw, 1.75rem);
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+        
+        .hero-description {
+            font-size: 1.125rem;
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+            line-height: 1.7;
+        }
+        
+        /* Install Command */
+        .install-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 3rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .install-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent) 0%, transparent 100%);
+        }
+        
+        .install-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+        
+        .install-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .copy-btn {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+        }
+        
+        .copy-btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
         }
         
         .install-code {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 1.1rem;
-            color: #4ade80;
-            background: #1a1a1a;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-            border-left: 4px solid #4ade80;
+            font-size: 1.125rem;
+            color: var(--success);
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            position: relative;
+            overflow-x: auto;
+            white-space: nowrap;
         }
         
-        .copy-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: #4ade80;
-            color: #000;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s;
+        .install-note {
+            margin-top: 1rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
         }
         
-        .copy-btn:hover { transform: scale(1.05); }
-        
+        /* Features Grid */
         .features {
+            padding: 5rem 0;
+            background: var(--bg-secondary);
+        }
+        
+        .features-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .features-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 4rem;
+            font-size: 1.125rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin: 60px 0;
+            gap: 2rem;
+            margin-bottom: 4rem;
         }
         
-        .feature {
-            background: rgba(255,255,255,0.15);
-            padding: 30px;
-            border-radius: 12px;
-            backdrop-filter: blur(10px);
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
         
-        .feature h3 {
-            font-size: 1.3rem;
-            margin-bottom: 15px;
-            color: #4ade80;
+        .feature-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
         }
         
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+        
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+        
+        .feature-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        /* Warning Section */
         .warning {
-            background: rgba(239, 68, 68, 0.2);
-            border: 2px solid #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger);
             border-radius: 12px;
-            padding: 25px;
-            margin: 40px 0;
+            padding: 2rem;
+            margin: 3rem 0;
             text-align: center;
         }
         
-        .warning h3 {
-            color: #fca5a5;
-            margin-bottom: 10px;
+        .warning-title {
+            color: var(--danger);
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            font-size: 1.125rem;
         }
         
-        footer {
+        .warning-text {
+            color: var(--text-secondary);
+        }
+        
+        /* Footer */
+        .footer {
+            border-top: 1px solid var(--border);
+            padding: 3rem 0;
             text-align: center;
-            padding: 40px 0;
-            margin-top: 80px;
-            border-top: 1px solid rgba(255,255,255,0.2);
-            opacity: 0.7;
+            background: var(--bg-secondary);
         }
         
+        .footer-content {
+            color: var(--text-muted);
+        }
+        
+        .footer-links {
+            margin-top: 1rem;
+        }
+        
+        .footer-links a {
+            color: var(--accent);
+            text-decoration: none;
+            margin: 0 1rem;
+            transition: color 0.2s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--accent-hover);
+        }
+        
+        /* Responsive Design */
         @media (max-width: 768px) {
-            h1 { font-size: 2.5rem; }
-            .subtitle { font-size: 1.2rem; }
-            .install-code { font-size: 0.9rem; padding: 15px; }
+            .container {
+                padding: 0 16px;
+            }
+            
+            .ascii-logo pre {
+                font-size: clamp(0.4rem, 1.5vw, 0.6rem);
+            }
+            
+            .install-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+            
+            .install-code {
+                font-size: 1rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <header>
+    <!-- Hero Section -->
+    <section class="hero">
         <div class="container">
-            <h1>🏗️ Re-Arch</h1>
-            <p class="subtitle">Simple Arch Linux Desktop Installer</p>
-            <p>Professional, one-command installation with snapshots and optimizations</p>
-        </div>
-    </header>
-
-    <section>
-        <div class="container">
-            <div class="install-box">
-                <button class="copy-btn" onclick="copyInstall()">Copy</button>
-                <h3>🚀 Installation</h3>
-                <div class="install-code">curl -fsSL https://re-arch.xyz/install | bash</div>
-                <p><strong>That's it!</strong> Choose your desktop environment and let it install.</p>
-            </div>
-
-            <div class="warning">
-                <h3>⚠️ Warning</h3>
-                <p>This will completely erase the target disk. Always test in a VM first!</p>
-            </div>
-
-            <div class="features">
-                <div class="feature">
-                    <h3>🎨 Desktop Environments</h3>
-                    <p>Choose from KDE Plasma, GNOME, XFCE, or Hyprland during installation.</p>
+            <div class="hero-content">
+                <div class="ascii-logo">
+                    <pre>
+██████╗ ███████╗      █████╗ ██████╗  ██████╗██╗  ██╗
+██╔══██╗██╔════╝     ██╔══██╗██╔══██╗██╔════╝██║  ██║
+██████╔╝█████╗       ███████║██████╔╝██║     ███████║
+██╔══██╗██╔══╝       ██╔══██║██╔══██╗██║     ██╔══██║
+██║  ██║███████╗     ██║  ██║██║  ██║╚██████╗██║  ██║
+╚═╝  ╚═╝╚══════╝     ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝
+                    </pre>
                 </div>
+
+                <p class="hero-subtitle">Opinionated Arch Linux Desktop Installer</p>
+                <p class="hero-description">
+                    Production-ready Arch Linux with snapshots, optimizations, and four desktop environments.
+                    One command. Zero hassle.
+                </p>
                 
-                <div class="feature">
-                    <h3>🚀 Performance</h3>
-                    <p>Linux Zen kernel, memory compression, process optimization, low-latency audio.</p>
+                <div class="install-section">
+                    <div class="install-header">
+                        <h3 class="install-title">🚀 Quick Install</h3>
+                        <button class="copy-btn" onclick="copyInstall()">Copy</button>
+                    </div>
+                    <div class="install-code" id="install-command">
+                        curl -fsSL https://re-arch.xyz/install | bash
+                    </div>
+                    <p class="install-note">
+                        <strong>That's it!</strong> Choose your desktop environment and let it install.<br>
+                        <small style="color: var(--text-muted); font-size: 0.8rem;">For local testing: <code style="background: var(--bg-secondary); padding: 2px 4px; border-radius: 4px;">./test-install</code> or <code style="background: var(--bg-secondary); padding: 2px 4px; border-radius: 4px;">bash install</code></small>
+                    </p>
                 </div>
-                
-                <div class="feature">
-                    <h3>🛡️ Snapshots</h3>
-                    <p>Automatic Btrfs snapshots with GRUB integration. Rollback in 30 seconds.</p>
-                </div>
-                
-                <div class="feature">
-                    <h3>🔒 Security</h3>
-                    <p>Firewall enabled, Flatpak sandboxing for apps, minimal attack surface.</p>
-                </div>
-            </div>
-
-            <div class="install-box">
-                <h3>📋 Requirements</h3>
-                <ul style="list-style: none; padding-left: 0;">
-                    <li>💻 4GB+ RAM, 20GB+ storage</li>
-                    <li>🌐 Internet connection required</li>
-                    <li>🏗️ Fresh installation (erases disk)</li>
-                    <li>🧪 Test in VM first</li>
-                </ul>
-            </div>
-
-            <div class="install-box">
-                <h3>🏃‍♂️ After Installation</h3>
-                <div class="install-code"># Login: user/rearch (change immediately)
-# Install web browser
-flatpak install flathub org.mozilla.firefox
-
-# Update system  
-sudo pacman -Syu</div>
             </div>
         </div>
     </section>
 
-    <footer>
+    <!-- Features Section -->
+    <section class="features">
         <div class="container">
-            <p>Made with ❤️ for the Arch Linux community</p>
-            <p><a href="https://github.com/buggerman/re-arch" style="color: #4ade80;">GitHub</a> | MIT License</p>
+            <h2 class="features-title">What You Get</h2>
+            <p class="features-subtitle">
+                A carefully curated system optimized for developers and power users
+            </p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">🛡️</span>
+                    <h3 class="feature-title">Atomic Snapshots</h3>
+                    <p class="feature-description">
+                        Automatic Btrfs snapshots with GRUB integration. Rollback your entire system in 30 seconds if something breaks.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <span class="feature-icon">🚀</span>
+                    <h3 class="feature-title">Performance First</h3>
+                    <p class="feature-description">
+                        Linux Zen kernel, zram compression, process optimization, and low-latency PipeWire audio.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <span class="feature-icon">🔒</span>
+                    <h3 class="feature-title">Security by Default</h3>
+                    <p class="feature-description">
+                        Firewall enabled, Flatpak sandboxing for applications, and minimal attack surface out of the box.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <span class="feature-icon">📦</span>
+                    <h3 class="feature-title">Smart Package Management</h3>
+                    <p class="feature-description">
+                        Four-tier system: pacman for core, Flatpak for apps, AUR when needed, Homebrew for dev tools.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Warning -->
+    <section style="padding: 2rem 0;">
+        <div class="container">
+            <div class="warning">
+                <h3 class="warning-title">⚠️ Important Warning</h3>
+                <p class="warning-text">
+                    This will completely erase the target disk. Always test in a virtual machine first!
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Requirements & After Installation -->
+    <section style="padding: 2rem 0;">
+        <div class="container">
+            <div class="install-section">
+                <h3 class="install-title">📋 System Requirements</h3>
+                <ul style="list-style: none; padding: 0; margin-top: 1rem;">
+                    <li style="color: var(--text-secondary); margin-bottom: 0.75rem; padding-left: 1.5rem; position: relative;">
+                        <span style="color: var(--accent); position: absolute; left: 0;">●</span>
+                        4GB+ RAM (8GB+ recommended)
+                    </li>
+                    <li style="color: var(--text-secondary); margin-bottom: 0.75rem; padding-left: 1.5rem; position: relative;">
+                        <span style="color: var(--accent); position: absolute; left: 0;">●</span>
+                        20GB+ storage space
+                    </li>
+                    <li style="color: var(--text-secondary); margin-bottom: 0.75rem; padding-left: 1.5rem; position: relative;">
+                        <span style="color: var(--accent); position: absolute; left: 0;">●</span>
+                        UEFI boot mode
+                    </li>
+                    <li style="color: var(--text-secondary); margin-bottom: 0.75rem; padding-left: 1.5rem; position: relative;">
+                        <span style="color: var(--accent); position: absolute; left: 0;">●</span>
+                        Stable internet connection
+                    </li>
+                    <li style="color: var(--text-secondary); margin-bottom: 0.75rem; padding-left: 1.5rem; position: relative;">
+                        <span style="color: var(--accent); position: absolute; left: 0;">●</span>
+                        Fresh installation (existing data will be erased)
+                    </li>
+                </ul>
+            </div>
+
+            <div class="install-section">
+                <h3 class="install-title">🏃‍♂️ After Installation</h3>
+                <div class="install-code" style="white-space: pre-wrap; font-size: 1rem; line-height: 1.5;">
+<span style="color: var(--text-muted);"># Default login: user/rearch (change password immediately)</span>
+passwd
+
+<span style="color: var(--text-muted);"># Install web browser</span>
+flatpak install flathub org.mozilla.firefox
+
+<span style="color: var(--text-muted);"># Update system</span>
+sudo pacman -Syu
+
+<span style="color: var(--text-muted);"># Install development tools (after shell restart)</span>
+brew install git curl nodejs
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p>Made with ❤️ for the Arch Linux community</p>
+                <div class="footer-links">
+                    <a href="https://github.com/buggerman/re-arch" target="_blank">GitHub</a>
+                    <a href="https://github.com/buggerman/re-arch/issues" target="_blank">Issues</a>
+                    <a href="README.md" target="_blank">Documentation</a>
+                </div>
+                <p style="margin-top: 1rem; color: var(--text-muted); font-size: 0.875rem;">MIT License</p>
+            </div>
         </div>
     </footer>
 
     <script>
         function copyInstall() {
-            navigator.clipboard.writeText('curl -fsSL https://re-arch.xyz/install | bash');
-            const btn = document.querySelector('.copy-btn');
-            btn.textContent = '✓';
-            setTimeout(() => btn.textContent = 'Copy', 2000);
+            const command = 'curl -fsSL https://re-arch.xyz/install | bash';
+            navigator.clipboard.writeText(command).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                btn.style.background = 'var(--success)';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = 'var(--accent)';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = command;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                const btn = document.querySelector('.copy-btn');
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            });
         }
     </script>
 </body>
