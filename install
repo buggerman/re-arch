@@ -10,6 +10,7 @@ set -euo pipefail
 # Debug mode - set RE_ARCH_DEBUG=1 for verbose output
 if [[ "${RE_ARCH_DEBUG:-0}" == "1" ]]; then
     set -x
+    info "Debug mode enabled - verbose output active"
 fi
 
 # Base URL configuration
@@ -26,8 +27,8 @@ download_file() {
     local description="$3"
     
     if [[ "$source" =~ ^https?:// ]]; then
-        # Remote URL - use curl
-        curl -fsSL "$source" > "$destination" || {
+        # Remote URL - use curl with timeout
+        curl -fsSL --connect-timeout 10 --max-time 30 "$source" > "$destination" || {
             error "Failed to download $description from $source. Check internet connection."
         }
     elif [[ -f "$source" ]]; then
@@ -111,16 +112,30 @@ main() {
     info "Validating installation environment..."
     [[ $EUID -eq 0 ]] || error "Must run as root. Use: sudo bash"
     command -v archinstall >/dev/null || error "archinstall not found. Are you on Arch installation media?"
-    ping -c 1 archlinux.org >/dev/null || error "No internet connection. Please connect first."
+    
+    # Test internet with timeout
+    if ! timeout 10 ping -c 1 archlinux.org >/dev/null 2>&1; then
+        error "No internet connection. Please connect first."
+    fi
+    
     [[ -f /etc/arch-release ]] || error "This doesn't appear to be Arch Linux."
+    
+    # Check if archinstall is functional
+    if ! archinstall --help >/dev/null 2>&1; then
+        error "archinstall is not working properly. Try updating the Arch ISO."
+    fi
     
     success "Environment validation passed"
     
     # Get user choices
+    info "Getting installation preferences..."
     local desktop
     desktop=$(select_desktop)
+    success "Desktop environment selected: $desktop"
+    
     local disk
     disk=$(select_disk)
+    success "Target disk selected: $disk"
     
     # Show summary and confirm
     echo ""
@@ -138,13 +153,22 @@ main() {
     esac
     
     # Clean disk to prevent issues
-    info "Preparing disk $disk..."
+    info "Preparing disk $disk (this may take a few seconds)..."
+    
+    # Show current disk state if debug mode
+    if [[ "${RE_ARCH_DEBUG:-0}" == "1" ]]; then
+        info "Current disk state:"
+        lsblk "$disk" || true
+    fi
+    
     wipefs -af "$disk" 2>/dev/null || true
     if command -v sgdisk >/dev/null; then
         sgdisk --zap-all "$disk" 2>/dev/null || true
     fi
     partprobe "$disk" 2>/dev/null || true
     sleep 2
+    
+    success "Disk preparation completed"
     
     # Prepare archinstall URLs
     info "Preparing installation for $desktop..."
@@ -158,8 +182,18 @@ main() {
         # Download config to modify disk setting
         download_file "$config_url" "/tmp/config.json" "configuration file"
         
+        # Validate JSON syntax
+        if ! python3 -m json.tool "/tmp/config.json" >/dev/null 2>&1; then
+            error "Downloaded configuration file has invalid JSON syntax"
+        fi
+        
         # Update disk in config
         sed -i "s|/dev/sda|$disk|g" /tmp/config.json
+        
+        # Validate modified JSON
+        if ! python3 -m json.tool "/tmp/config.json" >/dev/null 2>&1; then
+            error "Modified configuration file has invalid JSON syntax"
+        fi
         
         # Use local modified config
         config_url="/tmp/config.json"
@@ -171,13 +205,14 @@ main() {
     info "Creds URL: $creds_url"
     
     # Validate URLs/files exist before passing to archinstall
+    info "Validating configuration files..."
     if [[ "$config_url" =~ ^https?:// ]]; then
-        # Remote URL - test with curl
-        if ! curl -fsSL --head "$config_url" >/dev/null; then
-            error "Cannot access configuration at $config_url"
+        # Remote URL - test with curl and timeout
+        if ! timeout 15 curl -fsSL --head "$config_url" >/dev/null; then
+            error "Cannot access configuration at $config_url - check internet or try manual installation"
         fi
-        if ! curl -fsSL --head "$creds_url" >/dev/null; then
-            error "Cannot access credentials at $creds_url"
+        if ! timeout 15 curl -fsSL --head "$creds_url" >/dev/null; then
+            error "Cannot access credentials at $creds_url - check internet or try manual installation"
         fi
     else
         # Local file - check existence
@@ -189,27 +224,53 @@ main() {
         fi
     fi
     
-    success "Configuration URLs validated"
+    success "Configuration files validated"
     
     # Run archinstall with appropriate options
-    info "Running archinstall (this may take 15-25 minutes)..."
+    info "Starting archinstall (this may take 15-25 minutes)..."
+    info "Progress will be shown by archinstall - please be patient"
+    warning "If this appears to hang for >5 minutes with no output, press Ctrl+C and use manual method"
+    
+    echo ""
+    info "Starting in 3 seconds... (Ctrl+C to cancel)"
+    sleep 3
     
     # Determine the right archinstall command based on config type
     if [[ "$config_url" =~ ^https?:// ]]; then
         # Remote URLs - use --config-url and --creds-url
-        info "Using remote configuration URLs"
-        info "Manual equivalent: archinstall --config-url $config_url --creds-url $creds_url"
+        info "▶️  Executing: archinstall --config-url $config_url --creds-url $creds_url"
+        info "📋 Manual equivalent available in error message if this fails"
         
-        if ! archinstall --config-url "$config_url" --creds-url "$creds_url"; then
-            error "archinstall failed. Try manual: archinstall --config-url $config_url --creds-url $creds_url"
+        # Use timeout to prevent indefinite hanging
+        if ! timeout 2400 archinstall --config-url "$config_url" --creds-url "$creds_url"; then
+            echo ""
+            error "archinstall failed or timed out after 40 minutes.
+            
+🔧 Try manual installation:
+            1. archinstall --config-url $config_url --creds-url $creds_url
+            2. After completion: arch-chroot /mnt
+            3. curl -fsSL ${BASE_URL}/re-arch-lite.sh | bash
+            4. exit && umount -R /mnt && reboot
+            
+🐛 If issue persists, enable debug: RE_ARCH_DEBUG=1 ./install"
         fi
     else
         # Local files - use --config and --creds
-        info "Using local configuration files"
-        info "Manual equivalent: archinstall --config $config_url --creds $creds_url"
+        info "▶️  Executing: archinstall --config $config_url --creds $creds_url"
+        info "📋 Manual equivalent available in error message if this fails"
         
-        if ! archinstall --config "$config_url" --creds "$creds_url"; then
-            error "archinstall failed. Try manual: archinstall --config $config_url --creds $creds_url"
+        # Use timeout to prevent indefinite hanging
+        if ! timeout 2400 archinstall --config "$config_url" --creds "$creds_url"; then
+            echo ""
+            error "archinstall failed or timed out after 40 minutes.
+            
+🔧 Try manual installation:
+            1. archinstall --config $config_url --creds $creds_url
+            2. After completion: arch-chroot /mnt
+            3. curl -fsSL ${BASE_URL}/re-arch-lite.sh | bash
+            4. exit && umount -R /mnt && reboot
+            
+🐛 If issue persists, enable debug: RE_ARCH_DEBUG=1 ./install"
         fi
     fi
     
@@ -223,33 +284,23 @@ main() {
         error "Installation mount point /mnt not found or not mounted. archinstall may have failed."
     fi
     
-    # Handle post-config script execution
+    # Handle post-config script execution  
     local lite_script_url="${BASE_URL}/re-arch-lite.sh"
     
-    if [[ "$lite_script_url" =~ ^https?:// ]]; then
-        # Remote URL - use curl directly in chroot (matches working manual method)
-        info "Running post-config from URL: $lite_script_url"
-        info "Manual equivalent: arch-chroot /mnt curl -fsSL $lite_script_url | bash"
-        
-        if ! arch-chroot /mnt curl -fsSL "$lite_script_url" | arch-chroot /mnt bash; then
-            warning "Post-configuration had issues but system should still be bootable"
-            warning "You can manually run: arch-chroot /mnt && curl -fsSL $lite_script_url | bash"
-        fi
+    info "Downloading post-installation script..."
+    # Always download the script first to avoid issues in chroot
+    download_file "$lite_script_url" "/tmp/re-arch-lite.sh" "post-installation script"
+    
+    # Copy to mounted system
+    cp /tmp/re-arch-lite.sh /mnt/tmp/re-arch-lite.sh
+    chmod +x /mnt/tmp/re-arch-lite.sh
+    
+    info "Running post-configuration script..."
+    if ! timeout 600 arch-chroot /mnt bash /tmp/re-arch-lite.sh; then
+        warning "Post-configuration had issues or timed out, but system should still be bootable"
+        warning "You can manually run: arch-chroot /mnt && bash /tmp/re-arch-lite.sh"
     else
-        # Local file - copy and execute
-        info "Running post-config from local file: $lite_script_url"
-        
-        # Download/copy the post-config script
-        download_file "$lite_script_url" "/tmp/re-arch-lite.sh" "post-installation script"
-        
-        # Make it executable and copy to chroot
-        chmod +x /tmp/re-arch-lite.sh
-        cp /tmp/re-arch-lite.sh /mnt/tmp/re-arch-lite.sh
-        
-        if ! arch-chroot /mnt bash /tmp/re-arch-lite.sh; then
-            warning "Post-configuration had issues but system should still be bootable"
-            warning "You can manually run: arch-chroot /mnt && bash /tmp/re-arch-lite.sh"
-        fi
+        success "Post-configuration completed successfully!"
     fi
     
     success "Installation complete!"
