@@ -7,7 +7,7 @@
 set -euo pipefail
 
 # Base packages that are common to all DEs
-BASE_PACKAGES="git curl wget base-devel sudo linux-zen-headers mesa bluez bluez-utils pipewire pipewire-alsa pipewire-pulse pipewire-jack wireplumber firewalld snapper snap-pac grub-btrfs reflector flatpak ananicy-cpp zram-generator ttf-liberation ttf-dejavu man-db man-pages nano unzip ntfs-3g"
+BASE_PACKAGES="git curl wget base-devel sudo linux-zen-headers mesa bluez bluez-utils pipewire pipewire-alsa pipewire-pulse pipewire-jack wireplumber firewalld btrfs-progs snapper snap-pac grub-btrfs reflector flatpak ananicy-cpp zram-generator ttf-liberation ttf-dejavu man-db man-pages nano unzip ntfs-3g"
 
 # Desktop-specific packages
 KDE_PACKAGES="plasma-desktop plasma-nm plasma-pa powerdevil breeze-gtk konsole dolphin sddm plasma-wayland-protocols xdg-desktop-portal-kde discover packagekit bluedevil qt6-multimedia-ffmpeg"

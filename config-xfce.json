@@ -123,6 +123,7 @@
         "pipewire-jack",
         "wireplumber",
         "firewalld",
+        "btrfs-progs",
         "snapper",
         "snap-pac",
         "grub-btrfs",
