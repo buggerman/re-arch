@@ -1,0 +1,20 @@
+#!/bin/bash
+#
+# Re-Arch Test Install Script
+# For testing branches locally or with GitHub Pages branches
+#
+
+# Detect if we're running from a local directory or GitHub Pages
+if [ -f "./config-kde.json" ]; then
+    # Local testing - use current directory
+    echo "🧪 Running in test mode (local files)"
+    RE_ARCH_BASE_URL="$(pwd)" ./install
+elif [ -n "${GITHUB_PAGES_URL:-}" ]; then
+    # GitHub Pages branch testing
+    echo "🧪 Running in GitHub Pages test mode"
+    RE_ARCH_BASE_URL="$GITHUB_PAGES_URL" ./install
+else
+    # Fallback to production
+    echo "🚀 Running in production mode"
+    curl -fsSL https://re-arch.xyz/install | bash
+fi
