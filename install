@@ -14,6 +14,27 @@ BASE_URL="${RE_ARCH_BASE_URL:-https://re-arch.xyz}"
 # Remove trailing slash if present
 BASE_URL="${BASE_URL%/}"
 
+# Helper function to download files (handles both URLs and local paths)
+download_file() {
+    local source="$1"
+    local destination="$2"
+    local description="$3"
+    
+    if [[ "$source" =~ ^https?:// ]]; then
+        # Remote URL - use curl
+        curl -fsSL "$source" > "$destination" || {
+            error "Failed to download $description from $source. Check internet connection."
+        }
+    elif [[ -f "$source" ]]; then
+        # Local file - copy directly
+        cp "$source" "$destination" || {
+            error "Failed to copy $description from $source."
+        }
+    else
+        error "Cannot find $description at $source (not a valid URL or local file)"
+    fi
+}
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -122,10 +143,8 @@ main() {
     
     # Download and customize config
     info "Downloading configuration for $desktop..."
-    curl -fsSL "${BASE_URL}/config-${desktop}.json" > /tmp/config.json || \
-        error "Failed to download configuration. Check internet connection."
-    curl -fsSL "${BASE_URL}/creds.json" > /tmp/creds.json || \
-        error "Failed to download credentials file."
+    download_file "${BASE_URL}/config-${desktop}.json" "/tmp/config.json" "configuration file"
+    download_file "${BASE_URL}/creds.json" "/tmp/creds.json" "credentials file"
     
     # Update disk in config
     sed -i "s|/dev/sda|$disk|g" /tmp/config.json
@@ -144,7 +163,12 @@ main() {
     
     # Run post-configuration
     info "Running post-installation configuration..."
-    arch-chroot /mnt curl -fsSL "${BASE_URL}/re-arch-lite.sh" | arch-chroot /mnt bash || {
+    
+    # Download the post-config script
+    download_file "${BASE_URL}/re-arch-lite.sh" "/tmp/re-arch-lite.sh" "post-installation script"
+    
+    # Run the script in chroot
+    arch-chroot /mnt bash /tmp/re-arch-lite.sh || {
         warning "Post-configuration had issues but system should still be bootable"
     }
     
