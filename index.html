@@ -440,6 +440,45 @@
             </div>
 
             <div class="install-section">
+                <h3 class="install-title">🔧 Manual Installation (If Single Command Fails)</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                    If the one-command installer doesn't work, you can install manually:
+                </p>
+                
+                <div style="margin-bottom: 2rem;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                        <h4 style="color: var(--text-primary); margin: 0; font-size: 1.125rem;">Step 1: Run archinstall</h4>
+                        <button class="copy-btn" onclick="copyManualStep1()" style="font-size: 0.75rem; padding: 6px 12px;">Copy</button>
+                    </div>
+                    <div class="install-code" id="manual-step1" style="white-space: pre-wrap; font-size: 1rem; line-height: 1.5;">
+<span style="color: var(--text-muted);"># Choose your desktop environment (kde, gnome, xfce, or hyprland)</span>
+archinstall --config-url https://re-arch.xyz/config-kde.json --creds-url https://re-arch.xyz/creds.json
+                    </div>
+                </div>
+                
+                <div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                        <h4 style="color: var(--text-primary); margin: 0; font-size: 1.125rem;">Step 2: Run post-installation script</h4>
+                        <button class="copy-btn" onclick="copyManualStep2()" style="font-size: 0.75rem; padding: 6px 12px;">Copy</button>
+                    </div>
+                    <div class="install-code" id="manual-step2" style="white-space: pre-wrap; font-size: 1rem; line-height: 1.5;">
+<span style="color: var(--text-muted);"># After archinstall completes, run in chroot:</span>
+arch-chroot /mnt
+curl -fsSL https://re-arch.xyz/re-arch-lite.sh | bash
+exit
+
+<span style="color: var(--text-muted);"># Then reboot:</span>
+umount -R /mnt
+reboot
+                    </div>
+                </div>
+                
+                <p style="color: var(--text-muted); margin-top: 1rem; font-size: 0.9rem;">
+                    <strong>Desktop Options:</strong> Replace <code style="background: var(--bg-secondary); padding: 2px 4px; border-radius: 4px;">config-kde.json</code> with <code style="background: var(--bg-secondary); padding: 2px 4px; border-radius: 4px;">config-gnome.json</code>, <code style="background: var(--bg-secondary); padding: 2px 4px; border-radius: 4px;">config-xfce.json</code>, or <code style="background: var(--bg-secondary); padding: 2px 4px; border-radius: 4px;">config-hyprland.json</code>
+                </p>
+            </div>
+
+            <div class="install-section">
                 <h3 class="install-title">🏃‍♂️ After Installation</h3>
                 <div class="install-code" style="white-space: pre-wrap; font-size: 1rem; line-height: 1.5;">
 <span style="color: var(--text-muted);"># Default login: user/rearch (change password immediately)</span>
@@ -474,36 +513,55 @@ brew install git curl nodejs
     </footer>
 
     <script>
-        function copyInstall() {
-            const command = 'curl -fsSL https://re-arch.xyz/install | bash';
-            navigator.clipboard.writeText(command).then(() => {
-                const btn = document.querySelector('.copy-btn');
-                const originalText = btn.textContent;
-                btn.textContent = 'Copied!';
-                btn.style.background = 'var(--success)';
+        function copyText(elementId, buttonElement, text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = buttonElement.textContent;
+                buttonElement.textContent = 'Copied!';
+                buttonElement.style.background = 'var(--success)';
                 
                 setTimeout(() => {
-                    btn.textContent = originalText;
-                    btn.style.background = 'var(--accent)';
+                    buttonElement.textContent = originalText;
+                    buttonElement.style.background = 'var(--accent)';
                 }, 2000);
             }).catch(err => {
                 console.error('Failed to copy: ', err);
                 // Fallback for older browsers
                 const textArea = document.createElement('textarea');
-                textArea.value = command;
+                textArea.value = text;
                 document.body.appendChild(textArea);
                 textArea.select();
                 document.execCommand('copy');
                 document.body.removeChild(textArea);
                 
-                const btn = document.querySelector('.copy-btn');
-                const originalText = btn.textContent;
-                btn.textContent = 'Copied!';
+                const originalText = buttonElement.textContent;
+                buttonElement.textContent = 'Copied!';
                 
                 setTimeout(() => {
-                    btn.textContent = originalText;
+                    buttonElement.textContent = originalText;
                 }, 2000);
             });
+        }
+        
+        function copyInstall() {
+            const command = 'curl -fsSL https://re-arch.xyz/install | bash';
+            const btn = document.querySelector('.copy-btn');
+            copyText('install-command', btn, command);
+        }
+        
+        function copyManualStep1() {
+            const command = 'archinstall --config-url https://re-arch.xyz/config-kde.json --creds-url https://re-arch.xyz/creds.json';
+            const btn = event.target;
+            copyText('manual-step1', btn, command);
+        }
+        
+        function copyManualStep2() {
+            const commands = `arch-chroot /mnt
+curl -fsSL https://re-arch.xyz/re-arch-lite.sh | bash
+exit
+umount -R /mnt
+reboot`;
+            const btn = event.target;
+            copyText('manual-step2', btn, commands);
         }
     </script>
 </body>
