@@ -14,7 +14,8 @@ error() { echo -e "${RED}[ERROR]${NC} $*" >&2; exit 1; }
 
 # Get username
 get_user() {
-    local users=($(getent passwd | awk -F: '$3 >= 1000 && $3 < 60000 {print $1}'))
+    local users
+    mapfile -t users < <(getent passwd | awk -F: '$3 >= 1000 && $3 < 60000 {print $1}')
     if [[ ${#users[@]} -eq 1 ]]; then
         echo "${users[0]}"
     elif [[ ${#users[@]} -gt 1 ]]; then
@@ -150,6 +151,4 @@ EOF
     echo "    - paru: AUR packages (install with: git clone https://aur.archlinux.org/paru.git)"
     echo "    - brew: Development tools (restart shell to activate)"
 }
-}
-
 main "$@"

@@ -32,7 +32,7 @@ select_desktop() {
     echo ""
     
     while true; do
-        read -p "Enter choice [1-4]: " choice
+        read -r -p "Enter choice [1-4]: " choice
         case $choice in
             1) echo "kde"; break ;;
             2) echo "gnome"; break ;;
@@ -49,7 +49,8 @@ select_disk() {
     lsblk -dnpo NAME,SIZE,MODEL | grep "disk" | nl -v1
     
     echo ""
-    local disks=($(lsblk -dnpo NAME | grep -E "(sd[a-z]|nvme[0-9]+n[0-9]+|vd[a-z])$"))
+    local disks
+    mapfile -t disks < <(lsblk -dnpo NAME | grep -E "(sd[a-z]|nvme[0-9]+n[0-9]+|vd[a-z])$")
     
     if [ ${#disks[@]} -eq 1 ]; then
         info "Auto-selecting: ${disks[0]}"
@@ -58,7 +59,7 @@ select_disk() {
     fi
     
     while true; do
-        read -p "Select disk number [1-${#disks[@]}]: " num
+        read -r -p "Select disk number [1-${#disks[@]}]: " num
         if [[ "$num" =~ ^[0-9]+$ ]] && [ "$num" -ge 1 ] && [ "$num" -le "${#disks[@]}" ]; then
             echo "${disks[$((num-1))]}"
             break
@@ -83,8 +84,10 @@ main() {
     success "Environment validation passed"
     
     # Get user choices
-    local desktop=$(select_desktop)
-    local disk=$(select_disk)
+    local desktop
+    desktop=$(select_desktop)
+    local disk
+    disk=$(select_disk)
     
     # Show summary and confirm
     echo ""
@@ -95,7 +98,7 @@ main() {
     echo "  • Default Login: user/rearch"
     echo ""
     
-    read -p "Type 'YES' to continue or 'NO' to cancel: " confirm
+    read -r -p "Type 'YES' to continue or 'NO' to cancel: " confirm
     case "$confirm" in
         "YES") info "Starting installation..." ;;
         "NO"|*) echo "Installation cancelled."; exit 0 ;;
