@@ -1,0 +1,351 @@
+name: Comprehensive Testing
+
+on:
+  push:
+    branches: [ main, simplify-project ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  test_installation_simulation:
+    name: Test Installation Simulation
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    
+    strategy:
+      matrix:
+        desktop: [kde, gnome, xfce, hyprland]
+        
+    steps:
+      - name: Update system and install dependencies
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm git bash python jq curl wget archinstall
+          
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Test ${{ matrix.desktop }} configuration
+        run: |
+          echo \"=== Testing ${{ matrix.desktop }} Desktop Configuration ===\"
+          
+          config_file=\"config-${{ matrix.desktop }}.json\"
+          
+          # Verify config file exists
+          if ! test -f \"$config_file\"; then
+            echo \"❌ Configuration file $config_file not found\"
+            exit 1
+          fi
+          
+          # Validate JSON syntax
+          if ! jq empty \"$config_file\"; then
+            echo \"❌ Invalid JSON in $config_file\"
+            exit 1
+          fi
+          
+          # Test with archinstall validator
+          ln -sf \"$config_file\" config.json
+          if python3 validate-archinstall.py; then
+            echo \"✅ $config_file passes archinstall validation\"
+          else
+            echo \"❌ $config_file fails archinstall validation\"
+            exit 1
+          fi
+          
+          # Verify required packages are present
+          packages=$(jq -r '.packages[]' \"$config_file\")
+          
+          # Check for desktop-specific packages
+          case \"${{ matrix.desktop }}\" in
+            kde)
+              echo \"$packages\" | grep -q \"plasma-desktop\" || { echo \"❌ Missing plasma-desktop\"; exit 1; }
+              echo \"$packages\" | grep -q \"sddm\" || { echo \"❌ Missing sddm\"; exit 1; }
+              ;;
+            gnome)
+              echo \"$packages\" | grep -q \"gnome-shell\" || { echo \"❌ Missing gnome-shell\"; exit 1; }
+              echo \"$packages\" | grep -q \"gdm\" || { echo \"❌ Missing gdm\"; exit 1; }
+              ;;
+            xfce)
+              echo \"$packages\" | grep -q \"xfce4\" || { echo \"❌ Missing xfce4\"; exit 1; }
+              echo \"$packages\" | grep -q \"lightdm\" || { echo \"❌ Missing lightdm\"; exit 1; }
+              ;;
+            hyprland)
+              echo \"$packages\" | grep -q \"hyprland\" || { echo \"❌ Missing hyprland\"; exit 1; }
+              echo \"$packages\" | grep -q \"waybar\" || { echo \"❌ Missing waybar\"; exit 1; }
+              ;;
+          esac
+          
+          # Check for essential packages
+          for pkg in \"linux-zen\" \"btrfs-progs\" \"snapper\" \"grub-btrfs\" \"firewalld\" \"flatpak\"; do
+            echo \"$packages\" | grep -q \"$pkg\" || { echo \"❌ Missing essential package: $pkg\"; exit 1; }
+          done
+          
+          echo \"✅ All package requirements satisfied for ${{ matrix.desktop }}\"
+
+  test_script_functionality:
+    name: Test Script Functionality
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    
+    steps:
+      - name: Update system and install dependencies
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm git bash python shellcheck
+          
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Test installer script structure
+        run: |
+          echo \"=== Testing Installer Script Structure ===\"
+          
+          # Test that installer has required functions
+          if grep -q \"select_desktop()\" install; then
+            echo \"✅ Desktop selection function found\"
+          else
+            echo \"❌ Desktop selection function missing\"
+            exit 1
+          fi
+          
+          if grep -q \"select_disk()\" install; then
+            echo \"✅ Disk selection function found\"
+          else
+            echo \"❌ Disk selection function missing\"
+            exit 1
+          fi
+          
+          if grep -q \"main()\" install; then
+            echo \"✅ Main function found\"
+          else
+            echo \"❌ Main function missing\"
+            exit 1
+          fi
+          
+      - name: Test lite script structure
+        run: |
+          echo \"=== Testing Lite Script Structure ===\"
+          
+          # Test that lite script has required functions
+          if grep -q \"detect_de()\" re-arch-lite.sh; then
+            echo \"✅ Desktop detection function found\"
+          else
+            echo \"❌ Desktop detection function missing\"
+            exit 1
+          fi
+          
+          if grep -q \"snapper\" re-arch-lite.sh; then
+            echo \"✅ Snapshot configuration found\"
+          else
+            echo \"❌ Snapshot configuration missing\"
+            exit 1
+          fi
+          
+          if grep -q \"flatpak\" re-arch-lite.sh; then
+            echo \"✅ Flatpak configuration found\"
+          else
+            echo \"❌ Flatpak configuration missing\"
+            exit 1
+          fi
+          
+          if grep -q \"homebrew\\|linuxbrew\" re-arch-lite.sh; then
+            echo \"✅ Homebrew configuration found\"
+          else
+            echo \"❌ Homebrew configuration missing\"
+            exit 1
+          fi
+
+  test_configuration_consistency:
+    name: Test Configuration Consistency
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    
+    steps:
+      - name: Update system and install dependencies
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm git bash python jq
+          
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Test configuration consistency
+        run: |
+          echo \"=== Testing Configuration Consistency ===\"
+          
+          # Test that all configs have same basic structure
+          for config in config-*.json; do
+            echo \"Checking $config...\"
+            
+            # Verify required top-level keys
+            for key in \"bootloader\" \"kernels\" \"packages\" \"disk_config\" \"network_config\"; do
+              if jq -e \".$key\" \"$config\" > /dev/null; then
+                echo \"✅ $config has required key: $key\"
+              else
+                echo \"❌ $config missing key: $key\"
+                exit 1
+              fi
+            done
+            
+            # Verify bootloader is GRUB (required for snapshots)
+            if [[ \"$(jq -r '.bootloader' \"$config\")\" == \"Grub\" ]]; then
+              echo \"✅ $config uses GRUB bootloader\"
+            else
+              echo \"❌ $config not using GRUB bootloader\"
+              exit 1
+            fi
+            
+            # Verify Zen kernel
+            if jq -r '.kernels[]' \"$config\" | grep -q \"linux-zen\"; then
+              echo \"✅ $config includes Zen kernel\"
+            else
+              echo \"❌ $config missing Zen kernel\"
+              exit 1
+            fi
+            
+            # Verify NetworkManager
+            if [[ \"$(jq -r '.network_config.type' \"$config\")\" == \"nm\" ]]; then
+              echo \"✅ $config uses NetworkManager\"
+            else
+              echo \"❌ $config not using NetworkManager\"
+              exit 1
+            fi
+          done
+
+  test_documentation:
+    name: Test Documentation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Test README completeness
+        run: |
+          echo \"=== Testing Documentation Completeness ===\"
+          
+          # Check for required sections
+          required_sections=(
+            \"Quick Install\"
+            \"What You Get\"
+            \"Requirements\"
+            \"Post-Installation\"
+            \"Package Management\"
+            \"Troubleshooting\"
+          )
+          
+          for section in \"${required_sections[@]}\"; do
+            if grep -q \"$section\" README.md; then
+              echo \"✅ README contains section: $section\"
+            else
+              echo \"❌ README missing section: $section\"
+              exit 1
+            fi
+          done
+          
+          # Check for installation command
+          if grep -q \"curl -fsSL https://re-arch.xyz/install | bash\" README.md; then
+            echo \"✅ README contains correct install command\"
+          else
+            echo \"❌ README missing or incorrect install command\"
+            exit 1
+          fi
+          
+          # Check for desktop environments
+          for de in \"KDE\" \"GNOME\" \"XFCE\" \"Hyprland\"; do
+            if grep -q \"$de\" README.md; then
+              echo \"✅ README mentions $de\"
+            else
+              echo \"❌ README missing $de\"
+              exit 1
+            fi
+          done
+          
+          # Check for package managers
+          for pm in \"pacman\" \"Flatpak\" \"Homebrew\" \"paru\"; do
+            if grep -q \"$pm\" README.md; then
+              echo \"✅ README mentions $pm\"
+            else
+              echo \"❌ README missing $pm\"
+              exit 1
+            fi
+          done
+
+  generate_test_report:
+    name: Generate Test Report
+    runs-on: ubuntu-latest
+    needs: [test_installation_simulation, test_script_functionality, test_configuration_consistency, test_documentation]
+    if: always()
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Generate comprehensive test report
+        run: |
+          echo \"# 🧪 Re-Arch Test Report\" > test-report.md
+          echo \"\" >> test-report.md
+          echo \"**Date:** $(date)\" >> test-report.md
+          echo \"**Branch:** $GITHUB_REF_NAME\" >> test-report.md
+          echo \"**Commit:** $GITHUB_SHA\" >> test-report.md
+          echo \"\" >> test-report.md
+          
+          # Check job statuses
+          echo \"## Test Results\" >> test-report.md
+          echo \"\" >> test-report.md
+          
+          if [[ \"${{ needs.test_installation_simulation.result }}\" == \"success\" ]]; then
+            echo \"✅ **Installation Simulation:** PASSED\" >> test-report.md
+          else
+            echo \"❌ **Installation Simulation:** FAILED\" >> test-report.md
+          fi
+          
+          if [[ \"${{ needs.test_script_functionality.result }}\" == \"success\" ]]; then
+            echo \"✅ **Script Functionality:** PASSED\" >> test-report.md
+          else
+            echo \"❌ **Script Functionality:** FAILED\" >> test-report.md
+          fi
+          
+          if [[ \"${{ needs.test_configuration_consistency.result }}\" == \"success\" ]]; then
+            echo \"✅ **Configuration Consistency:** PASSED\" >> test-report.md
+          else
+            echo \"❌ **Configuration Consistency:** FAILED\" >> test-report.md
+          fi
+          
+          if [[ \"${{ needs.test_documentation.result }}\" == \"success\" ]]; then
+            echo \"✅ **Documentation:** PASSED\" >> test-report.md
+          else
+            echo \"❌ **Documentation:** FAILED\" >> test-report.md
+          fi
+          
+          echo \"\" >> test-report.md
+          echo \"## Summary\" >> test-report.md
+          echo \"\" >> test-report.md
+          
+          total_tests=4
+          passed_tests=0
+          
+          [[ \"${{ needs.test_installation_simulation.result }}\" == \"success\" ]] && ((passed_tests++))
+          [[ \"${{ needs.test_script_functionality.result }}\" == \"success\" ]] && ((passed_tests++))
+          [[ \"${{ needs.test_configuration_consistency.result }}\" == \"success\" ]] && ((passed_tests++))
+          [[ \"${{ needs.test_documentation.result }}\" == \"success\" ]] && ((passed_tests++))
+          
+          echo \"**Tests Passed:** $passed_tests/$total_tests\" >> test-report.md
+          
+          if [[ $passed_tests -eq $total_tests ]]; then
+            echo \"\" >> test-report.md
+            echo \"🎉 **All tests passed! Re-Arch is ready for deployment.**\" >> test-report.md
+          else
+            echo \"\" >> test-report.md
+            echo \"⚠️ **Some tests failed. Please review and fix before deployment.**\" >> test-report.md
+          fi
+          
+          cat test-report.md
+          
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: test-report.md
+          retention-days: 30

@@ -5,6 +5,7 @@
     },
     "bootloader": "Grub",
     "custom_commands": [],
+    "debug": false,
     "disk_config": {
         "btrfs_options": {
             "snapshot_config": null
@@ -106,7 +107,9 @@
     "network_config": {
         "type": "nm"
     },
+    "no_pkg_lookups": false,
     "ntp": true,
+    "offline": false,
     "packages": [
         "git",
         "curl",
@@ -114,45 +117,42 @@
         "base-devel",
         "sudo",
         "linux-zen-headers",
-        "gnome-shell",
-        "gnome-control-center",
-        "gnome-terminal",
-        "nautilus",
-        "gdm",
-        "gnome-software",
-        "gnome-power-manager",
-        "gnome-bluetooth",
-        "adwaita-icon-theme",
-        "xdg-desktop-portal-gnome",
-        "packagekit",
-        "flatpak",
         "mesa",
         "bluez",
         "bluez-utils",
-        "ananicy-cpp",
-        "zram-generator",
         "pipewire",
         "pipewire-alsa",
         "pipewire-pulse",
         "pipewire-jack",
         "wireplumber",
         "firewalld",
+        "btrfs-progs",
         "snapper",
         "snap-pac",
         "grub-btrfs",
         "reflector",
+        "flatpak",
+        "ananicy-cpp",
+        "zram-generator",
         "ttf-liberation",
         "ttf-dejavu",
-        "ttf-opensans",
-        "noto-fonts",
         "man-db",
         "man-pages",
         "nano",
         "unzip",
-        "ntfs-3g"
+        "ntfs-3g",
+        "gnome-shell",
+        "gnome-desktop",
+        "gdm",
+        "gnome-control-center",
+        "gnome-terminal",
+        "nautilus",
+        "gnome-session",
+        "gnome-settings-daemon",
+        "xdg-desktop-portal-gnome",
+        "gnome-software"
     ],
     "parallel_downloads": 5,
-    "repositories": ["multilib"],
     "profile_config": {
         "gfx_driver": null,
         "greeter": null,
@@ -162,7 +162,12 @@
             "main": "Minimal"
         }
     },
+    "repositories": [
+        "multilib"
+    ],
+    "script": "guided",
     "services": [],
+    "silent": false,
     "swap": false,
     "timezone": "UTC",
     "version": null
