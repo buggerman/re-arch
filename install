@@ -59,26 +59,44 @@ error() { echo -e "${RED}❌ $1${NC}" >&2; exit 1; }
 select_desktop() {
     echo ""
     echo "🎨 Choose Desktop Environment:"
+    echo "   This will determine your desktop experience and included software."
+    echo ""
     echo "1) KDE Plasma (recommended - modern, feature-rich)"
+    echo "   • Full-featured desktop with customizable interface"
+    echo "   • Includes file manager, text editor, system settings"
+    echo ""
     echo "2) GNOME (clean, user-friendly)"
+    echo "   • Simple, modern interface focused on productivity"
+    echo "   • Popular choice for new Linux users"
+    echo ""
     echo "3) XFCE (lightweight, traditional)"
+    echo "   • Fast and lightweight for older or slower hardware"
+    echo "   • Traditional desktop layout"
+    echo ""
     echo "4) Hyprland (tiling window manager)"
+    echo "   • Advanced tiling window manager with animations"
+    echo "   • For experienced users who prefer keyboard-driven workflow"
     echo ""
     
     while true; do
-        read -r -p "Enter choice [1-4]: " choice
+        read -r -p "👉 Enter your choice [1-4]: " choice </dev/tty
         case $choice in
             1) echo "kde"; break ;;
             2) echo "gnome"; break ;;
             3) echo "xfce"; break ;;
             4) echo "hyprland"; break ;;
-            *) warning "Invalid choice. Please enter 1-4." ;;
+            *) warning "Invalid choice. Please enter 1, 2, 3, or 4." ;;
         esac
     done
 }
 
 # Disk detection and selection
 select_disk() {
+    echo ""
+    echo "💾 Select Installation Target:"
+    echo "   ⚠️  WARNING: ALL DATA on the selected disk will be PERMANENTLY ERASED!"
+    echo "   Choose the disk where Arch Linux will be installed."
+    echo ""
     info "Available disks:"
     lsblk -dnpo NAME,SIZE,MODEL | grep "disk" | nl -v1
     
@@ -87,13 +105,19 @@ select_disk() {
     mapfile -t disks < <(lsblk -dnpo NAME | grep -E "(sd[a-z]|nvme[0-9]+n[0-9]+|vd[a-z])$")
     
     if [ ${#disks[@]} -eq 1 ]; then
-        info "Auto-selecting: ${disks[0]}"
+        info "Only one disk detected - auto-selecting: ${disks[0]}"
         echo "${disks[0]}"
         return
     fi
     
+    echo "💡 Tip: Make sure you select the correct disk! Common patterns:"
+    echo "   • /dev/sda, /dev/sdb = Traditional SATA drives"
+    echo "   • /dev/nvme0n1 = NVMe SSD drives"
+    echo "   • /dev/vda = Virtual machine drives"
+    echo ""
+    
     while true; do
-        read -r -p "Select disk number [1-${#disks[@]}]: " num
+        read -r -p "👉 Select disk number [1-${#disks[@]}]: " num </dev/tty
         if [[ "$num" =~ ^[0-9]+$ ]] && [ "$num" -ge 1 ] && [ "$num" -le "${#disks[@]}" ]; then
             echo "${disks[$((num-1))]}"
             break
@@ -106,6 +130,16 @@ main() {
     echo ""
     echo "🚀 Re-Arch: Simple Arch Linux Desktop Installer"
     echo "================================================"
+    echo ""
+    info "Welcome! This installer will guide you through setting up Arch Linux."
+    echo ""
+    echo "📝 You'll be asked to provide:"
+    echo "   1️⃣  Desktop environment choice (KDE, GNOME, XFCE, or Hyprland)"
+    echo "   2️⃣  Target disk for installation (⚠️ all data will be erased)"
+    echo "   3️⃣  Final confirmation before installation begins"
+    echo ""
+    echo "💡 Installation takes 25-35 minutes and creates a user account:"
+    echo "   Username: user | Password: rearch (change after first login)"
     echo ""
     
     # Validate environment
@@ -139,18 +173,38 @@ main() {
     
     # Show summary and confirm
     echo ""
-    warning "Installation Summary:"
-    echo "  • Desktop Environment: $desktop"
-    echo "  • Target Disk: $disk (ALL DATA WILL BE ERASED)"
-    echo "  • Installation Time: ~25-35 minutes"
-    echo "  • Default Login: user/rearch"
+    echo "📋 Installation Summary - Please Review:"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "  🖥️  Desktop Environment: $desktop"
+    echo "  💾  Target Disk: $disk"
+    echo "      ⚠️  ALL DATA ON THIS DISK WILL BE PERMANENTLY ERASED"
+    echo "  ⏱️  Estimated Time: 25-35 minutes"
+    echo "  👤  Default Login: user / password: rearch"
+    echo "      (You should change the password after first login)"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    warning "⚠️  FINAL CONFIRMATION REQUIRED"
+    echo "This is your last chance to cancel before installation begins."
+    echo "The installation will automatically start after you confirm."
     echo ""
     
-    read -r -p "Type 'YES' to continue or 'NO' to cancel: " confirm
-    case "$confirm" in
-        "YES") info "Starting installation..." ;;
-        "NO"|*) echo "Installation cancelled."; exit 0 ;;
-    esac
+    while true; do
+        read -r -p "👉 Type exactly 'YES' to proceed or 'NO' to cancel: " confirm </dev/tty
+        case "$confirm" in
+            "YES") 
+                info "Starting installation in 3 seconds..."
+                sleep 3
+                break 
+                ;;
+            "NO") 
+                echo "Installation cancelled by user."
+                exit 0 
+                ;;
+            *) 
+                warning "Please type exactly 'YES' (all caps) to confirm, or 'NO' to cancel." 
+                ;;
+        esac
+    done
     
     # Clean disk to prevent issues
     info "Preparing disk $disk (this may take a few seconds)..."
@@ -230,10 +284,7 @@ main() {
     info "Starting archinstall (this may take 15-25 minutes)..."
     info "Progress will be shown by archinstall - please be patient"
     warning "If this appears to hang for >5 minutes with no output, press Ctrl+C and use manual method"
-    
     echo ""
-    info "Starting in 3 seconds... (Ctrl+C to cancel)"
-    sleep 3
     
     # Determine the right archinstall command based on config type
     if [[ "$config_url" =~ ^https?:// ]]; then
