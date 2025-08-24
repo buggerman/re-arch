@@ -2,6 +2,10 @@
 CLAUDE.md
 CLAUDE.local.md
 
+OpenCode.md
+OpenCode.local.md
+.opencode/*
+
 # Domain setup instructions (contains private info)
 domainsetup.md
 
