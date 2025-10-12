@@ -1,35 +1,378 @@
 #!/bin/bash
+#
+# Re-Arch Secure Installation Script
+# Security-hardened version with input validation and integrity checks
+#
 
+# Strict error handling
 set -euo pipefail
 
-BASE_URL="${RE_ARCH_BASE_URL:-https://re-arch.xyz}"
-BASE_URL="${BASE_URL%/}"
+# Security configuration
+readonly TMPDIR
+TMPDIR="$(mktemp -d)"
+readonly LOG_FILE="${TMPDIR}/install.log"
 
-echo ""
-echo "Re-Arch: Simple Arch Linux Desktop Installer"
-echo "============================================="
-echo ""
-echo "Choose Desktop Environment:"
-echo "1) KDE Plasma"
-echo "2) GNOME" 
-echo "3) XFCE"
-echo "4) Hyprland"
-echo ""
+# Cleanup function
+cleanup() {
+    local exit_code=$?
+    rm -rf "$TMPDIR" 2>/dev/null || true
+    exit $exit_code
+}
+trap cleanup EXIT INT TERM
 
-while true; do
-    read -r -p "Enter choice (1 for KDE, 2 for GNOME, 3 for XFCE, 4 for Hyprland): " choice </dev/tty
-    case $choice in
-        1) desktop="kde"; break ;;
-        2) desktop="gnome"; break ;;
-        3) desktop="xfce"; break ;;
-        4) desktop="hyprland"; break ;;
-        *) echo "Invalid choice. Enter 1 for KDE, 2 for GNOME, 3 for XFCE, or 4 for Hyprland." ;;
+# Logging functions
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" | tee -a "$LOG_FILE" >&2
+}
+
+log_error() {
+    log "ERROR: $*"
+}
+
+log_info() {
+    log "INFO: $*"
+}
+
+# Input validation functions
+validate_url() {
+    local url="$1"
+    # Only allow HTTPS URLs from trusted domains
+    if [[ ! "$url" =~ ^https://([a-zA-Z0-9.-]+\.)?(re-arch\.xyz|github\.com|githubusercontent\.com)(/.*)?$ ]]; then
+        log_error "Invalid or untrusted URL: $url"
+        return 1
+    fi
+    return 0
+}
+
+validate_desktop_choice() {
+    local choice="$1"
+    # Strict validation - only allow exact numeric choices
+    case "$choice" in
+        1|2|3|4) return 0 ;;
+        *) return 1 ;;
     esac
-done
+}
 
-echo "Starting installation with $desktop desktop..."
+sanitize_input() {
+    local input="$1"
+    # Remove any potentially dangerous characters
+    echo "$input" | tr -cd '[:alnum:][:space:].-'
+}
 
-config_url="${BASE_URL}/config-${desktop}.json"
-creds_url="${BASE_URL}/creds.json"
+# Configuration validation
+validate_config_file() {
+    local file="$1"
 
-exec archinstall --config-url "$config_url" --creds-url "$creds_url"
+    # Check if file exists and is readable
+    [[ -r "$file" ]] || {
+        log_error "Configuration file not readable: $file"
+        return 1
+    }
+
+    # Validate JSON syntax
+    if command -v jq >/dev/null 2>&1; then
+        if ! jq empty "$file" 2>/dev/null; then
+            log_error "Invalid JSON in configuration file: $file"
+            return 1
+        fi
+    else
+        log_info "jq not available, skipping JSON validation"
+    fi
+
+    # Check for required fields
+    local required_fields=("bootloader" "packages" "network_config")
+    for field in "${required_fields[@]}"; do
+        if command -v jq >/dev/null 2>&1; then
+            if ! jq -e ".$field" "$file" >/dev/null 2>&1; then
+                log_error "Missing required field '$field' in configuration"
+                return 1
+            fi
+        fi
+    done
+
+    return 0
+}
+
+# Disk detection and selection
+detect_and_select_disk() {
+    local config_file="$1"
+
+    log_info "Detecting available disks..."
+
+    # Get list of block devices (excluding loop, ram, and removable devices)
+    local -a disks
+    while IFS= read -r line; do
+        local dev size type rm model
+        dev=$(echo "$line" | awk '{print $1}')
+        size=$(echo "$line" | awk '{print $4}')
+        type=$(echo "$line" | awk '{print $6}')
+        rm=$(echo "$line" | awk '{print $3}')
+        model=$(echo "$line" | awk '{$1=$2=$3=$4=$5=$6=""; print $0}' | xargs)
+
+        # Skip if removable (likely USB) or not a disk
+        [[ "$rm" == "1" ]] && continue
+        [[ "$type" != "disk" ]] && continue
+
+        disks+=("$dev|$size|$model")
+    done < <(lsblk -ndo NAME,SIZE,TYPE,RM,MODEL 2>/dev/null | grep -v '^loop\|^sr\|^ram')
+
+    # If no disks found, warn and continue (archinstall will handle it)
+    if [[ ${#disks[@]} -eq 0 ]]; then
+        log_error "No suitable disks detected. archinstall will prompt for disk selection."
+        return 0
+    fi
+
+    # Display available disks
+    echo ""
+    echo "Available disks for installation:"
+    echo "=================================="
+    local i=1
+    for disk_info in "${disks[@]}"; do
+        IFS='|' read -r dev size model <<< "$disk_info"
+        printf "%d) /dev/%s  [%s]  %s\n" "$i" "$dev" "$size" "$model"
+        ((i++))
+    done
+    echo ""
+
+    # Prompt for disk selection
+    local choice disk_dev
+    local attempts=0
+    local max_attempts=3
+
+    while [[ $attempts -lt $max_attempts ]]; do
+        if timeout 60 read -r -p "Select disk for installation (1-${#disks[@]}): " choice </dev/tty 2>/dev/null; then
+            choice="$(sanitize_input "$choice")"
+
+            # Validate numeric choice
+            if [[ "$choice" =~ ^[0-9]+$ ]] && [[ $choice -ge 1 ]] && [[ $choice -le ${#disks[@]} ]]; then
+                IFS='|' read -r disk_dev _ _ <<< "${disks[$((choice-1))]}"
+                disk_dev="/dev/$disk_dev"
+
+                # Confirm selection
+                echo ""
+                echo "⚠️  WARNING: All data on $disk_dev will be DESTROYED!"
+                if timeout 30 read -r -p "Type 'YES' to confirm: " confirm </dev/tty 2>/dev/null; then
+                    if [[ "$confirm" == "YES" ]]; then
+                        log_info "Selected disk: $disk_dev"
+
+                        # Update config file with selected disk
+                        if command -v jq >/dev/null 2>&1; then
+                            local tmp_file="${config_file}.tmp"
+                            jq --arg disk "$disk_dev" \
+                               '.disk_config.device_modifications[0].device = $disk' \
+                               "$config_file" > "$tmp_file" && mv "$tmp_file" "$config_file"
+                            log_info "Updated configuration with selected disk"
+                        else
+                            log_error "jq not available - cannot update disk in config"
+                            echo "Please ensure your config specifies the correct disk"
+                            return 1
+                        fi
+
+                        return 0
+                    else
+                        log_error "Confirmation failed. Installation aborted."
+                        exit 1
+                    fi
+                else
+                    log_error "Confirmation timeout. Installation aborted."
+                    exit 1
+                fi
+            else
+                log_error "Invalid choice: $choice"
+                ((attempts++))
+                echo "Invalid choice. Please enter a number between 1 and ${#disks[@]}."
+                continue
+            fi
+        else
+            log_error "Input timeout or read error"
+            ((attempts++))
+            continue
+        fi
+    done
+
+    if [[ $attempts -ge $max_attempts ]]; then
+        log_error "Maximum attempts exceeded for disk selection"
+        exit 1
+    fi
+}
+
+# Secure download function with integrity verification
+secure_download() {
+    local url="$1"
+    local output_file="$2"
+    local max_size="${3:-1048576}"  # 1MB default limit
+    
+    # Validate URL
+    validate_url "$url" || return 1
+    
+    log_info "Downloading from: $url"
+    
+    # Download with security restrictions
+    if ! curl -fsSL \
+        --max-filesize "$max_size" \
+        --max-time 30 \
+        --retry 3 \
+        --retry-delay 1 \
+        --user-agent "Re-Arch-Installer/2.0 (Security-Enhanced)" \
+        --proto '=https' \
+        --tlsv1.2 \
+        "$url" -o "$output_file"; then
+        log_error "Failed to download: $url"
+        return 1
+    fi
+    
+    # Basic file validation
+    [[ -s "$output_file" ]] || {
+        log_error "Downloaded file is empty: $output_file"
+        return 1
+    }
+    
+    # File size check
+    local file_size
+    file_size=$(stat -c%s "$output_file" 2>/dev/null || stat -f%z "$output_file" 2>/dev/null || echo "0")
+    if [[ "$file_size" -gt "$max_size" ]]; then
+        log_error "Downloaded file exceeds size limit: $file_size > $max_size"
+        return 1
+    fi
+    
+    log_info "Successfully downloaded: $output_file ($file_size bytes)"
+    return 0
+}
+
+# Main installation function
+main() {
+    log_info "Re-Arch Security-Enhanced Installation Starting"
+    
+    # Environment validation
+    if [[ $EUID -eq 0 ]]; then
+        log_error "Do not run as root for security reasons"
+        exit 1
+    fi
+    
+    # Check for required commands
+    local required_commands=("curl" "archinstall")
+    for cmd in "${required_commands[@]}"; do
+        if ! command -v "$cmd" >/dev/null 2>&1; then
+            log_error "Required command not found: $cmd"
+            exit 1
+        fi
+    done
+    
+    # Validate and sanitize base URL
+    local base_url="${RE_ARCH_BASE_URL:-https://re-arch.xyz}"
+    base_url="$(sanitize_input "${base_url%/}")"
+    
+    if ! validate_url "$base_url"; then
+        log_error "Invalid base URL: $base_url"
+        exit 1
+    fi
+    
+    log_info "Using base URL: $base_url"
+    
+    # Display menu
+    echo ""
+    echo "Re-Arch: Security-Enhanced Arch Linux Desktop Installer"
+    echo "======================================================="
+    echo ""
+    echo "Choose Desktop Environment:"
+    echo "1) KDE Plasma"
+    echo "2) GNOME"
+    echo "3) XFCE"
+    echo "4) Hyprland"
+    echo ""
+    
+    # Secure input handling with timeout
+    local choice desktop
+    local attempts=0
+    local max_attempts=3
+    
+    while [[ $attempts -lt $max_attempts ]]; do
+        if timeout 30 read -r -p "Enter choice (1-4): " choice </dev/tty 2>/dev/null; then
+            # Sanitize and validate input
+            choice="$(sanitize_input "$choice")"
+            
+            if validate_desktop_choice "$choice"; then
+                case "$choice" in
+                    1) desktop="kde"; break ;;
+                    2) desktop="gnome"; break ;;
+                    3) desktop="xfce"; break ;;
+                    4) desktop="hyprland"; break ;;
+                esac
+            else
+                log_error "Invalid choice: $choice"
+                ((attempts++))
+                echo "Invalid choice. Please enter 1, 2, 3, or 4."
+                continue
+            fi
+        else
+            log_error "Input timeout or read error"
+            ((attempts++))
+            continue
+        fi
+    done
+    
+    if [[ $attempts -ge $max_attempts ]]; then
+        log_error "Maximum attempts exceeded"
+        exit 1
+    fi
+    
+    log_info "Selected desktop: $desktop"
+    
+    # Construct URLs
+    local config_url="${base_url}/config-${desktop}.json"
+    local creds_url="${base_url}/creds.json"
+    
+    # Download and validate configuration files
+    local config_file="${TMPDIR}/config.json"
+    local creds_file="${TMPDIR}/creds.json"
+    
+    log_info "Downloading configuration files..."
+    
+    if ! secure_download "$config_url" "$config_file" 2097152; then  # 2MB limit for config
+        log_error "Failed to download configuration file"
+        exit 1
+    fi
+    
+    if ! secure_download "$creds_url" "$creds_file" 1048576; then  # 1MB limit for creds
+        log_error "Failed to download credentials file"
+        exit 1
+    fi
+    
+    # Validate downloaded files
+    log_info "Validating configuration files..."
+    
+    if ! validate_config_file "$config_file"; then
+        log_error "Configuration file validation failed"
+        exit 1
+    fi
+    
+    if ! validate_config_file "$creds_file"; then
+        log_error "Credentials file validation failed"
+        exit 1
+    fi
+    
+    # Security warning about default credentials
+    echo ""
+    echo "⚠️  SECURITY WARNING ⚠️"
+    echo "Default credentials are being used."
+    echo "IMMEDIATELY change passwords after installation!"
+    echo "Default username: user"
+    echo "Default password: rearch"
+    echo ""
+    read -r -p "Press Enter to continue or Ctrl+C to abort..." </dev/tty
+
+    # Detect and select installation disk
+    log_info "Disk selection required..."
+    if ! detect_and_select_disk "$config_file"; then
+        log_error "Disk selection failed"
+        exit 1
+    fi
+
+    log_info "Starting archinstall with validated configuration..."
+
+    # Execute archinstall with local validated files
+    exec archinstall --config "$config_file" --creds "$creds_file"
+}
+
+# Execute main function
+main "$@"

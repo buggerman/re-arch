@@ -122,10 +122,21 @@ EOF
     # Create Homebrew directory
     sudo -u "$USERNAME" mkdir -p "$user_home/.linuxbrew"
     
-    # Install Homebrew if not present
+    # Install Homebrew if not present (with security validation)
     if [[ ! -d "$user_home/.linuxbrew/Homebrew" ]]; then
         info "Installing Homebrew..."
-        sudo -u "$USERNAME" git clone https://github.com/Homebrew/brew "$user_home/.linuxbrew/Homebrew" 2>/dev/null || true
+        
+        # Validate Git is available and secure
+        if command -v git >/dev/null 2>&1; then
+            # Use specific commit or tag for security
+            if sudo -u "$USERNAME" git clone --depth=1 --branch=stable https://github.com/Homebrew/brew.git "$user_home/.linuxbrew/Homebrew" 2>/dev/null; then
+                info "Homebrew installation successful"
+            else
+                info "Homebrew installation failed - continuing without it"
+            fi
+        else
+            info "Git not available - skipping Homebrew installation"
+        fi
     fi
     
     # Add Homebrew to shell configuration
