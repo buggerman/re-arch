@@ -163,7 +163,7 @@
         "multilib"
     ],
     "script": "guided",
-    "services": [],
+    "services": ["lightdm", "NetworkManager"],
     "silent": false,
     "swap": false,
     "timezone": "UTC",

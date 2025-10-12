@@ -156,7 +156,7 @@
         "multilib"
     ],
     "script": "guided",
-    "services": [],
+    "services": ["NetworkManager"],
     "silent": false,
     "swap": false,
     "timezone": "UTC",

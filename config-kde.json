@@ -170,7 +170,7 @@
         "multilib"
     ],
     "script": "guided",
-    "services": [],
+    "services": ["sddm", "NetworkManager"],
     "silent": false,
     "swap": false,
     "timezone": "UTC",
