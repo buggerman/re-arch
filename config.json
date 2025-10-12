@@ -134,6 +134,7 @@
         "flatpak",
         "ananicy-cpp",
         "zram-generator",
+        "networkmanager",
         "ttf-liberation",
         "ttf-dejavu",
         "man-db",
@@ -156,7 +157,7 @@
         "multilib"
     ],
     "script": "guided",
-    "services": ["NetworkManager"],
+    "services": ["NetworkManager", "firewalld", "bluetooth"],
     "silent": false,
     "swap": false,
     "timezone": "UTC",

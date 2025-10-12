@@ -155,13 +155,32 @@ detect_and_select_disk() {
                     if [[ "$confirm" == "YES" ]]; then
                         log_info "Selected disk: $disk_dev"
 
-                        # Update config file with selected disk
+                        # Get disk size in bytes
+                        local disk_size_bytes
+                        disk_size_bytes=$(lsblk -ndo SIZE -b "$disk_dev" 2>/dev/null)
+
+                        if [[ -z "$disk_size_bytes" ]]; then
+                            log_error "Failed to get disk size for $disk_dev"
+                            return 1
+                        fi
+
+                        # Calculate root partition size (total - boot partition - 100MB overhead)
+                        # Boot partition is 1GB (1073741824 bytes)
+                        local boot_size=1073741824
+                        local overhead=104857600  # 100MB
+                        local root_size=$((disk_size_bytes - boot_size - overhead))
+
+                        log_info "Disk size: $disk_size_bytes bytes, Root partition: $root_size bytes"
+
+                        # Update config file with selected disk and calculated partition size
                         if command -v jq >/dev/null 2>&1; then
                             local tmp_file="${config_file}.tmp"
                             jq --arg disk "$disk_dev" \
-                               '.disk_config.device_modifications[0].device = $disk' \
+                               --arg root_size "$root_size" \
+                               '.disk_config.device_modifications[0].device = $disk |
+                                .disk_config.device_modifications[0].partitions[1].size.value = ($root_size | tonumber)' \
                                "$config_file" > "$tmp_file" && mv "$tmp_file" "$config_file"
-                            log_info "Updated configuration with selected disk"
+                            log_info "Updated configuration with selected disk and partition size"
                         else
                             log_error "jq not available - cannot update disk in config"
                             echo "Please ensure your config specifies the correct disk"

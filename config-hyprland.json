@@ -134,6 +134,7 @@
         "flatpak",
         "ananicy-cpp",
         "zram-generator",
+        "networkmanager",
         "ttf-liberation",
         "ttf-dejavu",
         "man-db",
@@ -144,8 +145,9 @@
         "hyprland",
         "waybar",
         "wofi",
-        "lightdm",
-        "lightdm-gtk-greeter",
+        "xorg-xwayland",
+        "greetd",
+        "greetd-tuigreet",
         "xdg-desktop-portal-hyprland",
         "foot",
         "thunar"
@@ -164,7 +166,7 @@
         "multilib"
     ],
     "script": "guided",
-    "services": ["lightdm", "NetworkManager"],
+    "services": ["greetd", "NetworkManager", "firewalld", "bluetooth"],
     "silent": false,
     "swap": false,
     "timezone": "UTC",
