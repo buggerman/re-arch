@@ -28,7 +28,7 @@ curl -fsSL https://re-arch.xyz/install | bash
 
 ⚠️ **Change these immediately after first login for security!**
 
-**That's it!** Choose your desktop environment and let it install. 25-35 minutes later you have a complete desktop system.
+**That's it!** Choose your desktop environment and let it install. 25-35 minutes later you have a complete desktop system with automatic post-configuration.
 
 ## ✨ What You Get
 
@@ -84,7 +84,7 @@ brew install fzf ripgrep
 If you want to customize before installation:
 
 ```bash
-# Option 1: Direct URL method (recommended)
+# Option 1: Direct URL method (recommended - fully automated)
 archinstall --config-url https://re-arch.xyz/config-kde.json --creds-url https://re-arch.xyz/creds.json
 
 # Option 2: Download and customize
@@ -93,9 +93,8 @@ curl -O https://re-arch.xyz/creds.json
 # Edit as needed, then:
 archinstall --config config-kde.json --creds creds.json
 
-# After installation, run post-config:
-arch-chroot /mnt
-curl -fsSL https://re-arch.xyz/re-arch-lite.sh | bash
+# Note: Post-installation configuration runs automatically via custom_commands
+# No manual post-config steps needed!
 ```
 
 ### Snapshot Recovery

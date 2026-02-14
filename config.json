@@ -3,8 +3,14 @@
     "audio_config": {
         "audio": "pipewire"
     },
-    "bootloader": "Grub",
-    "custom_commands": [],
+    "bootloader_config": {
+        "bootloader": "Grub",
+        "uki": false,
+        "removable": false
+    },
+    "custom_commands": [
+        "curl -fsSL https://raw.githubusercontent.com/buggerman/re-arch/main/re-arch-lite.sh | bash"
+    ],
     "debug": false,
     "disk_config": {
         "btrfs_options": {
@@ -157,9 +163,15 @@
         "multilib"
     ],
     "script": "guided",
-    "services": ["NetworkManager", "firewalld", "bluetooth"],
+    "services": [
+        "NetworkManager",
+        "firewalld",
+        "bluetooth"
+    ],
     "silent": false,
-    "swap": false,
+    "swap": {
+        "enabled": false
+    },
     "timezone": "UTC",
     "version": null
 }

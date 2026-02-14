@@ -80,7 +80,7 @@ validate_config_file() {
     fi
 
     # Check for required fields
-    local required_fields=("bootloader" "packages" "network_config")
+    local required_fields=("bootloader_config" "packages" "network_config")
     for field in "${required_fields[@]}"; do
         if command -v jq >/dev/null 2>&1; then
             if ! jq -e ".$field" "$file" >/dev/null 2>&1; then
